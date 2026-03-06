@@ -1,0 +1,43 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd apps/backend && npm ci
+      - run: cd apps/backend && npm run test
+      - run: cd apps/backend && npm run test:e2e
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd apps/frontend && npm ci
+      - run: cd apps/frontend && npm run type-check
+      - run: cd apps/frontend && npm run lint
+
+  build-and-deploy:
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & push Docker images
+        run: docker compose -f docker-compose.prod.yml build
+      - name: Deploy to server
+        run: |
+          # TODO: SSH vào server và docker compose up -d
+          echo "Deploy step placeholder"
