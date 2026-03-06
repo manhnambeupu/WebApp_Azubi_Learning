@@ -19,6 +19,7 @@ out/
 # Docker volumes
 postgres_data/
 minio_data/
+docker/nginx/ssl/*.pem
 
 # IDE
 .vscode/

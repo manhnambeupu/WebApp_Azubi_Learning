@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  email          String          @unique
+  password       String
+  fullName       String          @map("full_name")
+  role           Role
+  createdAt      DateTime        @default(now()) @map("created_at")
+  lessonAttempts LessonAttempt[]
+
+  @@map("users")
+}
+
+model Category {
+  id      String   @id @default(uuid()) @db.Uuid
+  name    String   @unique
+  lessons Lesson[]
+
+  @@map("categories")
+}
+
+model Lesson {
+  id             String          @id @default(uuid()) @db.Uuid
+  title          String
+  summary        String
+  contentMd      String          @map("content_md")
+  imageUrl       String?         @map("image_url")
+  categoryId     String          @map("category_id") @db.Uuid
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  category       Category        @relation(fields: [categoryId], references: [id])
+  files          LessonFile[]
+  questions      Question[]
+  lessonAttempts LessonAttempt[]
+
+  @@map("lessons")
+}
+
+model LessonFile {
+  id         String   @id @default(uuid()) @db.Uuid
+  lessonId   String   @map("lesson_id") @db.Uuid
+  fileName   String   @map("file_name")
+  fileUrl    String   @map("file_url")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("lesson_files")
+}
+
+model Question {
+  id          String       @id @default(uuid()) @db.Uuid
+  lessonId    String       @map("lesson_id") @db.Uuid
+  text        String
+  explanation String?
+  orderIndex  Int          @map("order_index")
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+  submissions Submission[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id          String       @id @default(uuid()) @db.Uuid
+  questionId  String       @map("question_id") @db.Uuid
+  text        String
+  isCorrect   Boolean      @map("is_correct")
+  explanation String?
+  question    Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@map("answers")
+}
+
+model LessonAttempt {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @map("user_id") @db.Uuid
+  lessonId      String       @map("lesson_id") @db.Uuid
+  attemptNumber Int          @map("attempt_number")
+  score         Float?
+  correctCount  Int?         @map("correct_count")
+  submittedAt   DateTime     @default(now()) @map("submitted_at")
+  user          User         @relation(fields: [userId], references: [id])
+  lesson        Lesson       @relation(fields: [lessonId], references: [id])
+  submissions   Submission[]
+
+  @@index([userId, lessonId, attemptNumber])
+  @@unique([userId, lessonId, attemptNumber])
+  @@map("lesson_attempts")
+}
+
+model Submission {
+  id         String        @id @default(uuid()) @db.Uuid
+  attemptId  String        @map("attempt_id") @db.Uuid
+  questionId String        @map("question_id") @db.Uuid
+  answerId   String        @map("answer_id") @db.Uuid
+  isCorrect  Boolean       @map("is_correct")
+  attempt    LessonAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   Question      @relation(fields: [questionId], references: [id])
+  answer     Answer        @relation(fields: [answerId], references: [id])
+
+  @@map("submissions")
+}

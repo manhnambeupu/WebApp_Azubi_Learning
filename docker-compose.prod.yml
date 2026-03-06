@@ -8,6 +8,11 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     # Không expose port ra ngoài trong production
 
   minio:
@@ -27,6 +32,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      BACKEND_PORT: ${BACKEND_PORT:-3001}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://yourdomain.com}
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
@@ -36,9 +43,17 @@ services:
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: ${MINIO_USER}
       MINIO_SECRET_KEY: ${MINIO_PASSWORD}
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', r => r.statusCode === 200 ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     depends_on:
-      - postgres
-      - minio
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
 
   frontend:
     build:
@@ -48,7 +63,8 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: /api   # Qua Nginx proxy
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine

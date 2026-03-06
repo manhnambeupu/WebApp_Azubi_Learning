@@ -1,0 +1,233 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { MinioService } from '../files/minio.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { StudentLessonsService } from './student-lessons.service';
+
+describe('StudentLessonsService', () => {
+  let service: StudentLessonsService;
+  let prisma: {
+    lesson: {
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+    };
+    lessonAttempt: {
+      findFirst: jest.Mock;
+    };
+    lessonFile: {
+      findFirst: jest.Mock;
+    };
+  };
+  let minioService: {
+    getPresignedUrl: jest.Mock;
+  };
+
+  beforeEach(async () => {
+    prisma = {
+      lesson: {
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+      },
+      lessonAttempt: {
+        findFirst: jest.fn(),
+      },
+      lessonFile: {
+        findFirst: jest.fn(),
+      },
+    };
+
+    minioService = {
+      getPresignedUrl: jest.fn(),
+    };
+
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        StudentLessonsService,
+        {
+          provide: PrismaService,
+          useValue: prisma,
+        },
+        {
+          provide: MinioService,
+          useValue: minioService,
+        },
+      ],
+    }).compile();
+
+    service = moduleRef.get(StudentLessonsService);
+  });
+
+  it('Lesson chưa có attempt -> isCompleted = false', async () => {
+    prisma.lesson.findMany.mockResolvedValue([
+      {
+        id: 'lesson-1',
+        title: 'Buồng phòng cơ bản',
+        summary: 'Tổng quan quy trình dọn phòng',
+        imageUrl: null,
+        category: { id: 'cat-1', name: 'Buồng phòng' },
+        _count: { questions: 5 },
+        lessonAttempts: [],
+      },
+    ]);
+
+    const result = await service.findAllForStudent('student-1');
+
+    expect(result).toEqual([
+      {
+        id: 'lesson-1',
+        title: 'Buồng phòng cơ bản',
+        summary: 'Tổng quan quy trình dọn phòng',
+        imageUrl: null,
+        category: { id: 'cat-1', name: 'Buồng phòng' },
+        _count: { questions: 5 },
+        isCompleted: false,
+      },
+    ]);
+  });
+
+  it('Lesson có attempt_number = 1 -> isCompleted = true', async () => {
+    prisma.lesson.findMany.mockResolvedValue([
+      {
+        id: 'lesson-2',
+        title: 'Lễ tân nâng cao',
+        summary: 'Tình huống thực tế tại quầy',
+        imageUrl: 'https://example.com/img.png',
+        category: { id: 'cat-2', name: 'Lễ tân' },
+        _count: { questions: 3 },
+        lessonAttempts: [{ id: 'attempt-1' }],
+      },
+    ]);
+
+    const result = await service.findAllForStudent('student-1');
+
+    expect(result[0].isCompleted).toBe(true);
+  });
+
+  it('Lesson có attempt_number = 2 nhưng không có attempt_number = 1 -> isCompleted = false', async () => {
+    prisma.lesson.findMany.mockResolvedValue([
+      {
+        id: 'lesson-3',
+        title: 'Ẩm thực dịch vụ',
+        summary: 'Tiêu chuẩn phục vụ bàn',
+        imageUrl: null,
+        category: { id: 'cat-3', name: 'Ẩm thực' },
+        _count: { questions: 4 },
+        lessonAttempts: [],
+      },
+    ]);
+
+    const result = await service.findAllForStudent('student-1');
+
+    expect(prisma.lesson.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          lessonAttempts: expect.objectContaining({
+            where: {
+              userId: 'student-1',
+              attemptNumber: 1,
+            },
+          }),
+        }),
+      }),
+    );
+    expect(result[0].isCompleted).toBe(false);
+  });
+
+  it('findDetail KHÔNG trả explanation, isCorrect trong answers', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: 'lesson-1',
+      title: 'Buồng phòng cơ bản',
+      summary: 'Tổng quan quy trình dọn phòng',
+      contentMd: '# Nội dung',
+      imageUrl: null,
+      category: { id: 'cat-1', name: 'Buồng phòng' },
+      files: [
+        {
+          fileName: 'lesson.docx',
+          fileUrl: 'https://example.com/lesson.docx',
+          uploadedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
+      ],
+      questions: [
+        {
+          id: 'question-1',
+          text: 'Bước đầu tiên khi vào phòng là gì?',
+          orderIndex: 1,
+          explanation: 'Không nên lộ cho student trước khi nộp bài',
+          answers: [
+            {
+              id: 'answer-1',
+              text: 'Chào khách và xác nhận yêu cầu',
+              isCorrect: true,
+              explanation: 'Không nên lộ cho student trước khi nộp bài',
+            },
+          ],
+        },
+      ],
+    } as unknown);
+    prisma.lessonAttempt.findFirst.mockResolvedValue({ id: 'attempt-1' });
+
+    const result = await service.findDetailForStudent('lesson-1', 'student-1');
+
+    expect(result.isCompleted).toBe(true);
+    expect(result.questions).toEqual([
+      {
+        id: 'question-1',
+        text: 'Bước đầu tiên khi vào phòng là gì?',
+        orderIndex: 1,
+        answers: [
+          {
+            id: 'answer-1',
+            text: 'Chào khách và xác nhận yêu cầu',
+          },
+        ],
+      },
+    ]);
+    expect('explanation' in result.questions[0]).toBe(false);
+    expect('isCorrect' in result.questions[0].answers[0]).toBe(false);
+  });
+
+  it('getFileDownloadUrl trả signed url khi lesson và file tồn tại', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.lessonFile.findFirst.mockResolvedValue({
+      fileUrl: 'http://localhost:9000/lesson-files/folder%20name/lesson.docx',
+    });
+    minioService.getPresignedUrl.mockResolvedValue('https://signed-url');
+
+    const result = await service.getFileDownloadUrl('lesson-1', 'file-1');
+
+    expect(minioService.getPresignedUrl).toHaveBeenCalledWith(
+      'lesson-files',
+      'folder name/lesson.docx',
+    );
+    expect(result).toEqual({ downloadUrl: 'https://signed-url' });
+  });
+
+  it('getFileDownloadUrl lesson không tồn tại -> NotFoundException', async () => {
+    prisma.lesson.findUnique.mockResolvedValue(null);
+
+    await expect(service.getFileDownloadUrl('lesson-1', 'file-1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('getFileDownloadUrl file không tồn tại -> NotFoundException', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.lessonFile.findFirst.mockResolvedValue(null);
+
+    await expect(service.getFileDownloadUrl('lesson-1', 'file-1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('getFileDownloadUrl stored file URL invalid -> BadRequestException', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.lessonFile.findFirst.mockResolvedValue({
+      fileUrl: 'http://localhost:9000/invalid-bucket/lesson.docx',
+    });
+
+    await expect(service.getFileDownloadUrl('lesson-1', 'file-1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+});
