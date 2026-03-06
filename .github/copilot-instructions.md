@@ -7,9 +7,27 @@
 
 If a user request conflicts with BRD or project plan decisions, surface the conflict before implementation.
 
-## Current repository state
-- The repository currently contains planning documents; implementation folders in the project plan (`apps/frontend`, `apps/backend`) may not be scaffolded yet.
-- When adding code, align with the planned modular monolith boundaries: `auth`, `users`, `categories`, `lessons`, `questions`, `submissions`, `files`, and shared `common`.
+## Current repository state (updated after Task 1.1)
+
+### ✅ Already created — DO NOT recreate
+- **Folder structure:** `apps/frontend/`, `apps/backend/src/`, `apps/backend/prisma/`, `docker/nginx/`, `docker/postgres/`
+- **Docker Compose:** `docker-compose.yml` (dev) and `docker-compose.prod.yml` (prod) — validated and tested
+  - Services defined: `postgres` (16-alpine, port 5432), `minio` (ports 9000/9001), `backend` (port 3001), `frontend` (port 3000), `nginx` (prod only, ports 80/443)
+- **Nginx:** `docker/nginx/nginx.conf` — reverse proxy `/api/` → backend, `/` → frontend, 20MB upload limit
+- **PostgreSQL init:** `docker/postgres/init.sql` — enables `uuid-ossp` extension
+- **CI/CD:** `.github/workflows/ci.yml` — test-backend, test-frontend, build-and-deploy jobs
+- **Environment:** `.env.example` (committed, keys only) + `.env` (gitignored, dev values)
+  - Keys: `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACCESS_EXPIRATION`, `JWT_REFRESH_EXPIRATION`, `MINIO_USER`, `MINIO_PASSWORD`, `MINIO_ENDPOINT`, `MINIO_PORT`, `BACKEND_PORT`, `NEXT_PUBLIC_API_URL`
+- **Git:** initialized, `.gitignore` configured (node_modules, .env, .next, dist, docker volumes)
+
+### ❌ Not yet created — needs implementation
+- **NestJS project** in `apps/backend/` (no package.json, no src code yet — only empty folders exist)
+- **Next.js project** in `apps/frontend/` (empty folder)
+- **Prisma schema** in `apps/backend/prisma/` (empty folder)
+- **No application code** — no modules, controllers, services, or tests exist yet
+
+### Module boundaries to follow
+When adding code, align with the planned modular monolith boundaries: `auth`, `users`, `categories`, `lessons`, `questions`, `submissions`, `files`, and shared `common`.
 
 ## Build, test, and lint commands (documented in `azubi-project-plan.md`)
 Commands below are defined in CI and Docker plan sections and assume planned app folders exist.
