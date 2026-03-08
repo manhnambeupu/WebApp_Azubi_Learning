@@ -47,6 +47,7 @@ services:
       MINIO_SECRET_KEY: ${MINIO_PASSWORD}
     ports:
       - "3001:3001"
+      - "5555:5555"   # Prisma Studio
     volumes:
       - ./apps/backend:/app
       - /app/node_modules       # Avoid overwriting node_modules
