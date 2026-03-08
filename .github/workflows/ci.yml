@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: cd apps/backend && npm ci
+      - run: cd apps/backend && npm ci --legacy-peer-deps
       - run: cd apps/backend && npm run test
       - run: cd apps/backend && npx prisma db push
       - run: cd apps/backend && npm run test:e2e
