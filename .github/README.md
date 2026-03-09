@@ -16,8 +16,6 @@
 ![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)
 ![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
 
-🇻🇳 **Tiếng Việt** · 🇩🇪 [Deutsch](README.de.md)
-
 ---
 
 ## 📖 Mục lục
