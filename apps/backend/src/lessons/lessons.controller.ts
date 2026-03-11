@@ -34,7 +34,7 @@ import { LessonsService } from './lessons.service';
 
 const IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const LESSON_FILE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
-const IMAGE_MIME_TYPE = /image\/(jpeg|png)/;
+const IMAGE_MIME_TYPE = /image\/(jpeg|png|webp|avif|gif)/;
 const DOCX_MIME_TYPE =
   /^application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document$/;
 

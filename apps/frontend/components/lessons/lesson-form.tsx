@@ -39,7 +39,15 @@ const MarkdownEditor = dynamic(
 
 const MAX_SUMMARY_LENGTH = 200;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/gif",
+] as const;
+const ACCEPTED_IMAGE_TYPE_SET: ReadonlySet<string> = new Set(ACCEPTED_IMAGE_TYPES);
+const IMAGE_INPUT_ACCEPT = ACCEPTED_IMAGE_TYPES.join(",");
 
 type LessonFormProps = {
   mode: "create" | "edit";
@@ -102,10 +110,10 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   }, [lesson?.imageUrl, localImagePreview]);
 
   const validateImageFile = (file: File): boolean => {
-    if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
+    if (!ACCEPTED_IMAGE_TYPE_SET.has(file.type)) {
       toast({
         title: "Ảnh không hợp lệ",
-        description: "Chỉ chấp nhận file .jpg hoặc .png.",
+        description: "Chỉ chấp nhận file JPEG, PNG, WEBP, AVIF hoặc GIF.",
         variant: "destructive",
       });
       return false;
@@ -289,9 +297,9 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
         </div>
 
         <div className="space-y-3">
-          <Label>Ảnh bài học (.jpg, .png, tối đa 5MB)</Label>
+          <Label>Ảnh bài học (JPEG, PNG, WEBP, AVIF, GIF; tối đa 5MB)</Label>
           <input
-            accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+            accept={IMAGE_INPUT_ACCEPT}
             className="hidden"
             onChange={onImageInputChange}
             ref={imageInputRef}

@@ -33,7 +33,12 @@
     │  JWT    → Auth      │  │  Zustand (auth)   │
     └─────────────────────┘  └───────────────────┘
 ```
-
+Frontend	localhost:3000	Giao diện web chính
+Backend API	localhost:3001	REST API
+Swagger Docs	localhost:3001/api/docs	Tài liệu API
+Prisma Studio	localhost:5555	🆕 Duyệt database (bảng, dữ liệu)
+MinIO Console	localhost:9001	Quản lý file đính kèm (PDF, ảnh)
+PostgreSQL	localhost:5432	Database (dùng qua tool hoặc Prisma Studio)
 ### Tech Stack
 
 | Layer | Technology |
@@ -474,5 +479,7 @@ NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
 
 ## 16. Hạn chế hiện tại 14:30,11/03/2026
 
-- ❌ trên một browser khi http://localhost:3000 admin đăng nhập vào trước mà sau đó, chạy thêm tab http://localhost:3000 sinh viên đăng nhập vào thì bên admin bị nhận diện là sai role không thể thực hiện các chức năng của admin nữa(lúc này browser ở trang admin vẫn giữ nguyên không bị đăng xuất ra hay gì cả). Vấn đề này nên giải quyết như nào ?
-- ❌ lỗi khi tải ảnh "ZeroTrust_Goal.jpg" Validation failed (current file type is image/jpeg, expected type is /^image\/(jpg|jpeg|png)$/) , bạn có thể kiểm tra ảnh ở đây trong file ZeroTrust_Goal.jpg trong Project tôi thấy nó vẫn đúng kiểu jpg mà. và trong terminal thì tôi vẫn thấy hiện " azubi_backend   | PATCH /api/admin/lessons/db40ee40-6f1a-43ee-913d-1f440f9b3817 200 2ms" 
+- ❌ trên một browser khi http://localhost:3000 admin đăng nhập vào trước mà sau đó, chạy thêm tab http://localhost:3000 sinh viên đăng nhập vào thì bên admin bị nhận diện là sai role không thể thực hiện các chức năng của admin nữa(lúc này browser ở trang admin vẫn giữ nguyên không bị đăng xuất ra hay gì cả). Vấn đề này nên giải quyết như nào ? (đã sửa)
+- ❌ lỗi khi tải ảnh "ZeroTrust_Goal.jpg" Validation failed (current file type is image/jpeg, expected type is /^image\/(jpg|jpeg|png)$/) , bạn có thể kiểm tra ảnh ở đây trong file ZeroTrust_Goal.jpg trong Project tôi thấy nó vẫn đúng kiểu jpg mà. và trong terminal thì tôi vẫn thấy hiện " azubi_backend   | PATCH /api/admin/lessons/db40ee40-6f1a-43ee-913d-1f440f9b3817 200 2ms"  (đã sửa)
+
+- ❌ lỗi ở đây khi update ảnh Bài học rồi mà ảnh vẫn không hiện ra bên trang của student <div class="h-64 w-full rounded-lg border bg-cover bg-center bg-no-repeat" style="background-image: url(&quot;http://minio:9000/lesson-images/643eba8c-3452-45cd-8f80-540e4ffe85b2-What-is-Zero-Trust-Architecture-_1.jpg&quot;);"></div> (đã sửa)
