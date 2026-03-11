@@ -8,3 +8,8 @@ Quy tắc bắt buộc:
 - Trước khi thực hiện bất kỳ thay đổi nào, hãy đối chiếu với 'Business Requirements' trong BRD.
 - Mọi cấu trúc file và tech stack phải khớp với 'Technical Design' trong Project Plan.
 - Nếu có sự mâu thuẫn giữa yêu cầu của người dùng và hai tài liệu này, hãy cảnh báo tôi trước khi làm.
+
+Vai trò:
+Dựa vào kế hoạch phân vai:
+Bạn là (Team Lead): Lên kế hoạch, review code
+Copilot CLI (Developer): Viết code, config

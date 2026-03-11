@@ -2,6 +2,12 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import {
+  createSessionRoleConflictError,
+  decodeJwtPayload,
+  handleSessionRoleConflict,
+  hasSessionRoleConflict,
+} from "@/lib/auth-session";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { User, UserRole } from "@/types";
@@ -49,13 +55,30 @@ export function useAuth() {
 
   const refreshToken = useCallback(async () => {
     const response = await api.post<RefreshResponse>("/auth/refresh");
-    setAccessToken(response.data.accessToken);
-    return response.data.accessToken;
+    const nextToken = response.data.accessToken;
+    const payload = decodeJwtPayload(nextToken);
+
+    if (!payload) {
+      throw new Error("Invalid access token returned from refresh endpoint");
+    }
+
+    if (hasSessionRoleConflict(payload.role)) {
+      handleSessionRoleConflict();
+      throw createSessionRoleConflictError();
+    }
+
+    setAccessToken(nextToken);
+    return nextToken;
   }, [setAccessToken]);
 
   const getMe = useCallback(async () => {
     const response = await api.get<User>("/auth/me");
-    const currentToken = useAuthStore.getState().accessToken;
+    const { accessToken: currentToken, user: currentUser } = useAuthStore.getState();
+
+    if (currentUser && currentUser.role !== response.data.role) {
+      handleSessionRoleConflict();
+      throw createSessionRoleConflictError();
+    }
 
     if (currentToken) {
       setAuth(response.data, currentToken);

@@ -3,6 +3,13 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import {
+  createSessionRoleConflictError,
+  decodeJwtPayload,
+  handleSessionRoleConflict,
+  hasSessionRoleConflict,
+  isSessionRoleConflictError,
+} from "@/lib/auth-session";
 import { useAuthStore } from "@/stores/auth-store";
 
 const baseURL =
@@ -78,6 +85,16 @@ api.interceptors.response.use(
               throw new Error("No access token returned from refresh endpoint");
             }
 
+            const payload = decodeJwtPayload(newToken);
+            if (!payload) {
+              throw new Error("Invalid access token returned from refresh endpoint");
+            }
+
+            if (hasSessionRoleConflict(payload.role)) {
+              handleSessionRoleConflict();
+              throw createSessionRoleConflictError();
+            }
+
             useAuthStore.getState().setAccessToken(newToken);
             return newToken;
           })
@@ -91,15 +108,17 @@ api.interceptors.response.use(
       (originalRequest.headers as Record<string, string>).Authorization =
         `Bearer ${newToken}`;
 
-      return api(originalRequest);
-    } catch (refreshError) {
-      useAuthStore.getState().clearAuth();
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
-      return Promise.reject(refreshError);
-    }
-  },
+       return api(originalRequest);
+     } catch (refreshError) {
+       if (!isSessionRoleConflictError(refreshError)) {
+         useAuthStore.getState().clearAuth();
+         if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+           window.location.href = "/login";
+         }
+       }
+       return Promise.reject(refreshError);
+     }
+   },
 );
 
 export { api };

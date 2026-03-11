@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { consumeSessionConflictToast } from "@/lib/auth-session";
 import { useAuth } from "@/lib/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import type { UserRole } from "@/types";
@@ -36,6 +37,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const sessionConflictMessage = consumeSessionConflictToast();
+    if (!sessionConflictMessage) {
+      return;
+    }
+
+    toast({
+      title: sessionConflictMessage,
+      variant: "destructive",
+    });
+  }, [toast]);
 
   useEffect(() => {
     if (user) {

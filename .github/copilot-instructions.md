@@ -469,3 +469,10 @@ NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
 - ❌ Don't enable Swagger in production (`NODE_ENV=production`)
 - ❌ Don't skip validation on DTO fields — always use `class-validator` decorators
 - ❌ Don't create module files without importing into `app.module.ts`
+
+
+
+## 16. Hạn chế hiện tại 14:30,11/03/2026
+
+- ❌ trên một browser khi http://localhost:3000 admin đăng nhập vào trước mà sau đó, chạy thêm tab http://localhost:3000 sinh viên đăng nhập vào thì bên admin bị nhận diện là sai role không thể thực hiện các chức năng của admin nữa(lúc này browser ở trang admin vẫn giữ nguyên không bị đăng xuất ra hay gì cả). Vấn đề này nên giải quyết như nào ?
+- ❌ lỗi khi tải ảnh "ZeroTrust_Goal.jpg" Validation failed (current file type is image/jpeg, expected type is /^image\/(jpg|jpeg|png)$/) , bạn có thể kiểm tra ảnh ở đây trong file ZeroTrust_Goal.jpg trong Project tôi thấy nó vẫn đúng kiểu jpg mà. và trong terminal thì tôi vẫn thấy hiện " azubi_backend   | PATCH /api/admin/lessons/db40ee40-6f1a-43ee-913d-1f440f9b3817 200 2ms" 

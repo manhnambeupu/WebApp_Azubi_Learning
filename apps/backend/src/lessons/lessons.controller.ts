@@ -34,6 +34,7 @@ import { LessonsService } from './lessons.service';
 
 const IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const LESSON_FILE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
+const IMAGE_MIME_TYPE = /image\/(jpeg|png)/;
 const DOCX_MIME_TYPE =
   /^application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document$/;
 
@@ -94,7 +95,7 @@ export class LessonsController {
         validators: [
           new MaxFileSizeValidator({ maxSize: IMAGE_MAX_SIZE_BYTES }),
           new FileTypeValidator({
-            fileType: /^image\/(jpg|jpeg|png)$/,
+            fileType: IMAGE_MIME_TYPE,
           }),
         ],
       }),
@@ -133,7 +134,7 @@ export class LessonsController {
         validators: [
           new MaxFileSizeValidator({ maxSize: IMAGE_MAX_SIZE_BYTES }),
           new FileTypeValidator({
-            fileType: /^image\/(jpg|jpeg|png)$/,
+            fileType: IMAGE_MIME_TYPE,
           }),
         ],
       }),
