@@ -23,7 +23,7 @@ describe('SubmissionsController', () => {
   it('submitQuiz delegates to service', async () => {
     submissionsService.submitQuiz.mockResolvedValue({ attemptId: 'attempt-1' });
     const dto = {
-      answers: [{ questionId: 'q-1', answerId: 'a-1' }],
+      answers: [{ questionId: 'q-1', answerIds: ['a-1'] }],
     };
 
     const result = await controller.submitQuiz('lesson-1', { userId: 'student-1' }, dto);

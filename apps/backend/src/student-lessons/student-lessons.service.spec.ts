@@ -1,3 +1,4 @@
+import { QuestionType } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MinioService } from '../files/minio.service';
@@ -133,7 +134,7 @@ describe('StudentLessonsService', () => {
     expect(result[0].isCompleted).toBe(false);
   });
 
-  it('findDetail KHÔNG trả explanation, isCorrect trong answers', async () => {
+  it('findDetail trả question type nhưng vẫn ẩn đáp án essay và metadata chấm điểm', async () => {
     prisma.lesson.findUnique.mockResolvedValue({
       id: 'lesson-1',
       title: 'Buồng phòng cơ bản',
@@ -151,6 +152,7 @@ describe('StudentLessonsService', () => {
       questions: [
         {
           id: 'question-1',
+          type: QuestionType.SINGLE_CHOICE,
           text: 'Bước đầu tiên khi vào phòng là gì?',
           orderIndex: 1,
           explanation: 'Không nên lộ cho student trước khi nộp bài',
@@ -158,6 +160,20 @@ describe('StudentLessonsService', () => {
             {
               id: 'answer-1',
               text: 'Chào khách và xác nhận yêu cầu',
+              isCorrect: true,
+              explanation: 'Không nên lộ cho student trước khi nộp bài',
+            },
+          ],
+        },
+        {
+          id: 'question-2',
+          type: QuestionType.ESSAY,
+          text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
+          orderIndex: 2,
+          answers: [
+            {
+              id: 'answer-2',
+              text: 'Bình tĩnh xin lỗi khách, xác nhận nhu cầu và phối hợp bổ sung khăn ngay.',
               isCorrect: true,
               explanation: 'Không nên lộ cho student trước khi nộp bài',
             },
@@ -173,6 +189,7 @@ describe('StudentLessonsService', () => {
     expect(result.questions).toEqual([
       {
         id: 'question-1',
+        type: QuestionType.SINGLE_CHOICE,
         text: 'Bước đầu tiên khi vào phòng là gì?',
         orderIndex: 1,
         answers: [
@@ -181,6 +198,13 @@ describe('StudentLessonsService', () => {
             text: 'Chào khách và xác nhận yêu cầu',
           },
         ],
+      },
+      {
+        id: 'question-2',
+        type: QuestionType.ESSAY,
+        text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
+        orderIndex: 2,
+        answers: [],
       },
     ]);
     expect('explanation' in result.questions[0]).toBe(false);

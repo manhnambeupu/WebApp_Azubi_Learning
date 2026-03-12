@@ -37,6 +37,9 @@ const formatSubmittedAt = (value: string): string =>
 const formatScore = (score: number): string =>
   Number.isInteger(score) ? `${score}` : score.toFixed(2);
 
+const formatCorrectCount = (correctCount: number): string =>
+  Number.isInteger(correctCount) ? `${correctCount}` : correctCount.toFixed(2);
+
 export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
   const historyQuery = useGetAttemptHistory(lessonId);
   const latestAttemptQuery = useGetLatestAttempt(lessonId);
@@ -105,7 +108,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
                     >
                       <TableCell>#{attempt.attemptNumber}</TableCell>
                       <TableCell>{formatScore(attempt.score)}/100</TableCell>
-                      <TableCell>{attempt.correctCount}</TableCell>
+                      <TableCell>{formatCorrectCount(attempt.correctCount)}</TableCell>
                       <TableCell>{formatSubmittedAt(attempt.submittedAt)}</TableCell>
                       <TableCell className="text-right">
                         <Button

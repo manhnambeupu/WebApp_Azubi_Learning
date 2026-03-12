@@ -1,3 +1,4 @@
+import { QuestionType } from '@prisma/client';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -30,6 +31,7 @@ describe('QuestionsService', () => {
   const createDto: CreateQuestionDto = {
     text: 'Quy trình setup phòng gồm bước nào đầu tiên?',
     explanation: 'Đọc kỹ SOP trước khi thao tác.',
+    type: QuestionType.SINGLE_CHOICE,
     answers: [
       { text: 'Kiểm tra danh sách phòng', isCorrect: true },
       { text: 'Đóng cửa phòng ngay', isCorrect: false },
@@ -76,13 +78,14 @@ describe('QuestionsService', () => {
     prisma.question.findFirst.mockResolvedValue({ orderIndex: 2 });
     prisma.question.create.mockResolvedValue({
       id: 'question-1',
-      lessonId: 'lesson-1',
-      text: createDto.text,
-      explanation: createDto.explanation,
-      orderIndex: 3,
-      answers: [
-        { id: 'answer-1', questionId: 'question-1', ...createDto.answers[0] },
-        { id: 'answer-2', questionId: 'question-1', ...createDto.answers[1] },
+        lessonId: 'lesson-1',
+        text: createDto.text,
+        explanation: createDto.explanation,
+        type: QuestionType.SINGLE_CHOICE,
+        orderIndex: 3,
+        answers: [
+          { id: 'answer-1', questionId: 'question-1', ...createDto.answers[0] },
+          { id: 'answer-2', questionId: 'question-1', ...createDto.answers[1] },
       ],
     });
 
@@ -93,6 +96,7 @@ describe('QuestionsService', () => {
         lessonId: 'lesson-1',
         text: createDto.text,
         explanation: createDto.explanation,
+        type: QuestionType.SINGLE_CHOICE,
         orderIndex: 3,
         answers: {
           create: [
@@ -118,6 +122,7 @@ describe('QuestionsService', () => {
     await expect(
       service.create('lesson-1', {
         text: 'Câu hỏi sai',
+        type: QuestionType.SINGLE_CHOICE,
         answers: [{ text: 'Chỉ 1 đáp án', isCorrect: true }],
       }),
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
@@ -125,6 +130,7 @@ describe('QuestionsService', () => {
     await expect(
       service.create('lesson-1', {
         text: 'Câu hỏi sai',
+        type: QuestionType.SINGLE_CHOICE,
         answers: [{ text: 'Chỉ 1 đáp án', isCorrect: true }],
       }),
     ).rejects.toThrow('Mỗi câu hỏi phải có ít nhất 2 đáp án.');
@@ -136,6 +142,7 @@ describe('QuestionsService', () => {
     await expect(
       service.create('lesson-1', {
         text: 'Câu hỏi sai',
+        type: QuestionType.MULTIPLE_CHOICE,
         answers: [
           { text: 'Đáp án 1', isCorrect: false },
           { text: 'Đáp án 2', isCorrect: false },
@@ -146,6 +153,7 @@ describe('QuestionsService', () => {
     await expect(
       service.create('lesson-1', {
         text: 'Câu hỏi sai',
+        type: QuestionType.MULTIPLE_CHOICE,
         answers: [
           { text: 'Đáp án 1', isCorrect: false },
           { text: 'Đáp án 2', isCorrect: false },
@@ -160,6 +168,7 @@ describe('QuestionsService', () => {
       lessonId: 'lesson-1',
       text: 'Old text',
       explanation: null,
+      type: QuestionType.SINGLE_CHOICE,
       orderIndex: 1,
       answers: [{ id: 'old-answer', text: 'Old', isCorrect: true }],
     });
@@ -169,12 +178,13 @@ describe('QuestionsService', () => {
       question: {
         update: jest.fn().mockResolvedValue({
           id: 'question-1',
-          lessonId: 'lesson-1',
-          text: 'New text',
-          explanation: 'Giải thích mới',
-          orderIndex: 1,
-          answers: [
-            { id: 'answer-1', questionId: 'question-1', text: 'A', isCorrect: true },
+            lessonId: 'lesson-1',
+            text: 'New text',
+            explanation: 'Giải thích mới',
+            type: QuestionType.SINGLE_CHOICE,
+            orderIndex: 1,
+            answers: [
+              { id: 'answer-1', questionId: 'question-1', text: 'A', isCorrect: true },
             {
               id: 'answer-2',
               questionId: 'question-1',
@@ -232,6 +242,7 @@ describe('QuestionsService', () => {
       lessonId: 'lesson-1',
       text: 'Delete me',
       explanation: null,
+      type: QuestionType.SINGLE_CHOICE,
       orderIndex: 1,
       answers: [],
     });
@@ -271,6 +282,7 @@ describe('QuestionsService', () => {
           lessonId: 'lesson-1',
           text: 'Q3',
           explanation: null,
+          type: QuestionType.SINGLE_CHOICE,
           orderIndex: 1,
           answers: [],
         },
@@ -279,6 +291,7 @@ describe('QuestionsService', () => {
           lessonId: 'lesson-1',
           text: 'Q1',
           explanation: null,
+          type: QuestionType.SINGLE_CHOICE,
           orderIndex: 2,
           answers: [],
         },
@@ -287,6 +300,7 @@ describe('QuestionsService', () => {
           lessonId: 'lesson-1',
           text: 'Q2',
           explanation: null,
+          type: QuestionType.SINGLE_CHOICE,
           orderIndex: 3,
           answers: [],
         },
@@ -310,5 +324,44 @@ describe('QuestionsService', () => {
     });
     expect(result).toHaveLength(3);
     expect(result[0].id).toBe('question-3');
+  });
+
+  it('Tạo question ESSAY cho phép không có đáp án mẫu', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.question.findFirst.mockResolvedValue(null);
+    prisma.question.create.mockResolvedValue({
+      id: 'question-essay-1',
+      lessonId: 'lesson-1',
+      text: 'Mô tả cách bạn xử lý tình huống này.',
+      explanation: null,
+      type: QuestionType.ESSAY,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    await service.create('lesson-1', {
+      text: 'Mô tả cách bạn xử lý tình huống này.',
+      type: QuestionType.ESSAY,
+      answers: [],
+    });
+
+    expect(prisma.question.create).toHaveBeenCalledWith({
+      data: {
+        lessonId: 'lesson-1',
+        text: 'Mô tả cách bạn xử lý tình huống này.',
+        type: QuestionType.ESSAY,
+        orderIndex: 1,
+        answers: {
+          create: [],
+        },
+      },
+      include: {
+        answers: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
+      },
+    });
   });
 });

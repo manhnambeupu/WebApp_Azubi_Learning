@@ -16,15 +16,50 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateQuestion, useUpdateQuestion } from "@/hooks/use-questions";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { CreateQuestionPayload, QuestionDetail, UpdateQuestionPayload } from "@/types";
+import type {
+  CreateQuestionPayload,
+  QuestionDetail,
+  QuestionType,
+  UpdateQuestionPayload,
+} from "@/types";
 
 const BR03_MIN_ANSWERS_MESSAGE = "Mỗi câu hỏi phải có ít nhất 2 đáp án.";
 const BR03_MIN_CORRECT_MESSAGE = "Phải có ít nhất 1 đáp án đúng.";
+const ESSAY_SAMPLE_ANSWER_REQUIRED_MESSAGE = "Đáp án tự luận mẫu không được để trống.";
+const DEFAULT_QUESTION_TYPE: QuestionType = "SINGLE_CHOICE";
+const QUESTION_TYPE_OPTIONS: Array<{
+  value: QuestionType;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: "SINGLE_CHOICE",
+    label: "Chọn 1 đáp án",
+    description: "Mỗi câu chỉ có một đáp án đúng.",
+  },
+  {
+    value: "MULTIPLE_CHOICE",
+    label: "Chọn nhiều đáp án",
+    description: "Một câu có thể có nhiều đáp án đúng.",
+  },
+  {
+    value: "ESSAY",
+    label: "Tự luận",
+    description: "Nhập một đáp án mẫu duy nhất cho câu hỏi tự luận.",
+  },
+];
 
 let answerKeySeed = 0;
 
@@ -50,6 +85,10 @@ const createEmptyAnswer = (): AnswerFormItem => ({
 });
 
 const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
+  if (question?.type === "ESSAY") {
+    return [createEmptyAnswer(), createEmptyAnswer()];
+  }
+
   if (question?.answers.length) {
     return question.answers.map((answer) => ({
       key: `answer-${answerKeySeed++}`,
@@ -60,6 +99,47 @@ const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
   }
 
   return [createEmptyAnswer(), createEmptyAnswer()];
+};
+
+const buildInitialEssaySampleAnswer = (question?: QuestionDetail): string => {
+  if (question?.type !== "ESSAY") {
+    return "";
+  }
+
+  return question.answers[0]?.text ?? "";
+};
+
+const ensureMinimumAnswers = (answerItems: AnswerFormItem[]): AnswerFormItem[] => {
+  if (answerItems.length >= 2) {
+    return answerItems;
+  }
+
+  return [
+    ...answerItems,
+    ...Array.from({ length: 2 - answerItems.length }, () => createEmptyAnswer()),
+  ];
+};
+
+const normalizeSingleChoiceAnswers = (
+  answerItems: AnswerFormItem[],
+): AnswerFormItem[] => {
+  let hasCorrectAnswer = false;
+
+  return answerItems.map((answer) => {
+    if (!answer.isCorrect) {
+      return answer;
+    }
+
+    if (!hasCorrectAnswer) {
+      hasCorrectAnswer = true;
+      return answer;
+    }
+
+    return {
+      ...answer,
+      isCorrect: false,
+    };
+  });
 };
 
 export function QuestionFormDialog({
@@ -74,17 +154,24 @@ export function QuestionFormDialog({
 
   const [open, setOpen] = useState(false);
   const [questionText, setQuestionText] = useState(initialData?.text ?? "");
+  const [questionType, setQuestionType] = useState<QuestionType>(
+    initialData?.type ?? DEFAULT_QUESTION_TYPE,
+  );
   const [questionExplanation, setQuestionExplanation] = useState(
     initialData?.explanation ?? "",
   );
   const [answers, setAnswers] = useState<AnswerFormItem[]>(() =>
     buildInitialAnswers(initialData),
   );
+  const [essaySampleAnswer, setEssaySampleAnswer] = useState(
+    buildInitialEssaySampleAnswer(initialData),
+  );
   const [formError, setFormError] = useState<string | null>(null);
 
   const isEditMode = Boolean(initialData);
   const isSubmitting =
     createQuestionMutation.isPending || updateQuestionMutation.isPending;
+  const isEssayQuestion = questionType === "ESSAY";
 
   useEffect(() => {
     if (!open) {
@@ -92,12 +179,18 @@ export function QuestionFormDialog({
     }
 
     setQuestionText(initialData?.text ?? "");
+    setQuestionType(initialData?.type ?? DEFAULT_QUESTION_TYPE);
     setQuestionExplanation(initialData?.explanation ?? "");
     setAnswers(buildInitialAnswers(initialData));
+    setEssaySampleAnswer(buildInitialEssaySampleAnswer(initialData));
     setFormError(null);
   }, [initialData, open]);
 
   const br03Warning = useMemo(() => {
+    if (isEssayQuestion) {
+      return null;
+    }
+
     if (answers.length < 2) {
       return BR03_MIN_ANSWERS_MESSAGE;
     }
@@ -107,7 +200,7 @@ export function QuestionFormDialog({
     }
 
     return null;
-  }, [answers]);
+  }, [answers, isEssayQuestion]);
 
   const addAnswer = () => {
     setAnswers((prev) => [...prev, createEmptyAnswer()]);
@@ -117,11 +210,19 @@ export function QuestionFormDialog({
     answerKey: string,
     patch: Partial<Pick<AnswerFormItem, "text" | "isCorrect" | "explanation">>,
   ) => {
-    setAnswers((prev) =>
-      prev.map((answer) =>
+    setAnswers((prev) => {
+      if (questionType === "SINGLE_CHOICE" && patch.isCorrect === true) {
+        return prev.map((answer) =>
+          answer.key === answerKey
+            ? { ...answer, ...patch, isCorrect: true }
+            : { ...answer, isCorrect: false },
+        );
+      }
+
+      return prev.map((answer) =>
         answer.key === answerKey ? { ...answer, ...patch } : answer,
-      ),
-    );
+      );
+    });
   };
 
   const removeAnswer = (answerKey: string) => {
@@ -130,6 +231,23 @@ export function QuestionFormDialog({
     }
 
     setAnswers((prev) => prev.filter((answer) => answer.key !== answerKey));
+  };
+
+  const handleQuestionTypeChange = (nextType: QuestionType) => {
+    setQuestionType(nextType);
+    setFormError(null);
+
+    if (nextType === "ESSAY") {
+      return;
+    }
+
+    setAnswers((prev) => {
+      const nextAnswers = ensureMinimumAnswers(prev);
+
+      return nextType === "SINGLE_CHOICE"
+        ? normalizeSingleChoiceAnswers(nextAnswers)
+        : nextAnswers;
+    });
   };
 
   const normalizePayload = (): {
@@ -142,28 +260,57 @@ export function QuestionFormDialog({
       return null;
     }
 
-    if (answers.length < 2) {
+    if (isEssayQuestion) {
+      const normalizedEssaySampleAnswer = essaySampleAnswer.trim();
+      if (!normalizedEssaySampleAnswer) {
+        setFormError(ESSAY_SAMPLE_ANSWER_REQUIRED_MESSAGE);
+        return null;
+      }
+
+      const basePayload = {
+        text: normalizedQuestionText,
+        type: questionType,
+        ...(questionExplanation.trim()
+          ? { explanation: questionExplanation.trim() }
+          : {}),
+        answers: [
+          {
+            text: normalizedEssaySampleAnswer,
+            isCorrect: true,
+          },
+        ],
+      };
+
+      return {
+        createPayload: basePayload,
+        updatePayload: basePayload,
+      };
+    }
+
+    const normalizedObjectiveAnswers = ensureMinimumAnswers(answers);
+
+    if (normalizedObjectiveAnswers.length < 2) {
       setFormError(BR03_MIN_ANSWERS_MESSAGE);
       return null;
     }
 
-    if (!answers.some((answer) => answer.isCorrect)) {
+    if (!normalizedObjectiveAnswers.some((answer) => answer.isCorrect)) {
       setFormError(BR03_MIN_CORRECT_MESSAGE);
       return null;
     }
 
-    const normalizedAnswers = answers.map((answer) => ({
+    const answerPayload = normalizedObjectiveAnswers.map((answer) => ({
       text: answer.text.trim(),
       isCorrect: answer.isCorrect,
       explanation: answer.explanation.trim(),
     }));
 
-    if (normalizedAnswers.some((answer) => !answer.text)) {
+    if (answerPayload.some((answer) => !answer.text)) {
       setFormError("Nội dung đáp án không được để trống.");
       return null;
     }
 
-    const answerPayload = normalizedAnswers.map((answer) => ({
+    const normalizedAnswerPayload = answerPayload.map((answer) => ({
       text: answer.text,
       isCorrect: answer.isCorrect,
       ...(answer.explanation ? { explanation: answer.explanation } : {}),
@@ -171,10 +318,11 @@ export function QuestionFormDialog({
 
     const basePayload = {
       text: normalizedQuestionText,
+      type: questionType,
       ...(questionExplanation.trim()
         ? { explanation: questionExplanation.trim() }
         : {}),
-      answers: answerPayload,
+      answers: normalizedAnswerPayload,
     };
 
     return {
@@ -252,6 +400,31 @@ export function QuestionFormDialog({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="question-type">Loại câu hỏi</Label>
+            <Select
+              onValueChange={(value) => handleQuestionTypeChange(value as QuestionType)}
+              value={questionType}
+            >
+              <SelectTrigger id="question-type">
+                <SelectValue placeholder="Chọn loại câu hỏi" />
+              </SelectTrigger>
+              <SelectContent>
+                {QUESTION_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {
+                QUESTION_TYPE_OPTIONS.find((option) => option.value === questionType)
+                  ?.description
+              }
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="question-explanation">Giải thích câu hỏi (tuỳ chọn)</Label>
             <Textarea
               id="question-explanation"
@@ -264,93 +437,119 @@ export function QuestionFormDialog({
 
           <Separator />
 
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold">Danh sách đáp án</h3>
-              <Button onClick={addAnswer} size="sm" type="button" variant="outline">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Thêm đáp án
-              </Button>
-            </div>
-
-            {br03Warning ? (
-              <p className="rounded-md border border-amber-300/50 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                {br03Warning}
-              </p>
-            ) : null}
-
+          {isEssayQuestion ? (
             <div className="space-y-3">
-              {answers.map((answer, index) => {
-                const answerLabel = String.fromCharCode(65 + index);
-                return (
-                  <div className="space-y-3 rounded-md border p-4" key={answer.key}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{answerLabel}</Badge>
-                        {answer.isCorrect ? (
-                          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
-                            Đúng
-                          </Badge>
-                        ) : null}
-                      </div>
-                      <Button
-                        disabled={answers.length <= 2}
-                        onClick={() => removeAnswer(answer.key)}
-                        size="icon"
-                        type="button"
-                        variant="ghost"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Xóa đáp án</span>
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`answer-text-${answer.key}`}>Nội dung đáp án</Label>
-                      <Input
-                        id={`answer-text-${answer.key}`}
-                        onChange={(event) =>
-                          updateAnswer(answer.key, { text: event.target.value })
-                        }
-                        placeholder={`Nhập đáp án ${answerLabel}`}
-                        value={answer.text}
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={answer.isCorrect}
-                        id={`answer-correct-${answer.key}`}
-                        onCheckedChange={(checked) =>
-                          updateAnswer(answer.key, { isCorrect: checked === true })
-                        }
-                      />
-                      <Label
-                        className="cursor-pointer"
-                        htmlFor={`answer-correct-${answer.key}`}
-                      >
-                        Đây là đáp án đúng
-                      </Label>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`answer-explanation-${answer.key}`}>
-                        Giải thích đáp án (tuỳ chọn)
-                      </Label>
-                      <Input
-                        id={`answer-explanation-${answer.key}`}
-                        onChange={(event) =>
-                          updateAnswer(answer.key, { explanation: event.target.value })
-                        }
-                        placeholder="Giải thích thêm cho đáp án"
-                        value={answer.explanation}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="space-y-2">
+                <Label htmlFor="essay-sample-answer">Đáp án tự luận mẫu</Label>
+                <Textarea
+                  id="essay-sample-answer"
+                  onChange={(event) => setEssaySampleAnswer(event.target.value)}
+                  placeholder="Nhập đoạn văn mẫu để admin tham chiếu khi chấm bài..."
+                  rows={8}
+                  value={essaySampleAnswer}
+                />
+              </div>
+              <p className="rounded-md border border-muted bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                Khi lưu câu hỏi tự luận, hệ thống sẽ gửi một đáp án mẫu duy nhất với
+                trạng thái đúng.
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold">Danh sách đáp án</h3>
+                  {questionType === "SINGLE_CHOICE" ? (
+                    <p className="text-xs text-muted-foreground">
+                      Khi chọn đáp án đúng mới, đáp án đúng cũ sẽ tự động bỏ chọn.
+                    </p>
+                  ) : null}
+                </div>
+                <Button onClick={addAnswer} size="sm" type="button" variant="outline">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Thêm đáp án
+                </Button>
+              </div>
+
+              {br03Warning ? (
+                <p className="rounded-md border border-amber-300/50 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                  {br03Warning}
+                </p>
+              ) : null}
+
+              <div className="space-y-3">
+                {answers.map((answer, index) => {
+                  const answerLabel = String.fromCharCode(65 + index);
+                  return (
+                    <div className="space-y-3 rounded-md border p-4" key={answer.key}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">{answerLabel}</Badge>
+                          {answer.isCorrect ? (
+                            <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
+                              Đúng
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <Button
+                          disabled={answers.length <= 2}
+                          onClick={() => removeAnswer(answer.key)}
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Xóa đáp án</span>
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`answer-text-${answer.key}`}>Nội dung đáp án</Label>
+                        <Input
+                          id={`answer-text-${answer.key}`}
+                          onChange={(event) =>
+                            updateAnswer(answer.key, { text: event.target.value })
+                          }
+                          placeholder={`Nhập đáp án ${answerLabel}`}
+                          value={answer.text}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={answer.isCorrect}
+                          id={`answer-correct-${answer.key}`}
+                          onCheckedChange={(checked) =>
+                            updateAnswer(answer.key, { isCorrect: checked === true })
+                          }
+                        />
+                        <Label
+                          className="cursor-pointer"
+                          htmlFor={`answer-correct-${answer.key}`}
+                        >
+                          Đây là đáp án đúng
+                        </Label>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`answer-explanation-${answer.key}`}>
+                          Giải thích đáp án (tuỳ chọn)
+                        </Label>
+                        <Input
+                          id={`answer-explanation-${answer.key}`}
+                          onChange={(event) =>
+                            updateAnswer(answer.key, { explanation: event.target.value })
+                          }
+                          placeholder="Giải thích thêm cho đáp án"
+                          value={answer.explanation}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {formError ? (
             <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

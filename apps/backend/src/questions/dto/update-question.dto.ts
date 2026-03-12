@@ -1,7 +1,9 @@
+import { QuestionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -19,6 +21,11 @@ export class UpdateQuestionDto {
   @IsOptional()
   @IsString()
   explanation?: string;
+
+  @ApiPropertyOptional({ enum: QuestionType, enumName: 'QuestionType' })
+  @IsOptional()
+  @IsEnum(QuestionType)
+  type?: QuestionType;
 
   @ApiPropertyOptional({ example: 2 })
   @IsOptional()

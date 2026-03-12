@@ -1,4 +1,5 @@
 export type UserRole = "ADMIN" | "STUDENT";
+export type QuestionType = "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "ESSAY";
 
 export type User = {
   id: string;
@@ -42,6 +43,7 @@ export type AnswerDetail = {
 export type QuestionDetail = {
   id: string;
   lessonId: string;
+  type: QuestionType;
   text: string;
   explanation: string | null;
   orderIndex: number;
@@ -56,12 +58,14 @@ export type QuestionAnswerPayload = {
 
 export type CreateQuestionPayload = {
   text: string;
+  type: QuestionType;
   explanation?: string;
   answers: QuestionAnswerPayload[];
 };
 
 export type UpdateQuestionPayload = {
   text?: string;
+  type?: QuestionType;
   explanation?: string;
   orderIndex?: number;
   answers?: QuestionAnswerPayload[];
@@ -118,6 +122,7 @@ export type StudentAnswer = {
 
 export type StudentQuestion = {
   id: string;
+  type: QuestionType;
   text: string;
   orderIndex: number;
   answers: StudentAnswer[];
@@ -138,7 +143,7 @@ export type StudentLessonDetail = {
 export type SubmitQuizPayload = {
   answers: {
     questionId: string;
-    answerId: string;
+    answerIds: string[];
   }[];
 };
 
@@ -151,10 +156,12 @@ export type QuizResultAnswer = {
 
 export type QuizResultQuestion = {
   id: string;
+  type: QuestionType;
   text: string;
   explanation: string | null;
   answers: QuizResultAnswer[];
-  selectedAnswerId: string;
+  selectedAnswerIds: string[];
+  selectedAnswerId: string | null;
   isCorrect: boolean;
 };
 

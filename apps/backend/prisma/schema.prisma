@@ -12,6 +12,12 @@ enum Role {
   STUDENT
 }
 
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  ESSAY
+}
+
 model User {
   id             String          @id @default(uuid()) @db.Uuid
   email          String          @unique
@@ -65,6 +71,7 @@ model Question {
   lessonId    String       @map("lesson_id") @db.Uuid
   text        String
   explanation String?
+  type        QuestionType @default(SINGLE_CHOICE)
   orderIndex  Int          @map("order_index")
   lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   answers     Answer[]
@@ -91,7 +98,7 @@ model LessonAttempt {
   lessonId      String       @map("lesson_id") @db.Uuid
   attemptNumber Int          @map("attempt_number")
   score         Float?
-  correctCount  Int?         @map("correct_count")
+  correctCount  Float?       @map("correct_count")
   submittedAt   DateTime     @default(now()) @map("submitted_at")
   user          User         @relation(fields: [userId], references: [id])
   lesson        Lesson       @relation(fields: [lessonId], references: [id])

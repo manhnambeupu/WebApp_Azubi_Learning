@@ -1,3 +1,4 @@
+import { QuestionType } from '@prisma/client';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { MinioService } from '../files/minio.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -79,17 +80,18 @@ export class StudentLessonsService {
               uploadedAt: 'desc',
             },
           },
-          questions: {
-            orderBy: {
-              orderIndex: 'asc',
-            },
-            select: {
-              id: true,
-              text: true,
-              orderIndex: true,
-              answers: {
-                select: {
-                  id: true,
+           questions: {
+             orderBy: {
+               orderIndex: 'asc',
+             },
+             select: {
+               id: true,
+               type: true,
+                text: true,
+                orderIndex: true,
+                answers: {
+                  select: {
+                    id: true,
                   text: true,
                 },
               },
@@ -117,12 +119,16 @@ export class StudentLessonsService {
       ...lesson,
       questions: lesson.questions.map((question) => ({
         id: question.id,
+        type: question.type,
         text: question.text,
         orderIndex: question.orderIndex,
-        answers: question.answers.map((answer) => ({
-          id: answer.id,
-          text: answer.text,
-        })),
+        answers:
+          question.type === QuestionType.ESSAY
+            ? []
+            : question.answers.map((answer) => ({
+                id: answer.id,
+                text: answer.text,
+              })),
       })),
       isCompleted: Boolean(firstAttempt),
     };

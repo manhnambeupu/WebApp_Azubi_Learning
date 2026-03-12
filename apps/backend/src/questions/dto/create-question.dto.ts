@@ -1,5 +1,12 @@
+import { QuestionType } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateAnswerDto } from './create-answer.dto';
 
@@ -13,7 +20,19 @@ export class CreateQuestionDto {
   @IsString()
   explanation?: string;
 
-  @ApiProperty({ type: [CreateAnswerDto] })
+  @ApiProperty({
+    enum: QuestionType,
+    enumName: 'QuestionType',
+    default: QuestionType.SINGLE_CHOICE,
+  })
+  @IsEnum(QuestionType)
+  type!: QuestionType;
+
+  @ApiProperty({
+    type: [CreateAnswerDto],
+    description:
+      'ESSAY questions may use [] or a single sample answer; choice questions still require answer validation in the service.',
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateAnswerDto)

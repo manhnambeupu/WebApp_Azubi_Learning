@@ -30,7 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
-import type { QuestionDetail } from "@/types";
+import type { QuestionDetail, QuestionType } from "@/types";
 import { QuestionFormDialog } from "./question-form-dialog";
 
 type QuestionListProps = {
@@ -107,7 +107,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
         <div>
           <h2 className="text-lg font-semibold">Câu hỏi & Đáp án</h2>
           <p className="text-sm text-muted-foreground">
-            Quản lý câu hỏi trắc nghiệm cho bài học hiện tại.
+            Quản lý câu hỏi trắc nghiệm và tự luận cho bài học hiện tại.
           </p>
         </div>
 
@@ -151,6 +151,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline">#{question.orderIndex}</Badge>
+                        <Badge>{QUESTION_TYPE_LABELS[question.type]}</Badge>
                         <Badge variant="secondary">{question.answers.length} đáp án</Badge>
                       </div>
                       <p className="line-clamp-2 text-left text-sm font-medium">
@@ -238,7 +239,12 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
                   <div className="space-y-2">
                     {question.answers.map((answer, answerIndex) => (
-                      <AnswerCard answer={answer} answerIndex={answerIndex} key={answer.id} />
+                      <AnswerCard
+                        answer={answer}
+                        answerIndex={answerIndex}
+                        key={answer.id}
+                        questionType={question.type}
+                      />
                     ))}
                   </div>
                 </AccordionContent>
@@ -251,12 +257,20 @@ export function QuestionList({ lessonId }: QuestionListProps) {
   );
 }
 
+const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+  SINGLE_CHOICE: "Chọn 1 đáp án",
+  MULTIPLE_CHOICE: "Chọn nhiều đáp án",
+  ESSAY: "Tự luận",
+};
+
 function AnswerCard({
   answer,
   answerIndex,
+  questionType,
 }: {
   answer: QuestionDetail["answers"][number];
   answerIndex: number;
+  questionType: QuestionType;
 }) {
   const answerLabel = String.fromCharCode(65 + answerIndex);
 
@@ -269,7 +283,9 @@ function AnswerCard({
     >
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary">{answerLabel}</Badge>
-        {answer.isCorrect ? (
+        {questionType === "ESSAY" ? (
+          <Badge className="bg-sky-600 text-white hover:bg-sky-600">Mẫu</Badge>
+        ) : answer.isCorrect ? (
           <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">Đúng</Badge>
         ) : (
           <Badge variant="outline">Sai</Badge>

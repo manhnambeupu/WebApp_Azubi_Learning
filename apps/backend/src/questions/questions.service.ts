@@ -1,3 +1,4 @@
+import { QuestionType } from '@prisma/client';
 import {
   Injectable,
   NotFoundException,
@@ -57,7 +58,8 @@ export class QuestionsService {
       throw new NotFoundException('Lesson not found');
     }
 
-    this.validateAnswers(dto.answers);
+    const questionType = dto.type ?? QuestionType.SINGLE_CHOICE;
+    this.validateAnswers(questionType, dto.answers);
 
     const latestQuestion = await this.prisma.question.findFirst({
       where: { lessonId },
@@ -76,6 +78,7 @@ export class QuestionsService {
         lessonId,
         text: dto.text,
         ...(dto.explanation !== undefined ? { explanation: dto.explanation } : {}),
+        type: questionType,
         orderIndex: nextOrderIndex,
         answers: {
           create: this.mapAnswersForCreate(dto.answers),
@@ -92,10 +95,13 @@ export class QuestionsService {
   }
 
   async update(id: string, dto: UpdateQuestionDto) {
-    await this.findById(id);
+    const existingQuestion = await this.findById(id);
 
-    if (dto.answers !== undefined) {
-      this.validateAnswers(dto.answers);
+    if (dto.answers !== undefined || dto.type !== undefined) {
+      this.validateAnswers(
+        dto.type ?? existingQuestion.type,
+        dto.answers ?? existingQuestion.answers,
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -110,6 +116,7 @@ export class QuestionsService {
         data: {
           ...(dto.text !== undefined ? { text: dto.text } : {}),
           ...(dto.explanation !== undefined ? { explanation: dto.explanation } : {}),
+          ...(dto.type !== undefined ? { type: dto.type } : {}),
           ...(dto.orderIndex !== undefined ? { orderIndex: dto.orderIndex } : {}),
           ...(dto.answers !== undefined
             ? {
@@ -184,8 +191,27 @@ export class QuestionsService {
     return this.findAllByLesson(lessonId);
   }
 
-  private validateAnswers(answers: CreateAnswerDto[]): void {
-    if (!Array.isArray(answers) || answers.length < 2) {
+  private validateAnswers(
+    type: QuestionType,
+    answers: Array<{ isCorrect: boolean }>,
+  ): void {
+    if (!Array.isArray(answers)) {
+      throw new UnprocessableEntityException(
+        'Danh sách đáp án không hợp lệ.',
+      );
+    }
+
+    if (type === QuestionType.ESSAY) {
+      if (answers.length > 1) {
+        throw new UnprocessableEntityException(
+          'Câu hỏi tự luận chỉ được có tối đa 1 đáp án mẫu.',
+        );
+      }
+
+      return;
+    }
+
+    if (answers.length < 2) {
       throw new UnprocessableEntityException(
         'Mỗi câu hỏi phải có ít nhất 2 đáp án.',
       );
