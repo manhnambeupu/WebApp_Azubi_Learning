@@ -3,7 +3,7 @@
 
 | | |
 |---|---|
-| **Dự án** | Azubi Hospitality Learning Platform |
+| **Dự án** | Hogaprüefung |
 | **Phiên bản** | 1.1 — Cập nhật sau review Product Owner |
 | **Ngày tạo** | Tháng 3, 2026 |
 | **Trạng thái** | ✅ Confirmed — Đã xác nhận các quyết định nghiệp vụ cốt lõi |

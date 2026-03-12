@@ -7,7 +7,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Azubi Hospitality Learning Platform",
+  title: "Hogaprüefung",
   description: "Azubi web application frontend",
 };
 
