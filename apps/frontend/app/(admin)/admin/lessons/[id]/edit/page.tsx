@@ -26,7 +26,7 @@ export default function AdminEditLessonPage() {
 
   if (!lessonId) {
     return (
-      <section className="rounded-lg border bg-background p-6">
+      <section className="rounded-xl border border-border/80 bg-card p-6 shadow-sm">
         <p className="text-sm text-destructive">Không tìm thấy mã bài học hợp lệ.</p>
       </section>
     );
@@ -34,7 +34,7 @@ export default function AdminEditLessonPage() {
 
   if (lessonQuery.isLoading) {
     return (
-      <section className="flex min-h-[320px] items-center justify-center rounded-lg border bg-background p-6">
+      <section className="flex min-h-[320px] items-center justify-center rounded-xl border border-border/80 bg-card p-6 shadow-sm">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải thông tin bài học...
@@ -45,7 +45,7 @@ export default function AdminEditLessonPage() {
 
   if (lessonQuery.isError) {
     return (
-      <section className="space-y-3 rounded-lg border bg-background p-6">
+      <section className="space-y-3 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
         <p className="text-sm text-destructive">{getApiErrorMessage(lessonQuery.error)}</p>
         <Button asChild size="sm" variant="outline">
           <Link href="/admin/dashboard">
@@ -62,8 +62,8 @@ export default function AdminEditLessonPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Button asChild size="sm" variant="ghost">
+    <div className="space-y-6">
+      <Button asChild size="sm" variant="outline">
         <Link href="/admin/dashboard">
           <ChevronLeft className="mr-2 h-4 w-4" />
           Quay lại danh sách bài học

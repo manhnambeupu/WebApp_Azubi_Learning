@@ -100,61 +100,74 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="border-border/70 shadow-lg">
-      <CardHeader className="space-y-2">
-        <CardTitle className="text-2xl font-semibold tracking-tight">
-          Sign in
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Access your Azubi learning dashboard.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
-
-          {errorMessage ? (
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {errorMessage}
+    <div
+      className="min-h-screen flex items-center justify-center relative"
+      style={{
+        backgroundImage: "url('/Nha-hang-khach-san.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40" aria-hidden />
+      <div className="max-w-md w-full px-6">
+        <Card className="border-border/70 shadow-lg">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
+              Sign in
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Access your Azubi learning dashboard.
             </p>
-          ) : null}
+          </CardHeader>
+          <CardContent>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
 
-          <Button className="w-full" disabled={isSubmitting} type="submit">
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              "Sign in"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+
+              {errorMessage ? (
+                <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {errorMessage}
+                </p>
+              ) : null}
+
+              <Button className="w-full" disabled={isSubmitting} type="submit">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

@@ -4,57 +4,57 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 210 40% 98%;
+    --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214.3 31.8% 91.4%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 230 100% 97%;
+    --accent-foreground: 243 75% 35%;
+    --destructive: 346 87% 43%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 243 75% 59%;
+    --chart-1: 243 75% 59%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 346 87% 43%;
+    --chart-5: 215.4 16.3% 46.9%;
+    --radius: 0.5rem;
   }
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 222.2 84% 4.9%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 222.2 47.4% 11.2%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary: 244 96% 77%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 215.4 27.9% 16.9%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 346 77% 49%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 244 96% 77%;
+    --chart-1: 244 96% 77%;
+    --chart-2: 160 84% 45%;
+    --chart-3: 43 96% 62%;
+    --chart-4: 346 77% 55%;
+    --chart-5: 215 20.2% 65.1%;
   }
 }
 
@@ -81,15 +81,15 @@
   }
 
   .student-markdown p {
-    @apply mt-3 text-sm leading-7 text-foreground/95;
+    @apply mt-4 text-base leading-8 text-foreground/90;
   }
 
   .student-markdown ul {
-    @apply mt-3 list-disc space-y-1 pl-5;
+    @apply mt-4 list-disc space-y-2 pl-5 text-base leading-8;
   }
 
   .student-markdown ol {
-    @apply mt-3 list-decimal space-y-1 pl-5;
+    @apply mt-4 list-decimal space-y-2 pl-5 text-base leading-8;
   }
 
   .student-markdown a {
@@ -97,19 +97,29 @@
   }
 
   .student-markdown blockquote {
-    @apply mt-4 border-l-4 border-muted-foreground/30 pl-4 italic text-muted-foreground;
+    @apply relative mt-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-slate-700 shadow-sm;
+  }
+
+  .student-markdown blockquote::before {
+    content: "Note";
+    @apply mb-2 block text-[10px] font-semibold uppercase tracking-[0.24em] text-primary/80;
   }
 
   .student-markdown pre {
-    @apply mt-4 overflow-x-auto rounded-lg border bg-slate-950 p-4 text-slate-100;
+    @apply relative mt-6 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 px-4 pb-4 pt-10 text-slate-100 shadow-sm;
+  }
+
+  .student-markdown pre::before {
+    content: "Code";
+    @apply absolute left-4 top-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400;
   }
 
   .student-markdown pre code {
-    @apply bg-transparent p-0 text-xs leading-6;
+    @apply bg-transparent p-0 text-sm leading-7;
   }
 
   .student-markdown code {
-    @apply rounded bg-muted px-1 py-0.5 text-xs;
+    @apply rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700;
   }
 
   .student-markdown table {
@@ -121,6 +131,6 @@
   }
 
   .student-markdown td {
-    @apply border px-3 py-2 align-top;
+    @apply border px-3 py-3 align-top leading-7;
   }
 }

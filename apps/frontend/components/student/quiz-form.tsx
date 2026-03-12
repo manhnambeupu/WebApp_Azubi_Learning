@@ -132,8 +132,8 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   };
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-6 shadow-sm transition-all">
-      <div className="space-y-2">
+    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all">
+      <div className="space-y-3">
         <h2 className="text-lg font-semibold">Phần làm bài</h2>
         <p className="text-sm text-muted-foreground">
           Tùy loại câu hỏi, bạn có thể chọn một đáp án, nhiều đáp án hoặc tự suy nghĩ
@@ -146,7 +146,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
             </span>
             <span>{Math.round((answeredCount / Math.max(totalQuestions, 1)) * 100)}%</span>
           </div>
-          <Progress value={(answeredCount / Math.max(totalQuestions, 1)) * 100} />
+          <Progress className="h-2.5" value={(answeredCount / Math.max(totalQuestions, 1)) * 100} />
         </div>
       </div>
 
@@ -155,7 +155,10 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           const selectedAnswerIds = selectedAnswers[question.id] ?? [];
 
           return (
-            <div className="space-y-3 rounded-lg border p-4" key={question.id}>
+            <div
+              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm"
+              key={question.id}
+            >
               <div className="space-y-1">
                 <p className="font-medium">
                   Câu {questionIndex + 1}: {question.text}
@@ -166,9 +169,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               </div>
 
               {question.type === "ESSAY" ? (
-                <div className="rounded-md border border-dashed bg-muted/20 p-3">
+                <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50/70 p-3">
                   <Textarea
-                    className="min-h-32 resize-y bg-background/70 text-muted-foreground"
+                    className="min-h-32 resize-y bg-white text-muted-foreground"
                     placeholder="Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
                     readOnly
                     tabIndex={-1}
@@ -185,8 +188,8 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors",
-                          isSelected ? "border-primary bg-primary/5" : "",
+                          "flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-colors duration-200 hover:bg-slate-50",
+                          isSelected ? "border-primary bg-primary/5 shadow-sm hover:bg-primary/5" : "",
                         )}
                         htmlFor={checkboxId}
                         key={answer.id}
@@ -227,8 +230,8 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors",
-                          isSelected ? "border-primary bg-primary/5" : "",
+                          "flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-colors duration-200 hover:bg-slate-50",
+                          isSelected ? "border-primary bg-primary/5 shadow-sm hover:bg-primary/5" : "",
                         )}
                         htmlFor={radioId}
                         key={answer.id}

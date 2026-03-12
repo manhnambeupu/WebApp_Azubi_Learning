@@ -35,15 +35,15 @@ type DownloadResponse = {
 
 function StudentLessonDetailSkeleton() {
   return (
-    <section className="space-y-4">
+    <section className="mx-auto max-w-4xl space-y-5">
       <Skeleton className="h-5 w-48" />
-      <div className="space-y-3 rounded-lg border bg-background p-6">
+      <div className="space-y-3 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
         <Skeleton className="h-56 w-full" />
       </div>
-      <div className="space-y-2 rounded-lg border bg-background p-6">
+      <div className="space-y-2 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
         <Skeleton className="h-5 w-40" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
@@ -89,7 +89,7 @@ export default function StudentLessonDetailPage() {
 
   if (!lessonId) {
     return (
-      <section className="rounded-lg border bg-background p-6">
+      <section className="mx-auto max-w-4xl rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
         <p className="text-sm text-destructive">Không tìm thấy bài học hợp lệ.</p>
       </section>
     );
@@ -101,7 +101,7 @@ export default function StudentLessonDetailPage() {
 
   if (lessonQuery.isError) {
     return (
-      <section className="rounded-lg border bg-background p-6">
+      <section className="mx-auto max-w-4xl rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
         <p className="text-sm text-destructive">{getApiErrorMessage(lessonQuery.error)}</p>
       </section>
     );
@@ -114,8 +114,8 @@ export default function StudentLessonDetailPage() {
   const lesson = lessonQuery.data;
 
   return (
-    <section className="space-y-6">
-      <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+    <section className="mx-auto max-w-4xl space-y-8">
+      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-sm text-muted-foreground shadow-sm">
         <Link className="hover:text-foreground" href="/student/lessons">
           Bài học
         </Link>
@@ -123,29 +123,31 @@ export default function StudentLessonDetailPage() {
         <span className="line-clamp-1 text-foreground">{lesson.title}</span>
       </div>
 
-      <article className="space-y-6 rounded-lg border bg-background p-6 shadow-sm">
+      <article className="space-y-8 rounded-2xl border border-border/70 bg-white p-6 shadow-sm sm:p-8">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">{lesson.category.name}</Badge>
             <Badge
-              className={lesson.isCompleted ? "bg-emerald-600 text-white hover:bg-emerald-600" : ""}
-              variant={lesson.isCompleted ? "default" : "outline"}
+              className={
+                lesson.isCompleted ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : ""
+              }
+              variant={lesson.isCompleted ? "secondary" : "outline"}
             >
               {lesson.isCompleted ? "Đã hoàn thành" : "Chưa hoàn thành"}
             </Badge>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">{lesson.title}</h1>
-          <p className="text-sm text-muted-foreground">{lesson.summary}</p>
+          <h1 className="text-3xl font-semibold tracking-tight">{lesson.title}</h1>
+          <p className="text-base leading-7 text-muted-foreground">{lesson.summary}</p>
         </div>
 
         {lesson.imageUrl ? (
           <div
-            className="h-64 w-full rounded-lg border bg-cover bg-center bg-no-repeat"
+            className="h-72 w-full rounded-xl border border-slate-200/80 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${lesson.imageUrl})` }}
           />
         ) : null}
 
-        <div className="student-markdown rounded-lg border bg-background p-5">
+        <div className="student-markdown rounded-xl border border-slate-200/80 bg-white p-6">
           <ReactMarkdown
             rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }], rehypeSanitize]}
             remarkPlugins={[remarkGfm]}
@@ -154,7 +156,7 @@ export default function StudentLessonDetailPage() {
           </ReactMarkdown>
         </div>
 
-        <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+        <div className="space-y-4 rounded-xl border border-slate-200/80 bg-slate-50/60 p-5">
           <h2 className="font-semibold">Tài liệu đính kèm</h2>
           {lesson.files.length === 0 ? (
             <p className="text-sm text-muted-foreground">Bài học chưa có file đính kèm.</p>
@@ -162,7 +164,7 @@ export default function StudentLessonDetailPage() {
             <div className="space-y-2">
               {lesson.files.map((file) => (
                 <div
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-background px-3 py-2"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:bg-slate-50"
                   key={file.id}
                 >
                   <span className="text-sm">{file.fileName}</span>
@@ -194,7 +196,7 @@ export default function StudentLessonDetailPage() {
         </div>
       </article>
 
-      <section className="rounded-lg border bg-background p-6 shadow-sm">
+      <section className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm sm:p-8">
         <h2 className="text-lg font-semibold">Phần làm bài</h2>
         <Separator className="my-3" />
         {lesson.questions.length === 0 ? (

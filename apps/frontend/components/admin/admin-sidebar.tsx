@@ -62,14 +62,19 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 md:grid md:grid-cols-[260px_1fr]">
-      <aside className="hidden border-r bg-background md:flex md:flex-col">
-        <div className="px-6 py-5">
-          <p className="text-base font-semibold">Azubi Admin</p>
-          <p className="text-xs text-muted-foreground">GastroLernplattform</p>
+    <div className="min-h-screen bg-slate-50 md:grid md:grid-cols-[280px_1fr]">
+      <aside className="hidden border-r border-slate-800 bg-slate-950 text-slate-100 md:flex md:flex-col">
+        <div className="space-y-2 px-6 py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Admin console
+          </p>
+          <div className="space-y-1">
+            <p className="text-lg font-semibold tracking-tight text-white">Azubi Admin</p>
+            <p className="text-sm text-slate-400">GastroLernplattform</p>
+          </div>
         </div>
-        <Separator />
-        <nav className="flex-1 space-y-1 p-4">
+        <Separator className="bg-slate-800" />
+        <nav className="flex-1 space-y-2 p-4">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActivePath(pathname, item.href);
@@ -78,13 +83,13 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
               <Button
                 asChild
                 className={cn(
-                  "w-full justify-start",
-                  active ? "bg-primary/10 text-primary hover:bg-primary/15" : "",
+                  "h-11 w-full justify-start rounded-lg px-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white",
+                  active ? "bg-slate-800 text-white shadow-sm hover:bg-slate-800 hover:text-white" : "",
                 )}
                 key={item.href}
                 variant="ghost"
               >
-                <Link href={item.href}>
+                <Link aria-current={active ? "page" : undefined} href={item.href}>
                   <Icon className="mr-2 h-4 w-4" />
                   {item.label}
                 </Link>
@@ -94,7 +99,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
         </nav>
         <div className="p-4">
           <Button
-            className="w-full justify-start"
+            className="w-full justify-start border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white"
             disabled={isLoggingOut}
             onClick={() => {
               void handleLogout();
@@ -116,28 +121,44 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
+      <div className="flex min-h-screen flex-col bg-slate-50">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3 text-slate-100 md:hidden">
           <div>
             <p className="text-sm font-semibold">Azubi Admin</p>
-            <p className="text-xs text-muted-foreground">Quản trị hệ thống</p>
+            <p className="text-xs text-slate-400">Quản trị hệ thống</p>
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="outline">
+              <Button
+                className="border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white"
+                size="icon"
+                variant="outline"
+              >
                 <Menu className="h-4 w-4" />
                 <span className="sr-only">Mở menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {navItems.map((item) => (
-                <DropdownMenuItem asChild key={item.href}>
-                  <Link className="cursor-pointer" href={item.href}>
-                    {item.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenuContent align="end" className="min-w-[220px]">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActivePath(pathname, item.href);
+
+                return (
+                  <DropdownMenuItem asChild key={item.href}>
+                    <Link
+                      className={cn(
+                        "flex w-full cursor-pointer items-center gap-2",
+                        active ? "font-medium text-foreground" : "",
+                      )}
+                      href={item.href}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer text-destructive focus:text-destructive"
@@ -152,7 +173,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
           </DropdownMenu>
         </header>
 
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
           {children}
         </main>
       </div>

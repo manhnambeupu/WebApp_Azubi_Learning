@@ -10,7 +10,7 @@ function LessonsGridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div className="space-y-3 rounded-xl border bg-background p-4" key={index}>
+        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm" key={index}>
           <Skeleton className="h-40 w-full" />
           <div className="space-y-2">
             <Skeleton className="h-5 w-2/5" />
@@ -28,10 +28,10 @@ export default function StudentLessonsPage() {
   const lessonsQuery = useGetStudentLessons();
 
   return (
-    <section className="space-y-6">
-      <div className="space-y-1">
+    <section className="space-y-8">
+      <div className="space-y-2 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold tracking-tight">Danh sách bài học</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm leading-6 text-muted-foreground">
           Theo dõi tiến độ và tiếp tục học các bài trong chương trình Azubi.
         </p>
       </div>
@@ -46,7 +46,7 @@ export default function StudentLessonsPage() {
 
       {lessonsQuery.data ? (
         lessonsQuery.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-background px-6 py-16 text-center">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
             <BookOpenText className="h-10 w-10 text-muted-foreground" />
             <h2 className="mt-4 text-lg font-semibold">Chưa có bài học nào</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export default function StudentLessonsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {lessonsQuery.data.map((lesson) => (
               <LessonCard key={lesson.id} lesson={lesson} />
             ))}

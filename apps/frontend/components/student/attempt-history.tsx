@@ -48,7 +48,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
   const attemptDetailQuery = useGetAttemptDetail(lessonId, selectedAttemptId);
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-6 shadow-sm">
+    <section className="space-y-5 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
       <div className="space-y-2">
         <h2 className="text-lg font-semibold">Lịch sử nộp bài</h2>
         <p className="text-sm text-muted-foreground">
@@ -65,7 +65,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
       <Separator />
 
       {historyQuery.isLoading ? (
-        <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải lịch sử nộp bài...
         </div>
@@ -79,7 +79,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
 
       {historyQuery.data ? (
         historyQuery.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed px-6 py-12 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/70 px-6 py-12 text-center">
             <History className="h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">
               Bạn chưa có lần nộp bài nào cho bài học này.
@@ -87,30 +87,45 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-slate-200/80">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[90px]">Lần nộp</TableHead>
-                    <TableHead>Điểm số</TableHead>
-                    <TableHead>Số câu đúng</TableHead>
-                    <TableHead>Thời gian nộp</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
+                  <TableRow className="border-slate-200/80 bg-slate-50/80 hover:bg-slate-50/80">
+                    <TableHead className="w-[90px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Lần nộp
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Điểm số
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Số câu đúng
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Thời gian nộp
+                    </TableHead>
+                    <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {historyQuery.data.map((attempt) => (
                     <TableRow
                       className={cn(
-                        selectedAttemptId === attempt.id ? "bg-muted/40 hover:bg-muted/40" : "",
+                        "border-slate-200/70 hover:bg-slate-50/90",
+                        selectedAttemptId === attempt.id ? "bg-primary/5 hover:bg-primary/10" : "",
                       )}
                       key={attempt.id}
                     >
-                      <TableCell>#{attempt.attemptNumber}</TableCell>
-                      <TableCell>{formatScore(attempt.score)}/100</TableCell>
-                      <TableCell>{formatCorrectCount(attempt.correctCount)}</TableCell>
-                      <TableCell>{formatSubmittedAt(attempt.submittedAt)}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="px-4 py-4">#{attempt.attemptNumber}</TableCell>
+                      <TableCell className="px-4 py-4">{formatScore(attempt.score)}/100</TableCell>
+                      <TableCell className="px-4 py-4">
+                        {formatCorrectCount(attempt.correctCount)}
+                      </TableCell>
+                      <TableCell className="px-4 py-4">
+                        {formatSubmittedAt(attempt.submittedAt)}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 text-right">
                         <Button
                           onClick={() => setSelectedAttemptId(attempt.id)}
                           size="sm"
@@ -128,7 +143,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
 
             {selectedAttemptId ? (
               attemptDetailQuery.isLoading ? (
-                <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Đang tải chi tiết lần nộp...
                 </div>
@@ -140,7 +155,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
                 <QuizResult result={attemptDetailQuery.data} showActions={false} />
               ) : null
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-sm text-muted-foreground">
                 Chọn một lần nộp để xem kết quả chi tiết.
               </p>
             )}

@@ -102,7 +102,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
   };
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-6 shadow-sm">
+    <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">Câu hỏi & Đáp án</h2>
@@ -125,7 +125,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
       <Separator />
 
       {questionsQuery.isLoading ? (
-        <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải danh sách câu hỏi...
         </div>
@@ -139,15 +139,19 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
       {questionsQuery.data ? (
         questions.length === 0 ? (
-          <p className="rounded-md border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground">
             Chưa có câu hỏi nào. Hãy thêm câu hỏi đầu tiên cho bài học.
           </p>
         ) : (
-          <Accordion className="w-full" collapsible type="single">
+          <Accordion className="w-full space-y-3" collapsible type="single">
             {questions.map((question, index) => (
-              <AccordionItem key={question.id} value={question.id}>
+              <AccordionItem
+                className="overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50/70 px-4"
+                key={question.id}
+                value={question.id}
+              >
                 <div className="flex flex-col gap-2 py-1 sm:flex-row sm:items-start sm:justify-between">
-                  <AccordionTrigger className="py-3">
+                  <AccordionTrigger className="py-4 hover:no-underline">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline">#{question.orderIndex}</Badge>
@@ -214,6 +218,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Hủy</AlertDialogCancel>
                           <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             disabled={pendingDeleteId === question.id}
                             onClick={() => {
                               void handleDeleteQuestion(question.id);
@@ -229,7 +234,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
                 <AccordionContent className="space-y-4">
                   {question.explanation ? (
-                    <div className="space-y-1 rounded-md bg-muted/40 p-3">
+                    <div className="space-y-1 rounded-lg bg-white p-3">
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
                         Giải thích câu hỏi
                       </p>
@@ -277,7 +282,7 @@ function AnswerCard({
   return (
     <div
       className={cn(
-        "rounded-md border p-3",
+        "rounded-lg border bg-white p-3",
         answer.isCorrect ? "border-emerald-300 bg-emerald-50/70" : "",
       )}
     >

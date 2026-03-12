@@ -24,15 +24,21 @@ export function StudentNav() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Link className="text-base font-semibold tracking-tight" href="/student/lessons">
-          GastroLernplattform
-        </Link>
+    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="space-y-0.5">
+          <Link className="text-base font-semibold tracking-tight text-slate-900" href="/student/lessons">
+            GastroLernplattform
+          </Link>
+          <p className="text-xs text-slate-500">Không gian học tập dành cho học viên</p>
+        </div>
 
-        <div className="flex items-center gap-2">
-          <p className="hidden text-sm text-muted-foreground sm:block">{displayName}</p>
+        <div className="flex items-center gap-3">
+          <p className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-600 sm:block">
+            {displayName}
+          </p>
           <Button
+            className="border-slate-200 bg-white shadow-sm hover:bg-slate-50"
             disabled={isLoggingOut}
             onClick={() => {
               void handleLogout();

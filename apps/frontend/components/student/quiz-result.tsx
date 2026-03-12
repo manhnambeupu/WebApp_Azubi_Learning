@@ -49,14 +49,14 @@ const getQuestionStatus = (
 ): { className: string; label: string } => {
   if (question.type === "ESSAY") {
     return {
-      className: "text-amber-700",
+      className: "text-amber-800",
       label: "Câu tự luận không được chấm điểm tự động",
     };
   }
 
   if (question.isCorrect) {
     return {
-      className: "text-emerald-700",
+      className: "text-emerald-800",
       label: "Bạn trả lời đúng",
     };
   }
@@ -73,25 +73,25 @@ const getQuestionStatus = (
       correctAnswerIds.has(answerId),
     ).length;
 
-    if (!hasWrongSelection && selectedCorrectCount > 0) {
-      return {
-        className: "text-amber-700",
-        label: "Bạn trả lời đúng một phần",
-      };
-    }
+      if (!hasWrongSelection && selectedCorrectCount > 0) {
+        return {
+          className: "text-amber-800",
+          label: "Bạn trả lời đúng một phần",
+        };
+      }
   }
 
   return {
-    className: "text-rose-700",
+    className: "text-rose-800",
     label: "Bạn trả lời sai",
   };
 };
 
 const getAnswerContainerClass = (isCorrect: boolean, isSelected: boolean): string =>
   cn(
-    "rounded-md border p-3",
-    isCorrect ? "border-emerald-300 bg-emerald-50/80" : "",
-    isSelected && !isCorrect ? "border-rose-300 bg-rose-50/80" : "",
+    "rounded-lg border border-slate-200/80 bg-white p-3",
+    isCorrect ? "border-emerald-300 bg-emerald-50/90" : "",
+    isSelected && !isCorrect ? "border-rose-300 bg-rose-50/90" : "",
   );
 
 type ObjectiveAnswerRowProps = {
@@ -126,7 +126,7 @@ function ObjectiveAnswerRow({ answer, control, isSelected }: ObjectiveAnswerRowP
 
 export function QuizResult({ result, onRetry, showActions = true }: QuizResultProps) {
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-6 shadow-sm transition-all">
+    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={scoreBadgeClass(result.score)}>
@@ -141,7 +141,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
         <p className="text-xs text-muted-foreground">
           Điểm số này chỉ tính trên phần câu hỏi trắc nghiệm khách quan.
         </p>
-        <Progress className="h-2.5" value={result.score} />
+        <Progress className="h-3" value={result.score} />
       </div>
 
       <Separator />
@@ -153,7 +153,10 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
           const selectedAnswerIds = new Set(normalizedSelectedAnswerIds);
 
           return (
-            <div className="space-y-3 rounded-lg border p-4" key={question.id}>
+            <div
+              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm"
+              key={question.id}
+            >
               <div className="space-y-1">
                 <p className="text-sm font-semibold">
                   Câu {questionIndex + 1}: {question.text}
@@ -217,7 +220,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
               )}
 
               {question.explanation ? (
-                <div className="rounded-md bg-muted/40 p-3">
+                <div className="rounded-lg bg-white p-4">
                   <p className="text-xs font-semibold uppercase text-muted-foreground">
                     Giải thích câu hỏi
                   </p>

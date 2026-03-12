@@ -225,7 +225,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   };
 
   return (
-    <section className="space-y-6 rounded-lg border bg-background p-6 shadow-sm">
+    <section className="space-y-6 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           {isEditMode ? "Chỉnh sửa bài học" : "Tạo bài học mới"}
@@ -308,7 +308,9 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
           <div
             className={`rounded-lg border border-dashed p-5 transition-colors ${
-              isDraggingImage ? "border-primary bg-primary/5" : "border-border"
+              isDraggingImage
+                ? "border-primary bg-primary/5"
+                : "border-border bg-slate-50/70"
             }`}
             onDragEnter={(event) => {
               event.preventDefault();
@@ -328,12 +330,12 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
               {imagePreviewUrl ? (
                 <div
                   aria-label="Lesson preview"
-                  className="h-44 w-full max-w-md rounded-md border bg-cover bg-center bg-no-repeat"
+                  className="h-44 w-full max-w-md rounded-md border border-slate-200/80 bg-white bg-cover bg-center bg-no-repeat"
                   role="img"
                   style={{ backgroundImage: `url(${imagePreviewUrl})` }}
                 />
               ) : (
-                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-md border bg-muted/40">
+                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-md border border-slate-200/80 bg-white">
                   <ImageIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
               )}

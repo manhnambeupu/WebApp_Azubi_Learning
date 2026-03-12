@@ -124,7 +124,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
   };
 
   return (
-    <section className="space-y-5 rounded-lg border bg-background p-6 shadow-sm">
+    <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">File Word đính kèm</h2>
@@ -171,14 +171,14 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
       <Separator />
 
       {files.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground">
           Chưa có file Word nào được đính kèm.
         </p>
       ) : (
         <div className="space-y-3">
           {files.map((file) => (
             <div
-              className="flex flex-col gap-3 rounded-md border p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
               key={file.id}
             >
               <div className="space-y-1">
@@ -229,6 +229,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
                     <AlertDialogFooter>
                       <AlertDialogCancel>Hủy</AlertDialogCancel>
                       <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         disabled={pendingDeleteFileId === file.id}
                         onClick={() => {
                           void handleDeleteFile(file.id);

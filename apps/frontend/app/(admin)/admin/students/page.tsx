@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -38,8 +39,8 @@ const formatCreatedAt = (value: string): string =>
 
 function StudentsTableSkeleton() {
   return (
-    <div className="rounded-md border">
-      <div className="h-11 border-b bg-muted/30" />
+    <div className="overflow-hidden rounded-lg border border-slate-200/80 bg-card shadow-sm">
+      <div className="h-11 border-b border-slate-200/80 bg-slate-100/70" />
       <div className="space-y-2 p-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div className="grid grid-cols-5 gap-4" key={index}>
@@ -82,102 +83,121 @@ export default function AdminStudentsPage() {
   };
 
   return (
-    <section className="space-y-6 rounded-lg border bg-background p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Quản lý học viên</h1>
-          <p className="text-sm text-muted-foreground">
-            Tạo tài khoản học viên và quản lý danh sách người học trong hệ thống.
-          </p>
-        </div>
+    <section className="space-y-6">
+      <Card className="border-border/80 shadow-sm">
+        <CardHeader className="flex flex-col gap-4 border-b border-border/70 bg-slate-50/70 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1.5">
+            <CardTitle className="text-2xl">Quản lý học viên</CardTitle>
+            <CardDescription>
+              Tạo tài khoản học viên và quản lý danh sách người học trong hệ thống.
+            </CardDescription>
+          </div>
 
-        <CreateStudentDialog />
-      </div>
+          <CreateStudentDialog />
+        </CardHeader>
 
-      {studentsQuery.isLoading ? <StudentsTableSkeleton /> : null}
+        <CardContent className="space-y-6 p-6">
+          {studentsQuery.isLoading ? <StudentsTableSkeleton /> : null}
 
-      {studentsQuery.isError ? (
-        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {getApiErrorMessage(studentsQuery.error)}
-        </p>
-      ) : null}
+          {studentsQuery.isError ? (
+            <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {getApiErrorMessage(studentsQuery.error)}
+            </p>
+          ) : null}
 
-      {studentsQuery.data ? (
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[72px]">STT</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Họ tên</TableHead>
-                <TableHead>Ngày tạo</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {students.length === 0 ? (
-                <TableRow>
-                  <TableCell className="py-8 text-center text-muted-foreground" colSpan={5}>
-                    Chưa có học viên nào.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                students.map((student, index) => (
-                  <TableRow key={student.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell className="font-medium">{student.email}</TableCell>
-                    <TableCell>{student.fullName}</TableCell>
-                    <TableCell>{formatCreatedAt(student.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            disabled={
-                              deleteStudentMutation.isPending &&
-                              pendingDeleteId === student.id
-                            }
-                            size="sm"
-                            variant="destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Xóa
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Xóa học viên?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Xóa học viên sẽ xóa tất cả lịch sử làm bài của họ. Bạn có chắc
-                              chắn?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Hủy</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => {
-                                void handleDeleteStudent(student.id);
-                              }}
-                            >
-                              {pendingDeleteId === student.id ? (
-                                <span className="inline-flex items-center">
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Đang xóa...
-                                </span>
-                              ) : (
-                                "Xác nhận xóa"
-                              )}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
+          {studentsQuery.data ? (
+            <div className="overflow-hidden rounded-lg border border-slate-200/80">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-slate-200/80 bg-slate-100/70 hover:bg-slate-100/70">
+                    <TableHead className="w-[72px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      STT
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Email
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Họ tên
+                    </TableHead>
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Ngày tạo
+                    </TableHead>
+                    <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Thao tác
+                    </TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      ) : null}
+                </TableHeader>
+                <TableBody>
+                  {students.length === 0 ? (
+                    <TableRow className="border-slate-200/70 hover:bg-transparent">
+                      <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
+                        Chưa có học viên nào.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    students.map((student, index) => (
+                      <TableRow
+                        className="border-slate-200/70 hover:bg-slate-50/90"
+                        key={student.id}
+                      >
+                        <TableCell className="px-4 py-4">{index + 1}</TableCell>
+                        <TableCell className="px-4 py-4 font-medium">{student.email}</TableCell>
+                        <TableCell className="px-4 py-4">{student.fullName}</TableCell>
+                        <TableCell className="px-4 py-4">
+                          {formatCreatedAt(student.createdAt)}
+                        </TableCell>
+                        <TableCell className="px-4 py-4 text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                disabled={
+                                  deleteStudentMutation.isPending && pendingDeleteId === student.id
+                                }
+                                size="sm"
+                                variant="destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Xóa
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Xóa học viên?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Xóa học viên sẽ xóa tất cả lịch sử làm bài của họ. Bạn có chắc
+                                  chắn?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => {
+                                    void handleDeleteStudent(student.id);
+                                  }}
+                                >
+                                  {pendingDeleteId === student.id ? (
+                                    <span className="inline-flex items-center">
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Đang xóa...
+                                    </span>
+                                  ) : (
+                                    "Xác nhận xóa"
+                                  )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
     </section>
   );
 }
