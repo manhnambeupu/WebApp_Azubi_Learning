@@ -27,7 +27,7 @@ export function StudentNav() {
     <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link className="text-base font-semibold tracking-tight" href="/student/lessons">
-          Azubi Learning
+          GastroLernplattform
         </Link>
 
         <div className="flex items-center gap-2">
