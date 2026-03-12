@@ -20,8 +20,8 @@
     --accent-foreground: 243 75% 35%;
     --destructive: 346 87% 43%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 85%;
+    --input: 214.3 31.8% 85%;
     --ring: 243 75% 59%;
     --chart-1: 243 75% 59%;
     --chart-2: 160 84% 39%;
@@ -106,20 +106,69 @@
   }
 
   .student-markdown pre {
-    @apply relative mt-6 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 px-4 pb-4 pt-10 text-slate-100 shadow-sm;
-  }
-
-  .student-markdown pre::before {
-    content: "Code";
-    @apply absolute left-4 top-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400;
+    @apply relative mt-6 overflow-x-auto rounded-xl border-none bg-[#1e1e1e] p-5 shadow-md;
   }
 
   .student-markdown pre code {
-    @apply bg-transparent p-0 text-sm leading-7;
+    @apply bg-transparent p-0 text-sm leading-7 text-gray-100;
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      monospace !important;
+  }
+
+  .student-markdown pre .hljs {
+    background: transparent !important;
+    color: #f3f4f6 !important;
+  }
+
+  .student-markdown pre .hljs-comment,
+  .student-markdown pre .hljs-quote {
+    color: #6a9955 !important;
+  }
+
+  .student-markdown pre .hljs-keyword,
+  .student-markdown pre .hljs-selector-tag,
+  .student-markdown pre .hljs-literal,
+  .student-markdown pre .hljs-section,
+  .student-markdown pre .hljs-link {
+    color: #569cd6 !important;
+  }
+
+  .student-markdown pre .hljs-string,
+  .student-markdown pre .hljs-title,
+  .student-markdown pre .hljs-name,
+  .student-markdown pre .hljs-type,
+  .student-markdown pre .hljs-attribute,
+  .student-markdown pre .hljs-symbol,
+  .student-markdown pre .hljs-bullet,
+  .student-markdown pre .hljs-addition,
+  .student-markdown pre .hljs-template-tag,
+  .student-markdown pre .hljs-template-variable {
+    color: #ce9178 !important;
+  }
+
+  .student-markdown pre .hljs-number,
+  .student-markdown pre .hljs-meta,
+  .student-markdown pre .hljs-regexp,
+  .student-markdown pre .hljs-variable,
+  .student-markdown pre .hljs-selector-class,
+  .student-markdown pre .hljs-selector-attr,
+  .student-markdown pre .hljs-selector-pseudo {
+    color: #b5cea8 !important;
+  }
+
+  .student-markdown pre .hljs-function,
+  .student-markdown pre .hljs-built_in,
+  .student-markdown pre .hljs-class .hljs-title {
+    color: #dcdcaa !important;
   }
 
   .student-markdown code {
-    @apply rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700;
+    @apply rounded-md bg-rose-50 px-1.5 py-0.5 font-mono text-[0.85em] text-rose-600;
   }
 
   .student-markdown table {
@@ -127,10 +176,10 @@
   }
 
   .student-markdown th {
-    @apply border bg-muted/40 px-3 py-2 text-left font-semibold;
+    @apply border border-slate-300 bg-slate-100 px-4 py-2 text-left font-semibold text-slate-800;
   }
 
   .student-markdown td {
-    @apply border px-3 py-3 align-top leading-7;
+    @apply border border-slate-300 px-4 py-3 align-top leading-7;
   }
 }

@@ -1,0 +1,17 @@
+{
+  "name": "Azubi Webapp Workspace",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [3000, 3001, 5432, 5555, 9000, 9001],
+  "portsAttributes": {
+    "3000": { "label": "Frontend (Next.js)", "onAutoForward": "notify" },
+    "3001": { "label": "Backend API", "onAutoForward": "silent" },
+    "9000": { "label": "MinIO API", "onAutoForward": "silent" },
+    "9001": { "label": "MinIO Console", "onAutoForward": "silent" },
+    "5555": { "label": "Prisma Studio", "onAutoForward": "silent" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "cp .env.example .env && docker-compose build"
+}

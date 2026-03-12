@@ -11,9 +11,11 @@ out/
 
 # Environment
 .env
+.env.*
 .env.local
 .env.*.local
 !.env.example
+!.env.production.example
 !.env.test
 
 # Docker volumes
