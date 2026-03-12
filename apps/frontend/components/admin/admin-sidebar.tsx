@@ -66,7 +66,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
       <aside className="hidden border-r bg-background md:flex md:flex-col">
         <div className="px-6 py-5">
           <p className="text-base font-semibold">Azubi Admin</p>
-          <p className="text-xs text-muted-foreground">Hospitality Learning Platform</p>
+          <p className="text-xs text-muted-foreground">GastroLernplattform</p>
         </div>
         <Separator />
         <nav className="flex-1 space-y-1 p-4">
