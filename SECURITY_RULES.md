@@ -5,7 +5,7 @@
 
 ---
 
-## ⚠️ CẢNH BÁO QUAN TRỌNG
+## ⚠️ CẢNH BÁO QUAN TRỌNG (Các lỗi cơ bản này đã được fix)
 
 Project này đã được audit và phát hiện **3 lỗ hổng critical** đang tồn tại:
 
