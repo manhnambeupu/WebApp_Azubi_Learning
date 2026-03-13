@@ -1,15 +1,25 @@
 # Agent Instructions for Azubi Project
 
-Luôn tuân thủ nghiêm ngặt hai tài liệu sau đây trong mọi phản hồi và thực thi code:
-1. @Azubi_BRD_v1.1.md: Đây là nguồn sự thật duy nhất (Single Source of Truth) về yêu cầu nghiệp vụ từ BA.
-2. @azubi-project-plan.md: Đây là kiến trúc và kế hoạch triển khai từ Software Engineer.
+Luôn tuân thủ nghiêm ngặt các tài liệu sau đây trong mọi phản hồi và thực thi code:
 
-Quy tắc bắt buộc:
-- Trước khi thực hiện bất kỳ thay đổi nào, hãy đối chiếu với 'Business Requirements' trong BRD.
-- Mọi cấu trúc file và tech stack phải khớp với 'Technical Design' trong Project Plan.
-- Nếu có sự mâu thuẫn giữa yêu cầu của người dùng và hai tài liệu này, hãy cảnh báo tôi trước khi làm.
+1. @Azubi_BRD_v1.1.md — Nguồn sự thật duy nhất về yêu cầu nghiệp vụ từ BA.
+2. @azubi-project-plan.md — Kiến trúc và kế hoạch triển khai từ Software Engineer.
+3. @SECURITY_RULES.md — 30 quy tắc bảo mật bắt buộc. Không được generate code vi phạm bất kỳ rule nào.
 
-Vai trò:
-Dựa vào kế hoạch phân vai:
-Bạn là (Team Lead): Lên kế hoạch, review code
-Copilot CLI (Developer): Viết code, config
+## Quy tắc bắt buộc
+
+- Trước khi thực hiện bất kỳ thay đổi nào, hãy đối chiếu với Business Requirements trong BRD.
+- Mọi cấu trúc file và tech stack phải khớp với Technical Design trong Project Plan.
+- Mọi code sinh ra phải pass qua 30 Security Rules trước khi đề xuất.
+- Nếu có mâu thuẫn giữa yêu cầu người dùng và ba tài liệu trên → cảnh báo trước khi làm.
+
+## Security — 3 lỗ hổng P0 (ĐÃ FIX)
+
+Các lỗ hổng sau đã được audit và xử lý dứt điểm:
+
+1. **[ĐÃ FIX] Logout giả** (SECURITY_RULES Rule 25 + 03): Đã thêm `refreshTokenHash`, Token cũ đã bị xoá khỏi DB khi Logout.
+2. **[ĐÃ FIX] Brute-force theo account** (SECURITY_RULES Rule 18): Đã thêm `failedLoginCount` + `lockedUntil`, tự động khóa account 15 phút.
+3. **[ĐÃ FIX] Thiếu Content-Security-Policy** (SECURITY_RULES Rule 04): Đã bảo vệ toàn diện XSS bằng CSP header trong nginx và helmet config.
+   - Fix: Thêm CSP header vào nginx.conf và helmet config trong main.ts.
+
+Các feature mới có thể triển khai bình thường mà không bị block bởi 3 lỗi P0 này nữa. Tuy nhiên vẫn phải soi 30 Security Rules ở SECURITY_RULES.md.

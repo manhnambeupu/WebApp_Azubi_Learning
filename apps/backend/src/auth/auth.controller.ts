@@ -60,8 +60,21 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng xuất' })
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Đăng xuất thành công.' })
-  logout(@Res({ passthrough: true }) res: Response): { message: string } {
-    res.clearCookie('refreshToken', this.refreshTokenCookieOptions);
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
+    const refreshToken = (
+      req.cookies as Record<string, string | undefined> | undefined
+    )?.refreshToken;
+
+    try {
+      if (refreshToken) {
+        await this.authService.logout(refreshToken);
+      }
+    } finally {
+      res.clearCookie('refreshToken', this.refreshTokenCookieOptions);
+    }
     return { message: 'Logged out successfully' };
   }
 
@@ -70,7 +83,10 @@ export class AuthController {
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Làm mới token thành công.' })
   @ApiResponse({ status: 401, description: 'Refresh token không hợp lệ.' })
-  async refreshToken(@Req() req: Request): Promise<{ accessToken: string }> {
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ accessToken: string }> {
     const refreshToken = (
       req.cookies as Record<string, string | undefined> | undefined
     )?.refreshToken;
@@ -79,7 +95,16 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token is missing');
     }
 
-    return this.authService.refreshToken(refreshToken);
+    const { accessToken, refreshToken: nextRefreshToken } =
+      await this.authService.refreshToken(refreshToken);
+
+    res.cookie(
+      'refreshToken',
+      nextRefreshToken,
+      this.refreshTokenCookieOptions,
+    );
+
+    return { accessToken };
   }
 
   @Get('me')
@@ -87,7 +112,10 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại' })
   @ApiResponse({ status: 200, description: 'Lấy thông tin thành công.' })
-  @ApiResponse({ status: 401, description: 'Chưa đăng nhập hoặc token hết hạn.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Chưa đăng nhập hoặc token hết hạn.',
+  })
   async me(
     @CurrentUser() payload: JwtAccessPayload | undefined,
   ): Promise<AuthUserResponse> {

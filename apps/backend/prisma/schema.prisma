@@ -26,6 +26,9 @@ model User {
   password       String
   fullName       String          @map("full_name")
   role           Role
+  refreshTokenHash String?       @map("refresh_token_hash")
+  failedLoginCount Int           @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?     @map("locked_until")
   createdAt      DateTime        @default(now()) @map("created_at")
   lessonAttempts LessonAttempt[]
 

@@ -7,6 +7,7 @@ describe('AuthController', () => {
   let controller: AuthController;
   let authService: {
     login: jest.Mock;
+    logout: jest.Mock;
     refreshToken: jest.Mock;
     validateUser: jest.Mock;
     toSafeUser: jest.Mock;
@@ -25,6 +26,7 @@ describe('AuthController', () => {
     process.env.NODE_ENV = 'test';
     authService = {
       login: jest.fn(),
+      logout: jest.fn(),
       refreshToken: jest.fn(),
       validateUser: jest.fn(),
       toSafeUser: jest.fn(),
@@ -54,7 +56,10 @@ describe('AuthController', () => {
       response,
     );
 
-    expect(authService.login).toHaveBeenCalledWith('admin@azubi.de', 'Admin123!');
+    expect(authService.login).toHaveBeenCalledWith(
+      'admin@azubi.de',
+      'Admin123!',
+    );
     expect((response as { cookie: jest.Mock }).cookie).toHaveBeenCalledWith(
       'refreshToken',
       'refresh-token',
@@ -99,14 +104,20 @@ describe('AuthController', () => {
     );
   });
 
-  it('logout clears refresh token cookie', () => {
+  it('logout clears refresh token cookie và revoke hash khi có cookie', async () => {
     const response = {
       clearCookie: jest.fn(),
-    } as unknown as Parameters<AuthController['logout']>[0];
+    } as unknown as Parameters<AuthController['logout']>[1];
 
-    const result = controller.logout(response);
+    const result = await controller.logout(
+      { cookies: { refreshToken: 'refresh-token' } } as never,
+      response,
+    );
 
-    expect((response as { clearCookie: jest.Mock }).clearCookie).toHaveBeenCalledWith(
+    expect(authService.logout).toHaveBeenCalledWith('refresh-token');
+    expect(
+      (response as { clearCookie: jest.Mock }).clearCookie,
+    ).toHaveBeenCalledWith(
       'refreshToken',
       expect.objectContaining({
         httpOnly: true,
@@ -117,25 +128,62 @@ describe('AuthController', () => {
     expect(result).toEqual({ message: 'Logged out successfully' });
   });
 
-  it('refreshToken throws when cookie is missing', async () => {
-    await expect(controller.refreshToken({ cookies: {} } as never)).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+  it('logout vẫn clear cookie khi thiếu refresh token', async () => {
+    const response = {
+      clearCookie: jest.fn(),
+    } as unknown as Parameters<AuthController['logout']>[1];
+
+    const result = await controller.logout({ cookies: {} } as never, response);
+
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(
+      (response as { clearCookie: jest.Mock }).clearCookie,
+    ).toHaveBeenCalled();
+    expect(result).toEqual({ message: 'Logged out successfully' });
   });
 
-  it('refreshToken returns a new access token', async () => {
-    authService.refreshToken.mockResolvedValue({ accessToken: 'new-access-token' });
+  it('refreshToken throws when cookie is missing', async () => {
+    await expect(
+      controller.refreshToken(
+        { cookies: {} } as never,
+        { cookie: jest.fn() } as never,
+      ),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
 
-    const result = await controller.refreshToken({
-      cookies: { refreshToken: 'refresh-token' },
-    } as never);
+  it('refreshToken returns access token và rotate cookie refresh token', async () => {
+    authService.refreshToken.mockResolvedValue({
+      accessToken: 'new-access-token',
+      refreshToken: 'rotated-refresh-token',
+    });
+    const response = {
+      cookie: jest.fn(),
+    } as unknown as Parameters<AuthController['refreshToken']>[1];
+
+    const result = await controller.refreshToken(
+      {
+        cookies: { refreshToken: 'refresh-token' },
+      } as never,
+      response,
+    );
 
     expect(authService.refreshToken).toHaveBeenCalledWith('refresh-token');
+    expect((response as { cookie: jest.Mock }).cookie).toHaveBeenCalledWith(
+      'refreshToken',
+      'rotated-refresh-token',
+      expect.objectContaining({
+        httpOnly: true,
+        sameSite: 'strict',
+        path: '/api/auth',
+      }),
+    );
     expect(result).toEqual({ accessToken: 'new-access-token' });
   });
 
   it('me throws when payload is missing', async () => {
-    await expect(controller.me(undefined)).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(controller.me(undefined)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
   });
 
   it('me throws when user no longer exists', async () => {
