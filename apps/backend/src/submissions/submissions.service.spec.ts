@@ -16,6 +16,8 @@ type LessonQuestionFixture = {
     text: string;
     isCorrect: boolean;
     explanation: string | null;
+    orderIndex: number | null;
+    matchText: string | null;
   }[];
 };
 
@@ -35,12 +37,16 @@ const createSingleChoiceQuestion = (
       text: `Correct ${index}`,
       isCorrect: true,
       explanation: `Correct explanation ${index}`,
+      orderIndex: null,
+      matchText: null,
     },
     {
       id: wrongAnswerId,
       text: `Wrong ${index}`,
       isCorrect: false,
       explanation: `Wrong explanation ${index}`,
+      orderIndex: null,
+      matchText: null,
     },
   ],
 });
@@ -57,18 +63,24 @@ const createMultipleChoiceQuestion = (index: number): LessonQuestionFixture => (
       text: `Correct ${index}.1`,
       isCorrect: true,
       explanation: `Correct explanation ${index}.1`,
+      orderIndex: null,
+      matchText: null,
     },
     {
       id: `a-${index}-correct-2`,
       text: `Correct ${index}.2`,
       isCorrect: true,
       explanation: `Correct explanation ${index}.2`,
+      orderIndex: null,
+      matchText: null,
     },
     {
       id: `a-${index}-wrong`,
       text: `Wrong ${index}`,
       isCorrect: false,
       explanation: `Wrong explanation ${index}`,
+      orderIndex: null,
+      matchText: null,
     },
   ],
 });
@@ -80,6 +92,66 @@ const createEssayQuestion = (index: number): LessonQuestionFixture => ({
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [],
+});
+
+const createOrderingQuestion = (index: number): LessonQuestionFixture => ({
+  id: `q-${index}`,
+  type: QuestionType.ORDERING,
+  text: `Question ${index}`,
+  explanation: `Explanation ${index}`,
+  orderIndex: index,
+  answers: [
+    {
+      id: `a-${index}-step-1`,
+      text: `Step ${index}.1`,
+      isCorrect: true,
+      explanation: null,
+      orderIndex: 1,
+      matchText: null,
+    },
+    {
+      id: `a-${index}-step-2`,
+      text: `Step ${index}.2`,
+      isCorrect: true,
+      explanation: null,
+      orderIndex: 2,
+      matchText: null,
+    },
+    {
+      id: `a-${index}-step-3`,
+      text: `Step ${index}.3`,
+      isCorrect: true,
+      explanation: null,
+      orderIndex: 3,
+      matchText: null,
+    },
+  ],
+});
+
+const createMatchingQuestion = (index: number): LessonQuestionFixture => ({
+  id: `q-${index}`,
+  type: QuestionType.MATCHING,
+  text: `Question ${index}`,
+  explanation: `Explanation ${index}`,
+  orderIndex: index,
+  answers: [
+    {
+      id: `a-${index}-left-1`,
+      text: `Left ${index}.1`,
+      isCorrect: true,
+      explanation: null,
+      orderIndex: null,
+      matchText: `Right ${index}.1`,
+    },
+    {
+      id: `a-${index}-left-2`,
+      text: `Left ${index}.2`,
+      isCorrect: true,
+      explanation: null,
+      orderIndex: null,
+      matchText: `Right ${index}.2`,
+    },
+  ],
 });
 
 describe('SubmissionsService', () => {
@@ -189,12 +261,16 @@ describe('SubmissionsService', () => {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct',
+          orderIndex: null,
+          matchText: null,
           isCorrect: true,
         },
         {
           attemptId: 'attempt-1',
           questionId: 'q-2',
           answerId: 'a-2-wrong',
+          orderIndex: null,
+          matchText: null,
           isCorrect: false,
         },
       ],
@@ -310,6 +386,8 @@ describe('SubmissionsService', () => {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct',
+          orderIndex: null,
+          matchText: null,
           isCorrect: true,
         },
       ],
@@ -354,6 +432,8 @@ describe('SubmissionsService', () => {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct-1',
+          orderIndex: null,
+          matchText: null,
           isCorrect: false,
         },
       ],
@@ -391,12 +471,16 @@ describe('SubmissionsService', () => {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct-1',
+          orderIndex: null,
+          matchText: null,
           isCorrect: false,
         },
         {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-wrong',
+          orderIndex: null,
+          matchText: null,
           isCorrect: false,
         },
       ],
@@ -429,12 +513,16 @@ describe('SubmissionsService', () => {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct-1',
+          orderIndex: null,
+          matchText: null,
           isCorrect: true,
         },
         {
           attemptId: 'attempt-1',
           questionId: 'q-1',
           answerId: 'a-1-correct-2',
+          orderIndex: null,
+          matchText: null,
           isCorrect: true,
         },
       ],
@@ -446,6 +534,182 @@ describe('SubmissionsService', () => {
       selectedAnswerIds: ['a-1-correct-1', 'a-1-correct-2'],
       isCorrect: true,
     });
+  });
+
+  it('ORDERING đúng thứ tự -> 1 điểm và lưu orderIndex', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createOrderingQuestion(1)],
+    });
+    prisma.lessonAttempt.count.mockResolvedValue(0);
+    const tx = setupTransactionMocks();
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [
+        {
+          questionId: 'q-1',
+          answerIds: ['a-1-step-1', 'a-1-step-2', 'a-1-step-3'],
+        },
+      ],
+    });
+
+    expect(tx.lessonAttempt.create).toHaveBeenCalledWith({
+      data: {
+        userId,
+        lessonId,
+        attemptNumber: 1,
+        score: 100,
+        correctCount: 1,
+      },
+    });
+    expect(tx.submission.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-step-1',
+          orderIndex: 0,
+          matchText: null,
+          isCorrect: true,
+        },
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-step-2',
+          orderIndex: 1,
+          matchText: null,
+          isCorrect: true,
+        },
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-step-3',
+          orderIndex: 2,
+          matchText: null,
+          isCorrect: true,
+        },
+      ],
+    });
+    expect(result.correctCount).toBe(1);
+    expect(result.score).toBe(100);
+    expect(result.questions[0]).toMatchObject({
+      id: 'q-1',
+      selectedAnswerIds: ['a-1-step-1', 'a-1-step-2', 'a-1-step-3'],
+      isCorrect: true,
+    });
+  });
+
+  it('ORDERING sai thứ tự -> 0 điểm', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createOrderingQuestion(1)],
+    });
+    prisma.lessonAttempt.count.mockResolvedValue(0);
+    setupTransactionMocks();
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [
+        {
+          questionId: 'q-1',
+          answerIds: ['a-1-step-2', 'a-1-step-1', 'a-1-step-3'],
+        },
+      ],
+    });
+
+    expect(result.correctCount).toBe(0);
+    expect(result.score).toBe(0);
+    expect(result.questions[0]).toMatchObject({
+      id: 'q-1',
+      selectedAnswerIds: ['a-1-step-2', 'a-1-step-1', 'a-1-step-3'],
+      isCorrect: false,
+    });
+  });
+
+  it('ORDERING thiếu đáp án -> 422', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createOrderingQuestion(1)],
+    });
+
+    await expect(
+      service.submitQuiz(userId, lessonId, {
+        answers: [
+          {
+            questionId: 'q-1',
+            answerIds: ['a-1-step-1', 'a-1-step-2'],
+          },
+        ],
+      }),
+    ).rejects.toThrow('Câu hỏi sắp xếp phải gửi đủ tất cả đáp án theo thứ tự.');
+  });
+
+  it('MATCHING partial scoring và lưu matchText', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createMatchingQuestion(1)],
+    });
+    prisma.lessonAttempt.count.mockResolvedValue(0);
+    const tx = setupTransactionMocks();
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [
+        {
+          questionId: 'q-1',
+          answerIds: [],
+          matches: [
+            { answerId: 'a-1-left-1', matchText: 'Right 1.1' },
+            { answerId: 'a-1-left-2', matchText: 'Wrong pair' },
+          ],
+        },
+      ],
+    });
+
+    expect(tx.submission.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-left-1',
+          orderIndex: null,
+          matchText: 'Right 1.1',
+          isCorrect: false,
+        },
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-left-2',
+          orderIndex: null,
+          matchText: 'Wrong pair',
+          isCorrect: false,
+        },
+      ],
+    });
+    expect(result.correctCount).toBeCloseTo(0.5);
+    expect(result.score).toBe(50);
+    expect(result.questions[0]).toMatchObject({
+      id: 'q-1',
+      selectedAnswerIds: ['a-1-left-1', 'a-1-left-2'],
+      isCorrect: false,
+    });
+  });
+
+  it('MATCHING thiếu cặp ghép -> 422', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createMatchingQuestion(1)],
+    });
+
+    await expect(
+      service.submitQuiz(userId, lessonId, {
+        answers: [
+          {
+            questionId: 'q-1',
+            answerIds: [],
+            matches: [{ answerId: 'a-1-left-1', matchText: 'Right 1.1' }],
+          },
+        ],
+      }),
+    ).rejects.toThrow('Câu hỏi ghép đôi phải gửi đầy đủ các cặp ghép.');
   });
 
   it('Nộp trùng questionId -> 422', async () => {
@@ -518,6 +782,8 @@ describe('SubmissionsService', () => {
         {
           questionId: 'q-1',
           answerId: 'a-1-correct-1',
+          orderIndex: null,
+          matchText: null,
         },
       ],
     });

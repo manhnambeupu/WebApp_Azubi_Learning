@@ -38,6 +38,7 @@ import type {
 const BR03_MIN_ANSWERS_MESSAGE = "Mỗi câu hỏi phải có ít nhất 2 đáp án.";
 const BR03_MIN_CORRECT_MESSAGE = "Phải có ít nhất 1 đáp án đúng.";
 const ESSAY_SAMPLE_ANSWER_REQUIRED_MESSAGE = "Đáp án tự luận mẫu không được để trống.";
+const MATCHING_RIGHT_REQUIRED_MESSAGE = "Vế phải của cặp ghép không được để trống.";
 const DEFAULT_QUESTION_TYPE: QuestionType = "SINGLE_CHOICE";
 const QUESTION_TYPE_OPTIONS: Array<{
   value: QuestionType;
@@ -59,6 +60,16 @@ const QUESTION_TYPE_OPTIONS: Array<{
     label: "Tự luận",
     description: "Nhập một đáp án mẫu duy nhất cho câu hỏi tự luận.",
   },
+  {
+    value: "ORDERING",
+    label: "Sắp xếp thứ tự",
+    description: "Mỗi đáp án là một bước, thứ tự trong danh sách chính là đáp án đúng.",
+  },
+  {
+    value: "MATCHING",
+    label: "Ghép đôi",
+    description: "Mỗi dòng gồm vế trái và vế phải tương ứng để tạo thành cặp đúng.",
+  },
 ];
 
 let answerKeySeed = 0;
@@ -68,6 +79,7 @@ type AnswerFormItem = {
   text: string;
   isCorrect: boolean;
   explanation: string;
+  matchText: string;
 };
 
 type QuestionFormDialogProps = {
@@ -82,6 +94,7 @@ const createEmptyAnswer = (): AnswerFormItem => ({
   text: "",
   isCorrect: false,
   explanation: "",
+  matchText: "",
 });
 
 const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
@@ -90,11 +103,21 @@ const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
   }
 
   if (question?.answers.length) {
-    return question.answers.map((answer) => ({
+    const sourceAnswers =
+      question.type === "ORDERING"
+        ? [...question.answers].sort(
+            (left, right) =>
+              (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+              (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
+          )
+        : question.answers;
+
+    return sourceAnswers.map((answer) => ({
       key: `answer-${answerKeySeed++}`,
       text: answer.text,
       isCorrect: answer.isCorrect,
       explanation: answer.explanation ?? "",
+      matchText: answer.matchText ?? "",
     }));
   }
 
@@ -172,6 +195,10 @@ export function QuestionFormDialog({
   const isSubmitting =
     createQuestionMutation.isPending || updateQuestionMutation.isPending;
   const isEssayQuestion = questionType === "ESSAY";
+  const isOrderingQuestion = questionType === "ORDERING";
+  const isMatchingQuestion = questionType === "MATCHING";
+  const isChoiceQuestion =
+    questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
 
   useEffect(() => {
     if (!open) {
@@ -195,12 +222,16 @@ export function QuestionFormDialog({
       return BR03_MIN_ANSWERS_MESSAGE;
     }
 
+    if (isOrderingQuestion || isMatchingQuestion) {
+      return null;
+    }
+
     if (!answers.some((answer) => answer.isCorrect)) {
       return BR03_MIN_CORRECT_MESSAGE;
     }
 
     return null;
-  }, [answers, isEssayQuestion]);
+  }, [answers, isEssayQuestion, isMatchingQuestion, isOrderingQuestion]);
 
   const addAnswer = () => {
     setAnswers((prev) => [...prev, createEmptyAnswer()]);
@@ -208,7 +239,9 @@ export function QuestionFormDialog({
 
   const updateAnswer = (
     answerKey: string,
-    patch: Partial<Pick<AnswerFormItem, "text" | "isCorrect" | "explanation">>,
+    patch: Partial<
+      Pick<AnswerFormItem, "text" | "isCorrect" | "explanation" | "matchText">
+    >,
   ) => {
     setAnswers((prev) => {
       if (questionType === "SINGLE_CHOICE" && patch.isCorrect === true) {
@@ -246,7 +279,9 @@ export function QuestionFormDialog({
 
       return nextType === "SINGLE_CHOICE"
         ? normalizeSingleChoiceAnswers(nextAnswers)
-        : nextAnswers;
+        : nextType === "ORDERING" || nextType === "MATCHING"
+          ? nextAnswers.map((answer) => ({ ...answer, isCorrect: true }))
+          : nextAnswers;
     });
   };
 
@@ -294,27 +329,43 @@ export function QuestionFormDialog({
       return null;
     }
 
-    if (!normalizedObjectiveAnswers.some((answer) => answer.isCorrect)) {
+    if (isChoiceQuestion && !normalizedObjectiveAnswers.some((answer) => answer.isCorrect)) {
       setFormError(BR03_MIN_CORRECT_MESSAGE);
       return null;
     }
 
-    const answerPayload = normalizedObjectiveAnswers.map((answer) => ({
-      text: answer.text.trim(),
-      isCorrect: answer.isCorrect,
-      explanation: answer.explanation.trim(),
-    }));
-
-    if (answerPayload.some((answer) => !answer.text)) {
+    if (normalizedObjectiveAnswers.some((answer) => !answer.text.trim())) {
       setFormError("Nội dung đáp án không được để trống.");
       return null;
     }
 
-    const normalizedAnswerPayload = answerPayload.map((answer) => ({
-      text: answer.text,
-      isCorrect: answer.isCorrect,
-      ...(answer.explanation ? { explanation: answer.explanation } : {}),
-    }));
+    if (
+      isMatchingQuestion &&
+      normalizedObjectiveAnswers.some((answer) => !answer.matchText.trim())
+    ) {
+      setFormError(MATCHING_RIGHT_REQUIRED_MESSAGE);
+      return null;
+    }
+
+    const normalizedAnswerPayload = isOrderingQuestion
+      ? normalizedObjectiveAnswers.map((answer, index) => ({
+          text: answer.text.trim(),
+          isCorrect: true,
+          orderIndex: index + 1,
+        }))
+      : isMatchingQuestion
+        ? normalizedObjectiveAnswers.map((answer) => ({
+            text: answer.text.trim(),
+            isCorrect: true,
+            matchText: answer.matchText.trim(),
+          }))
+        : normalizedObjectiveAnswers.map((answer) => ({
+            text: answer.text.trim(),
+            isCorrect: answer.isCorrect,
+            ...(answer.explanation.trim()
+              ? { explanation: answer.explanation.trim() }
+              : {}),
+          }));
 
     const basePayload = {
       text: normalizedQuestionText,
@@ -463,6 +514,14 @@ export function QuestionFormDialog({
                     <p className="text-xs text-muted-foreground">
                       Khi chọn đáp án đúng mới, đáp án đúng cũ sẽ tự động bỏ chọn.
                     </p>
+                  ) : isOrderingQuestion ? (
+                    <p className="text-xs text-muted-foreground">
+                      Thứ tự hiển thị trong danh sách sẽ được lưu thành thứ tự đúng.
+                    </p>
+                  ) : isMatchingQuestion ? (
+                    <p className="text-xs text-muted-foreground">
+                      Mỗi đáp án gồm vế trái và vế phải tương ứng để tạo thành cặp đúng.
+                    </p>
                   ) : null}
                 </div>
                 <Button onClick={addAnswer} size="sm" type="button" variant="outline">
@@ -479,13 +538,20 @@ export function QuestionFormDialog({
 
               <div className="space-y-3">
                 {answers.map((answer, index) => {
-                  const answerLabel = String.fromCharCode(65 + index);
+                  const answerLabel = isOrderingQuestion
+                    ? `Bước ${index + 1}`
+                    : String.fromCharCode(65 + index);
+                  const answerTextLabel = isMatchingQuestion
+                    ? "Vế trái"
+                    : isOrderingQuestion
+                      ? "Tên bước"
+                      : "Nội dung đáp án";
                   return (
                     <div className="space-y-3 rounded-md border p-4" key={answer.key}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary">{answerLabel}</Badge>
-                          {answer.isCorrect ? (
+                          {isChoiceQuestion && answer.isCorrect ? (
                             <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
                               Đúng
                             </Badge>
@@ -504,46 +570,72 @@ export function QuestionFormDialog({
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`answer-text-${answer.key}`}>Nội dung đáp án</Label>
+                        <Label htmlFor={`answer-text-${answer.key}`}>{answerTextLabel}</Label>
                         <Input
                           id={`answer-text-${answer.key}`}
                           onChange={(event) =>
                             updateAnswer(answer.key, { text: event.target.value })
                           }
-                          placeholder={`Nhập đáp án ${answerLabel}`}
+                          placeholder={
+                            isMatchingQuestion
+                              ? `Nhập vế trái cho cặp ${answerLabel}`
+                              : isOrderingQuestion
+                                ? `Nhập nội dung ${answerLabel.toLowerCase()}`
+                                : `Nhập đáp án ${answerLabel}`
+                          }
                           value={answer.text}
                         />
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          checked={answer.isCorrect}
-                          id={`answer-correct-${answer.key}`}
-                          onCheckedChange={(checked) =>
-                            updateAnswer(answer.key, { isCorrect: checked === true })
-                          }
-                        />
-                        <Label
-                          className="cursor-pointer"
-                          htmlFor={`answer-correct-${answer.key}`}
-                        >
-                          Đây là đáp án đúng
-                        </Label>
-                      </div>
+                      {isMatchingQuestion ? (
+                        <div className="space-y-2">
+                          <Label htmlFor={`answer-match-text-${answer.key}`}>Vế phải</Label>
+                          <Input
+                            id={`answer-match-text-${answer.key}`}
+                            onChange={(event) =>
+                              updateAnswer(answer.key, { matchText: event.target.value })
+                            }
+                            placeholder={`Nhập vế phải cho cặp ${answerLabel}`}
+                            value={answer.matchText}
+                          />
+                        </div>
+                      ) : null}
 
-                      <div className="space-y-2">
-                        <Label htmlFor={`answer-explanation-${answer.key}`}>
-                          Giải thích đáp án (tuỳ chọn)
-                        </Label>
-                        <Input
-                          id={`answer-explanation-${answer.key}`}
-                          onChange={(event) =>
-                            updateAnswer(answer.key, { explanation: event.target.value })
-                          }
-                          placeholder="Giải thích thêm cho đáp án"
-                          value={answer.explanation}
-                        />
-                      </div>
+                      {isChoiceQuestion ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              checked={answer.isCorrect}
+                              id={`answer-correct-${answer.key}`}
+                              onCheckedChange={(checked) =>
+                                updateAnswer(answer.key, { isCorrect: checked === true })
+                              }
+                            />
+                            <Label
+                              className="cursor-pointer"
+                              htmlFor={`answer-correct-${answer.key}`}
+                            >
+                              Đây là đáp án đúng
+                            </Label>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`answer-explanation-${answer.key}`}>
+                              Giải thích đáp án (tuỳ chọn)
+                            </Label>
+                            <Input
+                              id={`answer-explanation-${answer.key}`}
+                              onChange={(event) =>
+                                updateAnswer(answer.key, {
+                                  explanation: event.target.value,
+                                })
+                              }
+                              placeholder="Giải thích thêm cho đáp án"
+                              value={answer.explanation}
+                            />
+                          </div>
+                        </>
+                      ) : null}
                     </div>
                   );
                 })}

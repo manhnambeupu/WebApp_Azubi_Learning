@@ -80,25 +80,26 @@ export class StudentLessonsService {
               uploadedAt: 'desc',
             },
           },
-           questions: {
-             orderBy: {
-               orderIndex: 'asc',
-             },
-             select: {
-               id: true,
-               type: true,
-                text: true,
-                orderIndex: true,
-                answers: {
-                  select: {
-                    id: true,
+          questions: {
+            orderBy: {
+              orderIndex: 'asc',
+            },
+            select: {
+              id: true,
+              type: true,
+              text: true,
+              orderIndex: true,
+              answers: {
+                select: {
+                  id: true,
                   text: true,
+                  matchText: true,
                 },
               },
             },
           },
         },
-      }),
+        }),
       this.prisma.lessonAttempt.findFirst({
         where: {
           lessonId,
@@ -129,6 +130,20 @@ export class StudentLessonsService {
                 id: answer.id,
                 text: answer.text,
               })),
+        ...(question.type === QuestionType.MATCHING
+          ? {
+              matchingOptions: [
+                ...new Set(
+                  question.answers
+                    .map((answer) => answer.matchText)
+                    .filter(
+                      (matchText): matchText is string =>
+                        matchText !== null && matchText.trim().length > 0,
+                    ),
+                ),
+              ],
+            }
+          : {}),
       })),
       isCompleted: Boolean(firstAttempt),
     };

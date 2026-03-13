@@ -31,7 +31,7 @@ export class CreateQuestionDto {
   @ApiProperty({
     type: [CreateAnswerDto],
     description:
-      'ESSAY questions may use [] or a single sample answer; choice questions still require answer validation in the service.',
+      'Supports SINGLE_CHOICE, MULTIPLE_CHOICE, ESSAY, ORDERING, MATCHING; ordering/matching metadata can be passed in each answer.',
   })
   @IsArray()
   @ValidateNested({ each: true })

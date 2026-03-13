@@ -588,13 +588,16 @@ Student gửi một lần tất cả câu trả lời → Backend tạo một `l
 {
   attemptId: "att_20260305_001",
   totalQuestions: 5,
-  correctCount: 3,
+  correctCount: 2.5, // Có thể ra điểm thập phân nếu Multiple Choice tính partial
   questions: [
     {
       id: "q1",
+      type: "MULTIPLE_CHOICE",
       text: "Câu hỏi...",
       explanation: "Giải thích tổng cho câu này...",
-      yourAnswer: { id: "a2", text: "...", isCorrect: false },
+      yourAnswers: [ // Dùng mảng để hỗ trợ MULTIPLE_CHOICE (chọn nhiều đáp án)
+         { id: "a2", text: "...", isCorrect: false }
+      ],
       answers: [
         { id: "a1", text: "...", isCorrect: true, explanation: "Vì đây là..." },
         { id: "a2", text: "...", isCorrect: false, explanation: "Sai vì..." }

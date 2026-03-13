@@ -1,5 +1,10 @@
 export type UserRole = "ADMIN" | "STUDENT";
-export type QuestionType = "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "ESSAY";
+export type QuestionType =
+  | "SINGLE_CHOICE"
+  | "MULTIPLE_CHOICE"
+  | "ESSAY"
+  | "ORDERING"
+  | "MATCHING";
 
 export type User = {
   id: string;
@@ -38,6 +43,8 @@ export type AnswerDetail = {
   text: string;
   isCorrect: boolean;
   explanation: string | null;
+  orderIndex: number | null;
+  matchText: string | null;
 };
 
 export type QuestionDetail = {
@@ -54,6 +61,8 @@ export type QuestionAnswerPayload = {
   text: string;
   isCorrect: boolean;
   explanation?: string;
+  orderIndex?: number;
+  matchText?: string;
 };
 
 export type CreateQuestionPayload = {
@@ -126,6 +135,7 @@ export type StudentQuestion = {
   text: string;
   orderIndex: number;
   answers: StudentAnswer[];
+  matchingOptions?: string[];
 };
 
 export type StudentLessonDetail = {
@@ -144,6 +154,10 @@ export type SubmitQuizPayload = {
   answers: {
     questionId: string;
     answerIds: string[];
+    matches?: {
+      answerId: string;
+      matchText: string;
+    }[];
   }[];
 };
 
@@ -152,6 +166,13 @@ export type QuizResultAnswer = {
   text: string;
   isCorrect: boolean;
   explanation: string | null;
+  orderIndex: number | null;
+  matchText: string | null;
+};
+
+export type QuizResultSelectedMatch = {
+  answerId: string;
+  matchText: string;
 };
 
 export type QuizResultQuestion = {
@@ -162,6 +183,7 @@ export type QuizResultQuestion = {
   answers: QuizResultAnswer[];
   selectedAnswerIds: string[];
   selectedAnswerId: string | null;
+  selectedMatches: QuizResultSelectedMatch[];
   isCorrect: boolean;
 };
 

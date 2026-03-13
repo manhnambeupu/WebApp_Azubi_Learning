@@ -16,6 +16,8 @@ enum QuestionType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
   ESSAY
+  ORDERING
+  MATCHING
 }
 
 model User {
@@ -86,6 +88,8 @@ model Answer {
   text        String
   isCorrect   Boolean      @map("is_correct")
   explanation String?
+  orderIndex  Int?         @map("order_index")
+  matchText   String?      @map("match_text")
   question    Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
   submissions Submission[]
 
@@ -114,10 +118,12 @@ model Submission {
   attemptId  String        @map("attempt_id") @db.Uuid
   questionId String        @map("question_id") @db.Uuid
   answerId   String        @map("answer_id") @db.Uuid
+  orderIndex Int?          @map("order_index")
+  matchText  String?       @map("match_text")
   isCorrect  Boolean       @map("is_correct")
   attempt    LessonAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question   Question      @relation(fields: [questionId], references: [id])
-  answer     Answer        @relation(fields: [answerId], references: [id])
+  question   Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer     Answer        @relation(fields: [answerId], references: [id], onDelete: Cascade)
 
   @@map("submissions")
 }

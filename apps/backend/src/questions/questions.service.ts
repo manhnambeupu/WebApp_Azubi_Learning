@@ -18,9 +18,7 @@ export class QuestionsService {
       where: { lessonId },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
       orderBy: {
@@ -34,9 +32,7 @@ export class QuestionsService {
       where: { id },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
     });
@@ -86,9 +82,7 @@ export class QuestionsService {
       },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
     });
@@ -128,9 +122,7 @@ export class QuestionsService {
         },
         include: {
           answers: {
-            orderBy: {
-              id: 'asc',
-            },
+            orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
           },
         },
       });
@@ -141,12 +133,6 @@ export class QuestionsService {
     await this.findById(id);
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.submission.deleteMany({
-        where: {
-          questionId: id,
-        },
-      });
-
       await tx.question.delete({
         where: { id },
       });
@@ -229,6 +215,8 @@ export class QuestionsService {
     return answers.map((answer) => ({
       text: answer.text,
       isCorrect: answer.isCorrect,
+      ...(answer.orderIndex !== undefined ? { orderIndex: answer.orderIndex } : {}),
+      ...(answer.matchText !== undefined ? { matchText: answer.matchText } : {}),
       ...(answer.explanation !== undefined
         ? { explanation: answer.explanation }
         : {}),

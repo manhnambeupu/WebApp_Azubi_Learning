@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateAnswerDto {
@@ -14,4 +14,20 @@ export class CreateAnswerDto {
   @IsOptional()
   @IsString()
   explanation?: string;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Used by ORDERING questions to store correct sequence.',
+  })
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+
+  @ApiPropertyOptional({
+    example: 'Mạng Zero Trust',
+    description: 'Used by MATCHING questions to store right-side match text.',
+  })
+  @IsOptional()
+  @IsString()
+  matchText?: string;
 }

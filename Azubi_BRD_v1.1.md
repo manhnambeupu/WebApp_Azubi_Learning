@@ -138,12 +138,12 @@ Xây dựng một web application cho phép học viên ngành Nhà hàng – Kh
 | ID | Mô tả yêu cầu | Ưu tiên | Ghi chú |
 |---|---|---|---|
 | QA-01 | Trên trang Edit Lesson, Admin xem danh sách tất cả câu hỏi của bài học đó. | 🔴 Must Have | |
-| QA-02 | Admin thêm câu hỏi mới vào bài học. | 🔴 Must Have | |
-| QA-03 | Admin sửa nội dung câu hỏi và phần giải thích tổng của câu hỏi. | 🔴 Must Have | |
+| QA-02 | Admin thêm câu hỏi mới vào bài học, chọn loại câu hỏi (SINGLE_CHOICE, MULTIPLE_CHOICE, ESSAY). | 🔴 Must Have | |
+| QA-03 | Admin sửa nội dung câu hỏi, loại câu hỏi và phần giải thích tổng của câu hỏi. | 🔴 Must Have | |
 | QA-04 | Admin xóa câu hỏi. Tất cả đáp án liên quan bị xóa theo (cascade). | 🔴 Must Have | Cascade delete |
-| QA-05 | Mỗi câu hỏi có nhiều đáp án. Admin thêm, sửa, xóa từng đáp án. | 🔴 Must Have | |
+| QA-05 | Mỗi câu hỏi có nhiều đáp án. Admin thêm, sửa, xóa từng đáp án. (Với loại ESSAY, Admin tạo duy nhất 1 đáp án chứa text bài giải mẫu). | 🔴 Must Have | |
 | QA-06 | Mỗi đáp án có: nội dung, đánh dấu đúng/sai, và giải thích riêng (lý do đúng hoặc sai). | 🔴 Must Have | |
-| QA-07 | Mỗi câu hỏi phải có ít nhất một đáp án được đánh dấu là Đúng. Hệ thống từ chối lưu nếu vi phạm. | 🟡 Should Have | Validate khi lưu |
+| QA-07 | Validate loại câu hỏi: MULTIPLE_CHOICE cần $\ge$ 1 đáp án đúng. SINGLE_CHOICE cần 1 đáp án đúng duy nhất. | 🟡 Should Have | Validate khi lưu |
 
 ---
 
@@ -171,11 +171,11 @@ Xây dựng một web application cho phép học viên ngành Nhà hàng – Kh
 
 | ID | Mô tả yêu cầu | Ưu tiên | Ghi chú |
 |---|---|---|---|
-| STU-07 | Trang chi tiết bài học hiển thị danh sách tất cả câu hỏi trắc nghiệm. | 🔴 Must Have | |
-| STU-08 | Student chọn một đáp án cho mỗi câu hỏi (single-choice). | 🔴 Must Have | |
-| STU-09 | Student nộp toàn bộ bài làm một lần. **Student được phép làm lại và nộp lại bao nhiêu lần tùy ý.** | 🔴 Must Have | Quyết định PO v1.1 |
-| STU-10 | Sau khi nộp, hiển thị: đáp án student chọn, đáp án đúng, giải thích riêng từng đáp án, giải thích tổng câu hỏi. | 🔴 Must Have | Data lấy từ server |
-| STU-11 | Giải thích và đáp án đúng **không được hiển thị** trước khi student nộp bài. | 🔴 Must Have | Bảo mật — không lộ trước |
+| STU-07 | Trang chi tiết bài học hiển thị danh sách tất cả câu hỏi, tự phân luồng UI hiển thị theo `type` (Radio, Checkbox, Text tự luận). | 🔴 Must Have | |
+| STU-08 | Student chọn một/nhiều đáp án (dạng trắc nghiệm). Riêng bài tự luận sinh viên không bị bắt buộc text-input. | 🔴 Must Have | |
+| STU-09 | Student nộp toàn bộ bài làm một lần. Có thể nộp lại nhiều lần. REST API hỗ trợ mảng `answerIds`. | 🔴 Must Have | Hỏi lại bao lần tùy thích |
+| STU-10 | Sau khi nộp, trả về kết quả 100 điểm quy đổi. Partial Scoring chấm điểm từng phần cho Multiple Choice. | 🔴 Must Have | Giao diện Result |
+| STU-11 | Các câu ESSAY (tự luận) được highlight vàng, hiển thị thẳng đáp án mẫu để student tự tham khảo. | 🔴 Must Have | Bảo mật — không lộ trước |
 
 ---
 
@@ -289,15 +289,21 @@ Trường `explanation` của `Answer` và `Question` **KHÔNG** được trả 
 
 ### BR-03 — Tính toàn vẹn câu hỏi
 
-Mỗi câu hỏi phải có ít nhất hai đáp án và ít nhất một đáp án `is_correct = TRUE`. Hệ thống từ chối lưu nếu vi phạm quy tắc này.
+- Câu hỏi SINGLE_CHOICE phải có $\ge$ 2 đáp án và đúng 1 đáp án `is_correct = TRUE`.
+- Câu hỏi MULTIPLE_CHOICE phải có $\ge$ 2 đáp án và $\ge$ 1 đáp án `is_correct = TRUE`.
+- Câu hỏi ESSAY chỉ cần tạo 1 đáp án đóng vai trò chứa đoạn Text (Bài giải mẫu), đáp án này mặc định `is_correct = TRUE`.
+Hệ thống từ chối lưu nếu vi phạm quy tắc này.
 
 ### BR-04 — Xóa bài học (Cascade)
 
 Khi Admin xóa một bài học, toàn bộ dữ liệu liên quan bị xóa theo: `LessonFile`, `Question`, `Answer`, toàn bộ `Submission` (mọi lần nộp) của học viên. Hệ thống hiển thị cảnh báo rõ ràng trước khi thực hiện.
 
-### BR-05 — Single-choice mỗi câu hỏi
+### BR-05 — Logic Chấm Điểm (Scoring)
 
-Student chỉ được chọn **duy nhất một đáp án** cho mỗi câu hỏi. Hệ thống không hỗ trợ câu hỏi nhiều đáp án (multiple-choice) ở phiên bản này.
+Student được chọn 1 đáp án (Radio) đối với SINGLE_CHOICE, hoặc chọn nhiều đáp án (Checkbox) đối với MULTIPLE_CHOICE. 
+- **SINGLE_CHOICE**: Đúng trọn vẹn được 1 điểm. Sai được 0 điểm.
+- **MULTIPLE_CHOICE (Partial Scoring)**: Giả sử N đáp án đúng. Mỗi tùy chọn đúng cộng `1/N` điểm. Nếu tick vào đáp án sai -> Toàn câu 0 điểm.
+- **ESSAY**: Không được tính vào tổng điểm tự động. Mở khóa đáp án mẫu sau khi nộp.
 
 ### BR-06 — Xóa danh mục có bài học đang dùng *(Mới — v1.1)*
 

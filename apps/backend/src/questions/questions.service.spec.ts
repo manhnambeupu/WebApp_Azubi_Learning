@@ -19,9 +19,6 @@ describe('QuestionsService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
-    submission: {
-      deleteMany: jest.Mock;
-    };
     answer: {
       deleteMany: jest.Mock;
     };
@@ -50,9 +47,6 @@ describe('QuestionsService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
-      },
-      submission: {
-        deleteMany: jest.fn(),
       },
       answer: {
         deleteMany: jest.fn(),
@@ -107,13 +101,91 @@ describe('QuestionsService', () => {
       },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
     });
     expect(result.id).toBe('question-1');
+  });
+
+  it('Tạo question ORDERING lưu orderIndex cho từng đáp án', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.question.findFirst.mockResolvedValue({ orderIndex: 0 });
+    prisma.question.create.mockResolvedValue({
+      id: 'question-ordering-1',
+      lessonId: 'lesson-1',
+      text: 'Sắp xếp quy trình',
+      explanation: null,
+      type: QuestionType.ORDERING,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    await service.create('lesson-1', {
+      text: 'Sắp xếp quy trình',
+      type: QuestionType.ORDERING,
+      answers: [
+        { text: 'Bước 1', isCorrect: true, orderIndex: 1 },
+        { text: 'Bước 2', isCorrect: true, orderIndex: 2 },
+      ],
+    });
+
+    expect(prisma.question.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          answers: {
+            create: [
+              { text: 'Bước 1', isCorrect: true, orderIndex: 1 },
+              { text: 'Bước 2', isCorrect: true, orderIndex: 2 },
+            ],
+          },
+        }),
+      }),
+    );
+  });
+
+  it('Tạo question MATCHING lưu matchText cho từng đáp án', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.question.findFirst.mockResolvedValue({ orderIndex: 0 });
+    prisma.question.create.mockResolvedValue({
+      id: 'question-matching-1',
+      lessonId: 'lesson-1',
+      text: 'Ghép khái niệm',
+      explanation: null,
+      type: QuestionType.MATCHING,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    await service.create('lesson-1', {
+      text: 'Ghép khái niệm',
+      type: QuestionType.MATCHING,
+      answers: [
+        { text: 'Zero Trust', isCorrect: true, matchText: 'Không tin cậy mặc định' },
+        { text: 'Least Privilege', isCorrect: true, matchText: 'Quyền tối thiểu' },
+      ],
+    });
+
+    expect(prisma.question.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          answers: {
+            create: [
+              {
+                text: 'Zero Trust',
+                isCorrect: true,
+                matchText: 'Không tin cậy mặc định',
+              },
+              {
+                text: 'Least Privilege',
+                isCorrect: true,
+                matchText: 'Quyền tối thiểu',
+              },
+            ],
+          },
+        }),
+      }),
+    );
   });
 
   it('Tạo question <2 answers -> UnprocessableEntityException', async () => {
@@ -227,16 +299,14 @@ describe('QuestionsService', () => {
       },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
     });
     expect(result.text).toBe('New text');
   });
 
-  it('Xóa question -> cascade xóa answers + submissions', async () => {
+  it('Xóa question thành công', async () => {
     prisma.question.findUnique.mockResolvedValue({
       id: 'question-1',
       lessonId: 'lesson-1',
@@ -248,7 +318,6 @@ describe('QuestionsService', () => {
     });
 
     const tx = {
-      submission: { deleteMany: jest.fn().mockResolvedValue({ count: 2 }) },
       question: { delete: jest.fn().mockResolvedValue({ id: 'question-1' }) },
     };
 
@@ -259,9 +328,6 @@ describe('QuestionsService', () => {
 
     const result = await service.delete('question-1');
 
-    expect(tx.submission.deleteMany).toHaveBeenCalledWith({
-      where: { questionId: 'question-1' },
-    });
     expect(tx.question.delete).toHaveBeenCalledWith({
       where: { id: 'question-1' },
     });
@@ -357,9 +423,7 @@ describe('QuestionsService', () => {
       },
       include: {
         answers: {
-          orderBy: {
-            id: 'asc',
-          },
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
     });

@@ -1,7 +1,24 @@
 "use client";
 
-import { Loader2, Send } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Loader2, Send } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,17 +29,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitQuiz } from "@/hooks/use-submissions";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
-import type { QuizResult, StudentQuestion } from "@/types";
+import type { QuizResult, StudentQuestion, SubmitQuizPayload } from "@/types";
 
 type QuizFormProps = {
   lessonId: string;
@@ -30,8 +55,28 @@ type QuizFormProps = {
   onSubmitted: (result: QuizResult) => void;
 };
 
+type MatchingSelectionsState = Record<string, Record<string, string>>;
+
+const shuffleArray = <T,>(items: T[]): T[] => {
+  const nextItems = [...items];
+
+  for (let index = nextItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [nextItems[index], nextItems[randomIndex]] = [
+      nextItems[randomIndex],
+      nextItems[index],
+    ];
+  }
+
+  return nextItems;
+};
+
 const getQuestionInstruction = (question: StudentQuestion): string => {
   switch (question.type) {
+    case "ORDERING":
+      return "Kéo thả các bước để sắp xếp lại theo đúng thứ tự.";
+    case "MATCHING":
+      return "Chọn vế phải phù hợp cho từng vế trái.";
     case "MULTIPLE_CHOICE":
       return "Chọn tất cả đáp án bạn cho là đúng.";
     case "ESSAY":
@@ -41,25 +86,130 @@ const getQuestionInstruction = (question: StudentQuestion): string => {
   }
 };
 
+type SortableAnswerItemProps = {
+  answer: StudentQuestion["answers"][number];
+  index: number;
+};
+
+function SortableAnswerItem({ answer, index }: SortableAnswerItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: answer.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-shadow",
+        isDragging ? "shadow-lg ring-1 ring-primary/30" : "shadow-sm",
+      )}
+      ref={setNodeRef}
+      style={style}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="rounded-md border border-slate-200/80 bg-slate-50 p-1.5 text-muted-foreground transition-colors hover:bg-slate-100"
+        >
+          <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
+          <span className="sr-only">Kéo để thay đổi vị trí</span>
+        </div>
+        <Badge variant="secondary">#{index + 1}</Badge>
+        <p className="text-sm">{answer.text}</p>
+      </div>
+    </div>
+  );
+}
+
 const isQuestionAnswered = (
   question: StudentQuestion,
   selectedAnswerIds: string[] | undefined,
-): boolean => question.type === "ESSAY" || (selectedAnswerIds?.length ?? 0) > 0;
+  orderingAnswerIds: string[] | undefined,
+  matchingSelectionsByAnswerId: Record<string, string> | undefined,
+): boolean => {
+  if (question.type === "ESSAY") {
+    return true;
+  }
+
+  if (question.type === "ORDERING") {
+    return (orderingAnswerIds?.length ?? 0) === question.answers.length;
+  }
+
+  if (question.type === "MATCHING") {
+    return question.answers.every(
+      (answer) =>
+        (matchingSelectionsByAnswerId?.[answer.id] ?? "").trim().length > 0,
+    );
+  }
+
+  return (selectedAnswerIds?.length ?? 0) > 0;
+};
 
 export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   const { toast } = useToast();
   const submitQuizMutation = useSubmitQuiz(lessonId);
 
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string[]>>({});
+  const [orderingAnswerIdsByQuestion, setOrderingAnswerIdsByQuestion] = useState<
+    Record<string, string[]>
+  >({});
+  const [matchingSelectionsByQuestion, setMatchingSelectionsByQuestion] =
+    useState<MatchingSelectionsState>({});
+  const [matchingOptionsByQuestion, setMatchingOptionsByQuestion] = useState<
+    Record<string, string[]>
+  >({});
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  useEffect(() => {
+    const nextOrderingAnswerIdsByQuestion: Record<string, string[]> = {};
+    const nextMatchingOptionsByQuestion: Record<string, string[]> = {};
+
+    for (const question of questions) {
+      if (question.type === "ORDERING") {
+        nextOrderingAnswerIdsByQuestion[question.id] = shuffleArray(
+          question.answers.map((answer) => answer.id),
+        );
+      }
+
+      if (question.type === "MATCHING") {
+        nextMatchingOptionsByQuestion[question.id] = shuffleArray(
+          question.matchingOptions ?? [],
+        );
+      }
+    }
+
+    setSelectedAnswers({});
+    setOrderingAnswerIdsByQuestion(nextOrderingAnswerIdsByQuestion);
+    setMatchingSelectionsByQuestion({});
+    setMatchingOptionsByQuestion(nextMatchingOptionsByQuestion);
+  }, [questions]);
 
   const totalQuestions = questions.length;
   const answeredCount = useMemo(
     () =>
       questions.filter((question) =>
-        isQuestionAnswered(question, selectedAnswers[question.id]),
+        isQuestionAnswered(
+          question,
+          selectedAnswers[question.id],
+          orderingAnswerIdsByQuestion[question.id],
+          matchingSelectionsByQuestion[question.id],
+        ),
       ).length,
-    [questions, selectedAnswers],
+    [matchingSelectionsByQuestion, orderingAnswerIdsByQuestion, questions, selectedAnswers],
   );
   const isFullyAnswered = answeredCount === totalQuestions && totalQuestions > 0;
 
@@ -90,12 +240,50 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     });
   };
 
+  const handleDragEnd = (event: DragEndEvent, questionId: string) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    setOrderingAnswerIdsByQuestion((prev) => {
+      const currentAnswerIds = prev[questionId] ?? [];
+      const activeId = String(active.id);
+      const overId = String(over.id);
+      const oldIndex = currentAnswerIds.findIndex((answerId) => answerId === activeId);
+      const newIndex = currentAnswerIds.findIndex((answerId) => answerId === overId);
+
+      if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [questionId]: arrayMove(currentAnswerIds, oldIndex, newIndex),
+      };
+    });
+  };
+
+  const handleMatchingSelect = (
+    questionId: string,
+    answerId: string,
+    matchText: string,
+  ) => {
+    setMatchingSelectionsByQuestion((prev) => ({
+      ...prev,
+      [questionId]: {
+        ...(prev[questionId] ?? {}),
+        [answerId]: matchText,
+      },
+    }));
+  };
+
   const handleOpenConfirm = () => {
     if (!isFullyAnswered) {
       toast({
         title: "Bạn chưa hoàn thành bài làm",
-        description:
-          "Vui lòng chọn đáp án cho tất cả câu hỏi trắc nghiệm trước khi nộp bài.",
+        description: "Vui lòng hoàn thành tất cả câu hỏi trước khi nộp bài.",
         variant: "destructive",
       });
       return;
@@ -110,12 +298,35 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     }
 
     try {
-      const result = await submitQuizMutation.mutateAsync({
-        answers: questions.map((question) => ({
-          questionId: question.id,
-          answerIds: selectedAnswers[question.id] ?? [],
-        })),
-      });
+      const payload: SubmitQuizPayload = {
+        answers: questions.map((question) => {
+          if (question.type === "ORDERING") {
+            return {
+              questionId: question.id,
+              answerIds: orderingAnswerIdsByQuestion[question.id] ?? [],
+            };
+          }
+
+          if (question.type === "MATCHING") {
+            return {
+              questionId: question.id,
+              answerIds: [],
+              matches: question.answers.map((answer) => ({
+                answerId: answer.id,
+                matchText:
+                  matchingSelectionsByQuestion[question.id]?.[answer.id] ?? "",
+              })),
+            };
+          }
+
+          return {
+            questionId: question.id,
+            answerIds: selectedAnswers[question.id] ?? [],
+          };
+        }),
+      };
+
+      const result = await submitQuizMutation.mutateAsync(payload);
       setConfirmOpen(false);
       onSubmitted(result);
       toast({
@@ -136,8 +347,8 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Phần làm bài</h2>
         <p className="text-sm text-muted-foreground">
-          Tùy loại câu hỏi, bạn có thể chọn một đáp án, nhiều đáp án hoặc tự suy nghĩ
-          đáp án cho phần tự luận.
+          Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc tự
+          suy nghĩ đáp án cho phần tự luận.
         </p>
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -153,6 +364,18 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       <div className="space-y-4">
         {questions.map((question, questionIndex) => {
           const selectedAnswerIds = selectedAnswers[question.id] ?? [];
+          const orderingAnswerIds = orderingAnswerIdsByQuestion[question.id] ?? [];
+          const matchingOptions = matchingOptionsByQuestion[question.id] ?? [];
+          const matchingSelections = matchingSelectionsByQuestion[question.id] ?? {};
+          const answerById = new Map(
+            question.answers.map((answer) => [answer.id, answer] as const),
+          );
+          const orderedAnswers = orderingAnswerIds
+            .map((answerId) => answerById.get(answerId))
+            .filter(
+              (answer): answer is StudentQuestion["answers"][number] =>
+                answer !== undefined,
+            );
 
           return (
             <div
@@ -177,6 +400,68 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     tabIndex={-1}
                     value=""
                   />
+                </div>
+              ) : question.type === "ORDERING" ? (
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(event, question.id)}
+                  sensors={sensors}
+                >
+                  <SortableContext
+                    items={orderedAnswers.map((answer) => answer.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {orderedAnswers.map((answer, answerIndex) => (
+                        <SortableAnswerItem
+                          answer={answer}
+                          index={answerIndex}
+                          key={answer.id}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : question.type === "MATCHING" ? (
+                <div className="space-y-3">
+                  {question.answers.map((answer) => (
+                    <div
+                      className="grid gap-3 rounded-lg border border-slate-200/80 bg-white p-3 md:grid-cols-[1fr_1fr]"
+                      key={answer.id}
+                    >
+                      <div className="space-y-1 rounded-md border border-slate-200/80 bg-slate-50/70 px-3 py-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Vế trái
+                        </p>
+                        <p className="text-sm">{answer.text}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Vế phải
+                        </p>
+                        <Select
+                          onValueChange={(matchText) =>
+                            handleMatchingSelect(question.id, answer.id, matchText)
+                          }
+                          value={matchingSelections[answer.id]}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn vế phải phù hợp" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {matchingOptions.map((option, optionIndex) => (
+                              <SelectItem
+                                key={`${question.id}-${answer.id}-${optionIndex}`}
+                                value={option}
+                              >
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : question.type === "MULTIPLE_CHOICE" ? (
                 <div className="space-y-3">

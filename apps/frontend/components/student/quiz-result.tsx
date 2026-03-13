@@ -73,12 +73,59 @@ const getQuestionStatus = (
       correctAnswerIds.has(answerId),
     ).length;
 
-      if (!hasWrongSelection && selectedCorrectCount > 0) {
-        return {
-          className: "text-amber-800",
-          label: "Bạn trả lời đúng một phần",
-        };
+    if (!hasWrongSelection && selectedCorrectCount > 0) {
+      return {
+        className: "text-amber-800",
+        label: "Bạn trả lời đúng một phần",
+      };
+    }
+  }
+
+  if (question.type === "MATCHING") {
+    const selectedMatchesByAnswerId = new Map(
+      question.selectedMatches.map((selectedMatch) => [
+        selectedMatch.answerId,
+        selectedMatch.matchText,
+      ]),
+    );
+    const correctPairCount = question.answers.reduce((count, answer) => {
+      if (
+        answer.matchText !== null &&
+        selectedMatchesByAnswerId.get(answer.id) === answer.matchText
+      ) {
+        return count + 1;
       }
+
+      return count;
+    }, 0);
+
+    if (correctPairCount > 0) {
+      return {
+        className: "text-amber-800",
+        label: "Bạn ghép đúng một phần",
+      };
+    }
+  }
+
+  if (question.type === "ORDERING") {
+    const normalizedSelectedAnswerIds = getNormalizedSelectedAnswerIds(question);
+    const orderedCorrectAnswers = [...question.answers].sort(
+      (left, right) =>
+        (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+        (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
+    );
+    const correctPositionCount = orderedCorrectAnswers.reduce(
+      (count, answer, index) =>
+        normalizedSelectedAnswerIds[index] === answer.id ? count + 1 : count,
+      0,
+    );
+
+    if (correctPositionCount > 0) {
+      return {
+        className: "text-amber-800",
+        label: "Bạn sắp xếp đúng một phần vị trí",
+      };
+    }
   }
 
   return {
@@ -93,6 +140,46 @@ const getAnswerContainerClass = (isCorrect: boolean, isSelected: boolean): strin
     isCorrect ? "border-emerald-300 bg-emerald-50/90" : "",
     isSelected && !isCorrect ? "border-rose-300 bg-rose-50/90" : "",
   );
+
+const getQuestionExplanationText = (question: QuizResultQuestion): string | null => {
+  const normalizedQuestionExplanation = question.explanation?.trim();
+  if (normalizedQuestionExplanation) {
+    return normalizedQuestionExplanation;
+  }
+
+  if (question.type === "ORDERING") {
+    const orderedCorrectAnswers = [...question.answers].sort(
+      (left, right) =>
+        (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+        (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
+    );
+
+    if (orderedCorrectAnswers.length === 0) {
+      return null;
+    }
+
+    return `Thứ tự đúng: ${orderedCorrectAnswers
+      .map((answer, index) => `${index + 1}. ${answer.text}`)
+      .join(" → ")}`;
+  }
+
+  if (question.type === "MATCHING") {
+    const correctPairs = question.answers
+      .filter(
+        (answer): answer is QuizResultQuestion["answers"][number] & { matchText: string } =>
+          answer.matchText !== null && answer.matchText.trim().length > 0,
+      )
+      .map((answer) => `${answer.text} → ${answer.matchText}`);
+
+    if (correctPairs.length === 0) {
+      return null;
+    }
+
+    return `Cặp ghép đúng:\n- ${correctPairs.join("\n- ")}`;
+  }
+
+  return null;
+};
 
 type ObjectiveAnswerRowProps = {
   answer: QuizResultQuestion["answers"][number];
@@ -124,6 +211,112 @@ function ObjectiveAnswerRow({ answer, control, isSelected }: ObjectiveAnswerRowP
   );
 }
 
+function OrderingResultRows({ question }: { question: QuizResultQuestion }) {
+  const normalizedSelectedAnswerIds = getNormalizedSelectedAnswerIds(question);
+  const answerById = new Map(question.answers.map((answer) => [answer.id, answer] as const));
+  const orderedCorrectAnswers = [...question.answers].sort(
+    (left, right) =>
+      (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+      (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
+  );
+
+  return (
+    <div className="space-y-2">
+      {orderedCorrectAnswers.map((correctAnswer, index) => {
+        const selectedAnswerId = normalizedSelectedAnswerIds[index];
+        const selectedAnswer =
+          selectedAnswerId !== undefined ? answerById.get(selectedAnswerId) : undefined;
+        const isPositionCorrect = selectedAnswerId === correctAnswer.id;
+
+        return (
+          <div
+            className={cn(
+              "rounded-lg border p-3",
+              isPositionCorrect
+                ? "border-emerald-300 bg-emerald-50/90"
+                : "border-rose-300 bg-rose-50/90",
+            )}
+            key={correctAnswer.id}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">Vị trí #{index + 1}</Badge>
+              <p className="text-sm">
+                Bạn xếp: {selectedAnswer?.text ?? "Chưa có đáp án"}
+              </p>
+              <Badge
+                className={
+                  isPositionCorrect
+                    ? "bg-emerald-600 text-white hover:bg-emerald-600"
+                    : "bg-rose-600 text-white hover:bg-rose-600"
+                }
+              >
+                {isPositionCorrect ? "Đúng" : "Sai"}
+              </Badge>
+            </div>
+            {!isPositionCorrect ? (
+              <p className="mt-1 text-xs text-rose-800">
+                Đáp án đúng là: {correctAnswer.text}
+              </p>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MatchingResultRows({ question }: { question: QuizResultQuestion }) {
+  const selectedMatchesByAnswerId = new Map(
+    question.selectedMatches.map((selectedMatch) => [
+      selectedMatch.answerId,
+      selectedMatch.matchText,
+    ]),
+  );
+
+  return (
+    <div className="space-y-2">
+      {question.answers.map((answer) => {
+        const selectedMatchText = selectedMatchesByAnswerId.get(answer.id) ?? "Chưa chọn";
+        const correctMatchText = answer.matchText ?? "Không có đáp án chuẩn";
+        const isPairCorrect =
+          answer.matchText !== null && selectedMatchText === answer.matchText;
+
+        return (
+          <div
+            className={cn(
+              "rounded-lg border p-3",
+              isPairCorrect
+                ? "border-emerald-300 bg-emerald-50/90"
+                : "border-rose-300 bg-rose-50/90",
+            )}
+            key={answer.id}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm">
+                <span className="font-medium">{answer.text}</span> {"->"} {selectedMatchText}
+              </p>
+              <Badge
+                className={
+                  isPairCorrect
+                    ? "bg-emerald-600 text-white hover:bg-emerald-600"
+                    : "bg-rose-600 text-white hover:bg-rose-600"
+                }
+              >
+                {isPairCorrect ? "Đúng" : "Sai"}
+              </Badge>
+            </div>
+            {!isPairCorrect ? (
+              <p className="mt-1 text-xs text-rose-800">
+                Đáp án đúng là: {correctMatchText}
+              </p>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function QuizResult({ result, onRetry, showActions = true }: QuizResultProps) {
   return (
     <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all">
@@ -151,6 +344,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
           const status = getQuestionStatus(question);
           const normalizedSelectedAnswerIds = getNormalizedSelectedAnswerIds(question);
           const selectedAnswerIds = new Set(normalizedSelectedAnswerIds);
+          const explanationText = getQuestionExplanationText(question);
 
           return (
             <div
@@ -175,6 +369,10 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
                       "Chưa có đáp án mẫu."}
                   </div>
                 </div>
+              ) : question.type === "ORDERING" ? (
+                <OrderingResultRows question={question} />
+              ) : question.type === "MATCHING" ? (
+                <MatchingResultRows question={question} />
               ) : question.type === "MULTIPLE_CHOICE" ? (
                 <div className="space-y-2">
                   {question.answers.map((answer) => {
@@ -219,12 +417,12 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
                 </RadioGroup>
               )}
 
-              {question.explanation ? (
+              {explanationText ? (
                 <div className="rounded-lg bg-white p-4">
                   <p className="text-xs font-semibold uppercase text-muted-foreground">
                     Giải thích câu hỏi
                   </p>
-                  <p className="mt-1 text-sm">{question.explanation}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm">{explanationText}</p>
                 </div>
               ) : null}
             </div>

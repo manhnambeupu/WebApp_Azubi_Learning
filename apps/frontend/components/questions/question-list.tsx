@@ -107,7 +107,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
         <div>
           <h2 className="text-lg font-semibold">Câu hỏi & Đáp án</h2>
           <p className="text-sm text-muted-foreground">
-            Quản lý câu hỏi trắc nghiệm và tự luận cho bài học hiện tại.
+            Quản lý câu hỏi trắc nghiệm, tự luận, sắp xếp thứ tự và ghép đôi cho bài học.
           </p>
         </div>
 
@@ -243,7 +243,14 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                   ) : null}
 
                   <div className="space-y-2">
-                    {question.answers.map((answer, answerIndex) => (
+                    {(question.type === "ORDERING"
+                      ? [...question.answers].sort(
+                          (left, right) =>
+                            (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+                            (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
+                        )
+                      : question.answers
+                    ).map((answer, answerIndex) => (
                       <AnswerCard
                         answer={answer}
                         answerIndex={answerIndex}
@@ -266,6 +273,8 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   SINGLE_CHOICE: "Chọn 1 đáp án",
   MULTIPLE_CHOICE: "Chọn nhiều đáp án",
   ESSAY: "Tự luận",
+  ORDERING: "Sắp xếp thứ tự",
+  MATCHING: "Ghép đôi",
 };
 
 function AnswerCard({
@@ -278,25 +287,42 @@ function AnswerCard({
   questionType: QuestionType;
 }) {
   const answerLabel = String.fromCharCode(65 + answerIndex);
+  const isEssayQuestion = questionType === "ESSAY";
+  const isChoiceQuestion =
+    questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
+  const isOrderingQuestion = questionType === "ORDERING";
+  const isMatchingQuestion = questionType === "MATCHING";
+  const answerText = isMatchingQuestion
+    ? `${answer.text} ↔ ${answer.matchText ?? "—"}`
+    : answer.text;
 
   return (
     <div
       className={cn(
         "rounded-lg border bg-white p-3",
-        answer.isCorrect ? "border-emerald-300 bg-emerald-50/70" : "",
+        isChoiceQuestion && answer.isCorrect ? "border-emerald-300 bg-emerald-50/70" : "",
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary">{answerLabel}</Badge>
-        {questionType === "ESSAY" ? (
+        {isEssayQuestion ? (
           <Badge className="bg-sky-600 text-white hover:bg-sky-600">Mẫu</Badge>
+        ) : isOrderingQuestion ? (
+          <Badge variant="outline">Bước</Badge>
+        ) : isMatchingQuestion ? (
+          <Badge className="bg-indigo-600 text-white hover:bg-indigo-600">Cặp đúng</Badge>
         ) : answer.isCorrect ? (
           <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">Đúng</Badge>
         ) : (
           <Badge variant="outline">Sai</Badge>
         )}
-        <p className="text-sm font-medium">{answer.text}</p>
+        <p className="text-sm font-medium">{answerText}</p>
       </div>
+      {isOrderingQuestion ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Thứ tự đúng: {answer.orderIndex ?? answerIndex + 1}
+        </p>
+      ) : null}
       {answer.explanation ? (
         <p className="mt-2 text-xs text-muted-foreground">{answer.explanation}</p>
       ) : null}

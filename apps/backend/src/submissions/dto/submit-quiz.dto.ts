@@ -11,6 +11,16 @@ export class SubmitQuizDto {
         questionId: '550e8400-e29b-41d4-a716-446655440000',
         answerIds: ['660e8400-e29b-41d4-a716-446655440000'],
       },
+      {
+        questionId: '770e8400-e29b-41d4-a716-446655440000',
+        answerIds: [],
+        matches: [
+          {
+            answerId: '880e8400-e29b-41d4-a716-446655440000',
+            matchText: 'Zero Trust',
+          },
+        ],
+      },
     ],
   })
   @IsArray()

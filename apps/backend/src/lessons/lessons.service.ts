@@ -14,8 +14,12 @@ const LESSON_FILES_BUCKET = 'lesson-files';
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_LESSON_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png']);
-const DOCX_MIME_TYPE =
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const PDF_MIME_TYPE = 'application/pdf';
+const LESSON_FILE_MIME_TYPES = new Set([
+  DOCX_MIME_TYPE,
+  PDF_MIME_TYPE,
+]);
 
 @Injectable()
 export class LessonsService {
@@ -326,7 +330,7 @@ export class LessonsService {
 
   private validateImageFile(file: Express.Multer.File): void {
     if (!IMAGE_MIME_TYPES.has(file.mimetype)) {
-      throw new BadRequestException('Image must be a .jpg or .png file');
+      throw new BadRequestException('Image must be a .jpg or .png file. Supported file types: .jpg, .jpeg, .png');
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
@@ -335,13 +339,18 @@ export class LessonsService {
   }
 
   private validateLessonDocumentFile(file: Express.Multer.File): void {
-    const hasDocxExtension = file.originalname.toLowerCase().endsWith('.docx');
-    if (!hasDocxExtension || file.mimetype !== DOCX_MIME_TYPE) {
-      throw new BadRequestException('Lesson file must be a .docx document');
+    const lowerName = file.originalname.toLowerCase();
+    const hasDocxExtension = lowerName.endsWith('.docx');
+    const hasPdfExtension = lowerName.endsWith('.pdf');
+    const isDocxMime = file.mimetype === DOCX_MIME_TYPE;
+    const isPdfMime = file.mimetype === PDF_MIME_TYPE;
+
+    if (!((hasDocxExtension && isDocxMime) || (hasPdfExtension && isPdfMime))) {
+      throw new BadRequestException('Lesson file must be a .docx or .pdf document. Supported file types: .docx, .pdf');
     }
 
     if (file.size > MAX_LESSON_FILE_SIZE_BYTES) {
-      throw new BadRequestException('Lesson file size must not exceed 20MB');
+      throw new BadRequestException('Lesson file size must not exceed 20MB. Supported file types: .docx, .pdf');
     }
   }
 

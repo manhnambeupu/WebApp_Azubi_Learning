@@ -1,5 +1,23 @@
-import { ArrayUnique, IsArray, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  ArrayUnique,
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+export class SubmitMatchDto {
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID()
+  answerId!: string;
+
+  @ApiProperty({ example: 'Mạng Zero Trust' })
+  @IsString()
+  matchText!: string;
+}
 
 export class SubmitAnswerDto {
   @ApiProperty({ format: 'uuid' })
@@ -14,4 +32,15 @@ export class SubmitAnswerDto {
   @ArrayUnique()
   @IsUUID(undefined, { each: true })
   answerIds!: string[];
+
+  @ApiPropertyOptional({
+    type: [SubmitMatchDto],
+    description:
+      'Used for MATCHING questions: each item maps answerId to the match text selected by student.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SubmitMatchDto)
+  matches?: SubmitMatchDto[];
 }

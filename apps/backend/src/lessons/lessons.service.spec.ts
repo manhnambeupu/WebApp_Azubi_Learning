@@ -214,10 +214,10 @@ describe('LessonsService', () => {
     expect(prisma.lesson.create).not.toHaveBeenCalled();
   });
 
-  it('Upload file không phải .docx -> reject', async () => {
+  it('Upload file không phải .docx/.pdf -> reject', async () => {
     const invalidFile = {
-      originalname: 'lesson.pdf',
-      mimetype: 'application/pdf',
+      originalname: 'lesson.txt',
+      mimetype: 'text/plain',
       size: 1_024,
       buffer: Buffer.alloc(10),
     } as Express.Multer.File;
@@ -334,6 +334,32 @@ describe('LessonsService', () => {
     expect(result).toEqual(
       expect.objectContaining({
         id: 'file-1',
+        lessonId: 'lesson-1',
+      }),
+    );
+  });
+
+  it('uploadLessonFile PDF thành công', async () => {
+    const pdf = {
+      originalname: 'lesson.pdf',
+      mimetype: 'application/pdf',
+      size: 1000,
+      buffer: Buffer.from('pdf'),
+    } as Express.Multer.File;
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    minioService.uploadFile.mockResolvedValue('http://localhost:9000/lesson-files/file.pdf');
+    prisma.lessonFile.create.mockResolvedValue({
+      id: 'file-2',
+      lessonId: 'lesson-1',
+      fileName: 'lesson.pdf',
+      fileUrl: 'http://localhost:9000/lesson-files/file.pdf',
+    });
+
+    const result = await service.uploadLessonFile('lesson-1', pdf);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 'file-2',
         lessonId: 'lesson-1',
       }),
     );

@@ -32,7 +32,11 @@ export class UpdateQuestionDto {
   @IsInt()
   orderIndex?: number;
 
-  @ApiPropertyOptional({ type: [CreateAnswerDto] })
+  @ApiPropertyOptional({
+    type: [CreateAnswerDto],
+    description:
+      'Supports updating ORDERING/MATCHING metadata (orderIndex, matchText) within answers.',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

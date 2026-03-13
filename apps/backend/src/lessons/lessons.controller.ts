@@ -35,8 +35,8 @@ import { LessonsService } from './lessons.service';
 const IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const LESSON_FILE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
 const IMAGE_MIME_TYPE = /image\/(jpeg|png|webp|avif|gif)/;
-const DOCX_MIME_TYPE =
-  /^application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document$/;
+const LESSON_FILE_MIME_TYPE =
+  /^(application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/pdf)$/;
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
@@ -155,7 +155,7 @@ export class LessonsController {
 
   @Post(':id/files')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload file Word cho bài học' })
+  @ApiOperation({ summary: 'Upload file tài liệu cho bài học' })
   @ApiParam({ name: 'id', description: 'Lesson ID (UUID)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -176,7 +176,7 @@ export class LessonsController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: LESSON_FILE_MAX_SIZE_BYTES }),
-          new FileTypeValidator({ fileType: DOCX_MIME_TYPE }),
+          new FileTypeValidator({ fileType: LESSON_FILE_MIME_TYPE }),
         ],
       }),
     )

@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { LessonFile } from "@/types";
 
-const MAX_DOCX_SIZE_BYTES = 20 * 1024 * 1024;
+const MAX_LESSON_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 type LessonFilesManagerProps = {
   lessonId: string;
@@ -46,20 +46,29 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
   const deleteFileMutation = useDeleteLessonFile(lessonId);
   const downloadFileMutation = useGetLessonFileDownloadUrl(lessonId);
 
-  const validateDocxFile = (file: File): boolean => {
-    if (!file.name.toLowerCase().endsWith(".docx")) {
+  const validateLessonFile = (file: File): boolean => {
+    const allowedExtensions = [".docx", ".pdf"];
+    const allowedMimeTypes = [
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/pdf",
+    ];
+    const extensionIndex = file.name.lastIndexOf(".");
+    const ext = extensionIndex >= 0 ? file.name.toLowerCase().slice(extensionIndex) : "";
+    const mime = file.type;
+
+    if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mime)) {
       toast({
         title: "File không hợp lệ",
-        description: "Vui lòng chọn file Word định dạng .docx.",
+        description: "Vui lòng chọn file .docx hoặc .pdf.",
         variant: "destructive",
       });
       return false;
     }
 
-    if (file.size > MAX_DOCX_SIZE_BYTES) {
+    if (file.size > MAX_LESSON_FILE_SIZE_BYTES) {
       toast({
         title: "File vượt quá dung lượng",
-        description: "Dung lượng tối đa cho file Word là 20MB.",
+        description: "Dung lượng tối đa cho file là 20MB.",
         variant: "destructive",
       });
       return false;
@@ -69,7 +78,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
   };
 
   const handleUploadFile = async (file: File) => {
-    if (!validateDocxFile(file)) {
+    if (!validateLessonFile(file)) {
       return;
     }
 
@@ -77,7 +86,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
       await uploadFileMutation.mutateAsync(file);
       toast({
         title: "Upload thành công",
-        description: "File Word đã được đính kèm vào bài học.",
+        description: "File tài liệu đã được đính kèm vào bài học.",
       });
     } catch (error) {
       toast({
@@ -127,15 +136,15 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
     <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">File Word đính kèm</h2>
+          <h2 className="text-lg font-semibold">File tài liệu đính kèm</h2>
           <p className="text-sm text-muted-foreground">
-            Upload tài liệu bài học định dạng .docx (tối đa 20MB).
+            Upload tài liệu bài học định dạng .docx hoặc .pdf (tối đa 20MB).
           </p>
         </div>
 
         <div>
           <input
-            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
             className="hidden"
             onChange={(event) => {
               const file = event.target.files?.[0];
@@ -161,7 +170,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                Upload file Word
+                Upload tài liệu
               </>
             )}
           </Button>
@@ -172,7 +181,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
 
       {files.length === 0 ? (
         <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground">
-          Chưa có file Word nào được đính kèm.
+          Chưa có file tài liệu nào được đính kèm.
         </p>
       ) : (
         <div className="space-y-3">
@@ -222,7 +231,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
                     <AlertDialogHeader>
                       <AlertDialogTitle>Xóa file đính kèm?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Hành động này không thể hoàn tác. File Word sẽ bị xóa vĩnh viễn khỏi
+                        Hành động này không thể hoàn tác. File tài liệu sẽ bị xóa vĩnh viễn khỏi
                         bài học.
                       </AlertDialogDescription>
                     </AlertDialogHeader>

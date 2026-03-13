@@ -469,7 +469,7 @@ NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
 - ❌ Don't expose `explanation` or `isCorrect` in student lesson detail API (BR-02)
 - ❌ Don't allow category deletion when lessons reference it (BR-06)
 - ❌ Don't use localStorage for access tokens (use Zustand in-memory)
-- ❌ Don't allow multi-choice answers — quiz is single-choice only (BR-05)
+- ❌ **MUST SUPPORT MULTIPLE QUESTION TYPES:** Single Choice, Multiple Choice (requires partial scoring), Essay (no auto score, display reference answer).
 - ❌ Don't reset completion status on retakes — first attempt determines completion (BR-01)
 - ❌ Don't enable Swagger in production (`NODE_ENV=production`)
 - ❌ Don't skip validation on DTO fields — always use `class-validator` decorators

@@ -179,6 +179,28 @@ describe('StudentLessonsService', () => {
             },
           ],
         },
+        {
+          id: 'question-3',
+          type: QuestionType.MATCHING,
+          text: 'Ghép khái niệm với định nghĩa phù hợp.',
+          orderIndex: 3,
+          answers: [
+            {
+              id: 'answer-3-left-1',
+              text: 'Zero Trust',
+              isCorrect: true,
+              explanation: 'Không nên lộ cho student trước khi nộp bài',
+              matchText: 'Không tin cậy mặc định',
+            },
+            {
+              id: 'answer-3-left-2',
+              text: 'Least Privilege',
+              isCorrect: true,
+              explanation: 'Không nên lộ cho student trước khi nộp bài',
+              matchText: 'Quyền tối thiểu',
+            },
+          ],
+        },
       ],
     } as unknown);
     prisma.lessonAttempt.findFirst.mockResolvedValue({ id: 'attempt-1' });
@@ -205,6 +227,23 @@ describe('StudentLessonsService', () => {
         text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
         orderIndex: 2,
         answers: [],
+      },
+      {
+        id: 'question-3',
+        type: QuestionType.MATCHING,
+        text: 'Ghép khái niệm với định nghĩa phù hợp.',
+        orderIndex: 3,
+        answers: [
+          {
+            id: 'answer-3-left-1',
+            text: 'Zero Trust',
+          },
+          {
+            id: 'answer-3-left-2',
+            text: 'Least Privilege',
+          },
+        ],
+        matchingOptions: ['Không tin cậy mặc định', 'Quyền tối thiểu'],
       },
     ]);
     expect('explanation' in result.questions[0]).toBe(false);
