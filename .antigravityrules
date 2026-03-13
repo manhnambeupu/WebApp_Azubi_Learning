@@ -13,7 +13,7 @@ Luôn tuân thủ nghiêm ngặt các tài liệu sau đây trong mọi phản h
 - Mọi code sinh ra phải pass qua 30 Security Rules trước khi đề xuất.
 - Nếu có mâu thuẫn giữa yêu cầu người dùng và ba tài liệu trên → cảnh báo trước khi làm.
 
-## Security — 3 lỗ hổng P0 (ĐÃ FIX)
+## Security — 3 lỗ hổng P0, 3 lỗ hổng P1 và 3 lỗ hổng P2 (ĐÃ FIX)
 
 Các lỗ hổng sau đã được audit và xử lý dứt điểm:
 
@@ -21,5 +21,10 @@ Các lỗ hổng sau đã được audit và xử lý dứt điểm:
 2. **[ĐÃ FIX] Brute-force theo account** (SECURITY_RULES Rule 18): Đã thêm `failedLoginCount` + `lockedUntil`, tự động khóa account 15 phút.
 3. **[ĐÃ FIX] Thiếu Content-Security-Policy** (SECURITY_RULES Rule 04): Đã bảo vệ toàn diện XSS bằng CSP header trong nginx và helmet config.
    - Fix: Thêm CSP header vào nginx.conf và helmet config trong main.ts.
+4. **[ĐÃ FIX] Hash password cost < 12** (SECURITY_RULES Rule 12): Đã ép sử dụng `bcrypt.hash(..., 12)` cho password và refresh token.
+5. **[ĐÃ FIX] Leak lỗi hệ thống** (SECURITY_RULES Rule 08): Đã ẩn chi tiết lỗi Generic Error ở môi trường Production.
+6. **[ĐÃ FIX] Metadata ảnh** (SECURITY_RULES Rule 07): Đã dùng `sharp` để strip EXIF metadata trước khi upload.
+7. **[ĐÃ FIX] Cache Auth API** (SECURITY_RULES Rule 27): Đã thêm header `Cache-Control: no-store` cho các auth endpoints.
+8. **[ĐÃ FIX] Dependency Scan** (SECURITY_RULES Rule 23): Đã thêm `npm audit` vào CI pipeline.
 
-Các feature mới có thể triển khai bình thường mà không bị block bởi 3 lỗi P0 này nữa. Tuy nhiên vẫn phải soi 30 Security Rules ở SECURITY_RULES.md.
+Các feature mới có thể triển khai bình thường mà không bị block bởi các lỗi này nữa. Tuy nhiên vẫn phải soi 30 Security Rules ở SECURITY_RULES.md.

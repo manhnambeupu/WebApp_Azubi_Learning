@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: '20'
       - run: cd apps/backend && npm ci --legacy-peer-deps
+      - run: cd apps/backend && npm audit --audit-level=high
       - run: cd apps/backend && npm run test
       - run: cd apps/backend && npx prisma db push
       - run: cd apps/backend && npm run test:e2e
@@ -48,6 +49,7 @@ jobs:
         with:
           node-version: '20'
       - run: cd apps/frontend && npm ci
+      - run: cd apps/frontend && npm audit --audit-level=high
       - run: cd apps/frontend && npm run type-check
       - run: cd apps/frontend && npm run lint
       - run: cd apps/frontend && npm run build

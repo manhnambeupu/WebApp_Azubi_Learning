@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import sharp from 'sharp';
 import { MinioService } from '../files/minio.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -88,10 +89,11 @@ export class LessonsService {
     let imageUrl: string | undefined;
     if (imageFile) {
       this.validateImageFile(imageFile);
+      const safeBuffer = await sharp(imageFile.buffer).rotate().toBuffer();
       imageUrl = await this.minioService.uploadFile(
         IMAGE_BUCKET,
         this.buildObjectName(imageFile.originalname),
-        imageFile.buffer,
+        safeBuffer,
         imageFile.mimetype,
       );
     }
@@ -141,6 +143,7 @@ export class LessonsService {
     let imageUrl: string | undefined;
     if (imageFile) {
       this.validateImageFile(imageFile);
+      const safeBuffer = await sharp(imageFile.buffer).rotate().toBuffer();
 
       if (existingLesson.imageUrl) {
         await this.minioService.deleteFile(
@@ -152,7 +155,7 @@ export class LessonsService {
       imageUrl = await this.minioService.uploadFile(
         IMAGE_BUCKET,
         this.buildObjectName(imageFile.originalname),
-        imageFile.buffer,
+        safeBuffer,
         imageFile.mimetype,
       );
     }

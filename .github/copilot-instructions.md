@@ -479,13 +479,18 @@ NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
 
 Mọi code suggestion phải tuân thủ @SECURITY_RULES.md trước khi đề xuất.
 
-### 3 lỗ hổng P0 — ĐÃ ĐƯỢC FIX
+### 3 lỗ hổng P0, 3 lỗ hổng P1 và 3 lỗ hổng P2 — ĐÃ ĐƯỢC FIX
 
 | # | Vấn đề | Trạng thái |
 |---|--------|-------------|
 | 1 | Logout không revoke refresh token ở server | ✅ Đã Fix |
 | 2 | Không có account lockout sau 5 lần sai password | ✅ Đã Fix |
 | 3 | Thiếu Content-Security-Policy header | ✅ Đã Fix |
+| 4 | Hash password cost < 12 | ✅ Đã Fix |
+| 5 | Leak lỗi hệ thống (Rule 08) | ✅ Đã Fix |
+| 6 | Metadata ảnh (Rule 07) | ✅ Đã Fix |
+| 7 | Cache Auth API (Rule 27) | ✅ Đã Fix |
+| 8 | Dependency Scan (Rule 23) | ✅ Đã Fix |
 ### Checklist nhanh trước khi generate code
 
 - [ ] Token có đang được lưu localStorage không? → Không được
@@ -504,4 +509,4 @@ Nếu vi phạm bất kỳ điểm nào → từ chối generate và giải thí
 SECURITY_RULES.md          ← Toàn bộ 30 rules, code examples chi tiết
        ↑                          ↑
 .antigravityrules          copilot-instructions.md
-(reference + 3 P0)         (reference + checklist nhanh)
+(reference + 3 P0, 3 P1, 3 P2)         (reference + checklist nhanh)

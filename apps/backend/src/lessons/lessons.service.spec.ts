@@ -5,6 +5,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { LessonsService } from './lessons.service';
 
+const ONE_PIXEL_PNG_BUFFER = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO8B9xkAAAAASUVORK5CYII=',
+  'base64',
+);
+
 describe('LessonsService', () => {
   let service: LessonsService;
   let prisma: {
@@ -254,7 +259,7 @@ describe('LessonsService', () => {
       originalname: 'new-image.png',
       mimetype: 'image/png',
       size: 10_000,
-      buffer: Buffer.from('new-image'),
+      buffer: ONE_PIXEL_PNG_BUFFER,
     } as Express.Multer.File;
     prisma.lesson.findUnique.mockResolvedValue({
       id: 'lesson-1',
@@ -269,7 +274,7 @@ describe('LessonsService', () => {
     expect(minioService.uploadFile).toHaveBeenCalledWith(
       'lesson-images',
       expect.stringContaining('new-image.png'),
-      imageFile.buffer,
+      expect.any(Buffer),
       imageFile.mimetype,
     );
     expect(prisma.lesson.update).toHaveBeenCalledWith(

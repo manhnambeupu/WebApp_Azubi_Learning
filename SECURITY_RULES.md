@@ -2,28 +2,34 @@
 > **Dành cho:** GitHub Copilot & Google Antigravity  
 > **Bắt buộc đọc trước khi generate bất kỳ dòng code nào.**  
 > Mọi suggestion vi phạm các rule dưới đây phải bị từ chối và viết lại ngay lập tức.
-
 ---
-
-## ⚠️ CẢNH BÁO QUAN TRỌNG (Các lỗi cơ bản này đã được fix)
-
-Project này đã được audit và phát hiện **3 lỗ hổng critical** đang tồn tại:
-
-1. **Logout không hủy refresh token ở server** → token sống 7 ngày sau khi logout
-2. **Không có account-level lockout** → brute-force theo email không bị chặn
-3. **Thiếu Content-Security-Policy header** → XSS attack surface rộng
-
-Copilot / Antigravity **PHẢI ưu tiên fix 3 lỗ hổng này trước** khi implement feature mới.
-
+## 🚨 Priority Fix List — Theo thứ tự nguy hiểm
+| Priority | Rule | Lý do |
+|---|---|---|
+| ✅ P0 | **Rule 25** (FIXED)| Logout fake — token sống 7 ngày. Ai có refresh token = có thể access mãi |
+| ✅ P0 | **Rule 03** (FIXED)| Refresh token không rotate + không lưu DB → không revoke được |
+| ✅ P0 | **Rule 18** (FIXED)| Brute-force email không bị chặn dù IP bị rate limit |
+| ✅ P1 | **Rule 04** (FIXED)| Thiếu CSP → XSS không bị block nếu có injection point |
+| ✅ P1 | **Rule 12** (FIXED)| Bcrypt cost có thể đang là 10, cần kiểm tra và nâng lên 12 |
+| ✅ P1 | **Rule 08** (FIXED) | Ẩn chi tiết lỗi Generic Error tại Production |
+| ✅ P2 | **Rule 07** (FIXED) | Strip EXIF metadata ảnh upload |
+| ✅ P2 | **Rule 27** (FIXED) | Thêm Cache-Control: no-store cho auth endpoints |
+| ✅ P2 | **Rule 23** (FIXED) | Thêm npm audit vào CI pipeline |
+| 🟢 P3 | Còn lại | Cải thiện theo thứ tự thuận tiện |
+## 🤖 Hướng dẫn cho Copilot / Antigravity
+Khi generate code cho project Azubi, bạn PHẢI:
+1. **Tự động check** mọi suggestion chống lại 30 rules trên trước khi đề xuất
+2. **Từ chối generate** code vi phạm bất kỳ rule nào, thay vào đó giải thích tại sao và đề xuất cách đúng
+3. **Ưu tiên fix P0** (Rules 25, 03, 18) trước khi implement bất kỳ feature nào mới
+4. **Không bao giờ** gợi ý `localStorage` cho token storage dù bất kỳ lý do gì
+5. **Luôn thêm** backend validation kể cả khi đã có frontend validation
+6. **Nhắc nhở** nếu bất kỳ thay đổi nào có thể phá vỡ security model hiện tại
+> **Cuối cùng:** Security không phải feature — nó là nền tảng. Một lỗ hổng bảo mật có thể phá hủy toàn bộ effort phát triển.
 ---
-
 ## 📋 30 SECURITY RULES — BẮT BUỘC TUÂN THỦ
-
 ---
-
 ### RULE 01 — Không lưu sensitive data trong localStorage
 **Severity: CRITICAL**
-
 ```
 ❌ TUYỆT ĐỐI KHÔNG làm:
 localStorage.setItem('accessToken', token)
@@ -35,40 +41,31 @@ sessionStorage.setItem('token', token)
 - Refresh token → HttpOnly cookie (set từ server, path=/api/auth)
 - User info → Zustand store
 ```
-
 **Kiểm tra trong project:** `apps/frontend/stores/auth-store.ts` — accessToken phải là `string | null` trong memory, không persist.
-
 ---
 
 ### RULE 02 — Tắt directory listing trên Nginx
 **Severity: MEDIUM**
-
 ```nginx
 # ❌ SAI
 autoindex on;
-
 # ✅ ĐÚNG — không khai báo hoặc tường minh tắt
 autoindex off;
 ```
-
 **Kiểm tra:** `docker/nginx/nginx.conf` — không được có `autoindex on`.  
 **Lưu ý thêm:** MinIO console (port 9001) phải bị block trong production, không expose ra ngoài.
-
 ---
 
 ### RULE 03 — Rotate refresh token sau mỗi lần dùng
 **Severity: HIGH**  
 **Trạng thái hiện tại: ✅ Đã implement (Fixed via Prompt 48)**
-
 ```
 ❌ Hiện tại: refresh token không được lưu DB → không thể revoke
-
 ✅ Phải implement:
 1. Thêm field refreshTokenHash vào User model (Prisma)
 2. Mỗi lần /auth/refresh → tạo token MỚI + lưu hash mới vào DB + xóa hash cũ
 3. Logout → set refreshTokenHash = null trong DB
 ```
-
 ```prisma
 // apps/backend/prisma/schema.prisma — THÊM VÀO User model
 model User {
@@ -78,7 +75,6 @@ model User {
   failedLoginCount Int       @default(0) // cho Rule 18
 }
 ```
-
 ```ts
 // apps/backend/auth/auth.service.ts
 async refresh(userId: string, refreshToken: string) {
@@ -104,11 +100,9 @@ async refresh(userId: string, refreshToken: string) {
 ```
 
 ---
-
 ### RULE 04 — Bắt buộc Content-Security-Policy trên mọi trang
 **Severity: HIGH**  
 **Trạng thái hiện tại: ✅ Đã implement (Fixed via Prompt 49)**
-
 ```nginx
 # docker/nginx/nginx.conf — THÊM VÀO server block
 add_header Content-Security-Policy "
@@ -122,7 +116,6 @@ add_header Content-Security-Policy "
   frame-ancestors 'none';
 " always;
 ```
-
 ```ts
 // apps/backend/main.ts — helmet CSP config
 app.use(helmet({
@@ -138,19 +131,15 @@ app.use(helmet({
 ```
 
 ---
-
 ### RULE 05 — Luôn validate ở server, KHÔNG tin frontend
 **Severity: CRITICAL**  
 **Đây là lỗi phổ biến nhất trong Vibe Coding**
-
 ```
 Nguyên tắc bất di bất dịch:
 Frontend validation = UX (giúp người dùng)
 Backend validation = Security (bắt buộc)
-
 Kể cả khi frontend đã validate rồi → backend PHẢI validate lại.
 ```
-
 ```ts
 // apps/backend/questions/dto/create-question.dto.ts
 export class CreateQuestionDto {
@@ -163,12 +152,10 @@ export class CreateQuestionDto {
   @Type(() => CreateAnswerDto)
   answers: CreateAnswerDto[];
 }
-
 // apps/backend/questions/questions.service.ts — validate trong service
 const hasCorrect = dto.answers.some(a => a.isCorrect);
 if (!hasCorrect) throw new BadRequestException('Phải có ít nhất 1 đáp án đúng (BR-03)');
 ```
-
 ```ts
 // apps/backend/submissions/submissions.service.ts — BR-05 validate ở backend
 const answersPerQuestion = new Map<string, number>();
@@ -180,11 +167,9 @@ for (const answer of dto.answers) {
 ```
 
 ---
-
 ### RULE 06 — X-Frame-Options: DENY chống clickjacking
 **Severity: MEDIUM**  
 **Trạng thái hiện tại: ✅ Đã có trong Nginx — kiểm tra đủ `always` flag chưa**
-
 ```nginx
 # docker/nginx/nginx.conf
 add_header X-Frame-Options "DENY" always;  # 'always' quan trọng — áp dụng cả response lỗi
@@ -321,7 +306,7 @@ async refresh(@Req() req: Request, @Res() res: Response) {
 
 ### RULE 12 — Bcrypt cost factor ≥ 12
 **Severity: HIGH**  
-**Trạng thái hiện tại: ⚠️ Cần kiểm tra — default của nhiều tutorial là 10**
+**Trạng thái hiện tại: ✅[ĐÃ FIX]**
 
 ```ts
 // apps/backend/auth/auth.service.ts
@@ -653,7 +638,7 @@ app.enableCors({
 
 ### RULE 25 — Logout phải hủy token ở server
 **Severity: CRITICAL**  
-**Trạng thái hiện tại: ✅ Đã implement (Fixed via Prompt 48)**
+**Trạng thái hiện tại: ✅ Đã implement (Fixed via Prompt 48 P0 Security - Khắc phục Logout giả & Chặn Brute-force)**
 
 ```ts
 // ❌ Hiện tại — logout chỉ clear cookie client-side
@@ -811,32 +796,3 @@ FROM node:20.11.0-alpine3.19
 
 ---
 
-## 🚨 Priority Fix List — Theo thứ tự nguy hiểm
-
-| Priority | Rule | Lý do |
-|---|---|---|
-| 🔴 P0 | **Rule 25** | Logout fake — token sống 7 ngày. Ai có refresh token = có thể access mãi |
-| 🔴 P0 | **Rule 03** | Refresh token không rotate + không lưu DB → không revoke được |
-| 🔴 P0 | **Rule 18** | Brute-force email không bị chặn dù IP bị rate limit |
-| 🟠 P1 | **Rule 04** | Thiếu CSP → XSS không bị block nếu có injection point |
-| 🟠 P1 | **Rule 12** | Bcrypt cost có thể đang là 10, cần kiểm tra và nâng lên 12 |
-| 🟠 P1 | **Rule 08** | Kiểm tra filter có đang leak Prisma error detail không |
-| 🟡 P2 | **Rule 07** | Strip EXIF metadata ảnh upload |
-| 🟡 P2 | **Rule 27** | Thêm Cache-Control: no-store cho auth endpoints |
-| 🟡 P2 | **Rule 23** | Thêm npm audit vào CI pipeline |
-| 🟢 P3 | Còn lại | Cải thiện theo thứ tự thuận tiện |
-
----
-
-## 🤖 Hướng dẫn cho Copilot / Antigravity
-
-Khi generate code cho project Azubi, bạn PHẢI:
-
-1. **Tự động check** mọi suggestion chống lại 30 rules trên trước khi đề xuất
-2. **Từ chối generate** code vi phạm bất kỳ rule nào, thay vào đó giải thích tại sao và đề xuất cách đúng
-3. **Ưu tiên fix P0** (Rules 25, 03, 18) trước khi implement bất kỳ feature nào mới
-4. **Không bao giờ** gợi ý `localStorage` cho token storage dù bất kỳ lý do gì
-5. **Luôn thêm** backend validation kể cả khi đã có frontend validation
-6. **Nhắc nhở** nếu bất kỳ thay đổi nào có thể phá vỡ security model hiện tại
-
-> **Cuối cùng:** Security không phải feature — nó là nền tảng. Một lỗ hổng bảo mật có thể phá hủy toàn bộ effort phát triển.

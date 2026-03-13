@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Post,
   Req,
   Res,
@@ -33,6 +34,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Đăng nhập' })
   @ApiBody({ type: LoginDto })
@@ -57,6 +60,8 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   @ApiOperation({ summary: 'Đăng xuất' })
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Đăng xuất thành công.' })
@@ -79,6 +84,8 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   @ApiOperation({ summary: 'Làm mới access token' })
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Làm mới token thành công.' })
@@ -108,6 +115,8 @@ export class AuthController {
   }
 
   @Get('me')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại' })
