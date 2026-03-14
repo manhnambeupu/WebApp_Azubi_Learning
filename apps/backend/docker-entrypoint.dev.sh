@@ -8,7 +8,7 @@ echo "⏳ Pushing database schema..."
 npx prisma db push --skip-generate
 
 echo "⏳ Seeding database..."
-npx prisma db seed || echo "⚠️  Seed skipped (may already exist)"
+npx prisma db seed
 
 echo "🚀 Starting Prisma Studio in background..."
 npx prisma studio --port 5555 --hostname 0.0.0.0 &
