@@ -2,6 +2,10 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 500M
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -18,6 +22,10 @@ services:
   minio:
     image: minio/minio:latest
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 300M
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
@@ -30,6 +38,10 @@ services:
       context: ./apps/backend
       dockerfile: Dockerfile.prod
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 300M
     environment:
       NODE_ENV: production
       BACKEND_PORT: ${BACKEND_PORT:-3001}
@@ -61,6 +73,10 @@ services:
       context: ./apps/frontend
       dockerfile: Dockerfile.prod
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 300M
     environment:
       NEXT_PUBLIC_API_URL: /api   # Qua Nginx proxy
     depends_on:
@@ -70,6 +86,10 @@ services:
   nginx:
     image: nginx:alpine
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 100M
     ports:
       - "80:80"
       - "443:443"

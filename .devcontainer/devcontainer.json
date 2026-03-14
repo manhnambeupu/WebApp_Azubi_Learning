@@ -1,6 +1,6 @@
 {
   "name": "Azubi Webapp Workspace",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -13,5 +13,5 @@
     "5555": { "label": "Prisma Studio", "onAutoForward": "silent" },
     "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
   },
-  "postCreateCommand": "cp .env.example .env && docker-compose build"
+  "postCreateCommand": "cp .env.example .env && npm install -g pnpm && npm ci --prefix apps/backend && npm ci --prefix apps/frontend"
 }

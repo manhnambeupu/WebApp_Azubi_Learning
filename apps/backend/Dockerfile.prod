@@ -3,11 +3,12 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+RUN npm prune --omit=dev --legacy-peer-deps
 
 FROM node:20-alpine AS runner
 
@@ -15,14 +16,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
-
-COPY --from=builder /app/prisma ./prisma
-RUN npx prisma@5.22.0 generate && npm prune --omit=dev --legacy-peer-deps
-
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3001
 
-CMD ["node", "dist/main"]
+CMD ["node", "--max-old-space-size=256", "dist/main"]
