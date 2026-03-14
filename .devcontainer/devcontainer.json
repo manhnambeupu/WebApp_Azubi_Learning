@@ -15,5 +15,5 @@
     "5555": { "label": "Prisma Studio", "onAutoForward": "silent" },
     "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
   },
-  "postCreateCommand": "cp .env.example .env && npm install -g pnpm && npm ci --prefix apps/backend && npm ci --prefix apps/frontend"
+  "postCreateCommand": "cp .env.example .env && sed -i 's/^DB_USER=.*/DB_USER=postgres/' .env && sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=postgres/' .env && sed -i 's/^DB_NAME=.*/DB_NAME=azubi/' .env && sed -i 's/^JWT_SECRET=.*/JWT_SECRET=supersecretjwtkey123/' .env && sed -i 's/^JWT_REFRESH_SECRET=.*/JWT_REFRESH_SECRET=supersecretrefreshkey123/' .env && sed -i 's/^MINIO_USER=.*/MINIO_USER=admin/' .env && sed -i 's/^MINIO_PASSWORD=.*/MINIO_PASSWORD=admin123/' .env && npm install -g pnpm && npm ci --prefix apps/backend && npm ci --prefix apps/frontend"
 }
