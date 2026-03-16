@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -72,17 +72,24 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <section className="space-y-6">
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="flex flex-col gap-4 border-b border-border/70 bg-slate-50/70 sm:flex-row sm:items-start sm:justify-between">
+    <section className="space-y-6 kokonut-fade">
+      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass">
+        <CardHeader className="flex flex-col gap-4 border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
-            <CardTitle className="text-2xl">Quản lý bài học</CardTitle>
-            <CardDescription>
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium text-foreground shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
+              <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
+              Admin dashboard
+            </div>
+            <CardTitle className="pt-2 text-2xl">Quản lý bài học</CardTitle>
+            <CardDescription className="max-w-2xl leading-7">
               Tạo, chỉnh sửa và theo dõi nội dung các bài học trong hệ thống.
             </CardDescription>
           </div>
 
-          <Button asChild className="w-full sm:w-auto">
+          <Button
+            asChild
+            className="kokonut-hover-lift h-11 w-full rounded-xl border border-white/25 bg-gradient-to-r from-primary via-blue-700 to-amber-600 px-5 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong sm:w-auto"
+          >
             <Link href="/admin/lessons/new">
               <Plus className="mr-2 h-4 w-4" />
               Tạo bài học mới
@@ -91,12 +98,12 @@ export default function AdminDashboardPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 p-6">
-          <div className="grid gap-3 md:max-w-sm">
+          <div className="grid gap-3 rounded-2xl border border-primary/15 bg-white/65 p-4 md:max-w-sm">
             <label className="text-sm font-medium" htmlFor="lesson-category-filter">
               Lọc theo danh mục
             </label>
             <Select onValueChange={setCategoryFilter} value={categoryFilter}>
-              <SelectTrigger className="bg-white" id="lesson-category-filter">
+              <SelectTrigger className="border-primary/20 bg-white/80" id="lesson-category-filter">
                 <SelectValue placeholder="Chọn danh mục" />
               </SelectTrigger>
               <SelectContent>
@@ -111,43 +118,43 @@ export default function AdminDashboardPage() {
           </div>
 
           {lessonsQuery.isLoading ? (
-            <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               Đang tải danh sách bài học...
             </div>
           ) : null}
 
           {lessonsQuery.isError ? (
-            <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {getApiErrorMessage(lessonsQuery.error)}
             </p>
           ) : null}
 
           {lessonsQuery.data ? (
-            <div className="overflow-hidden rounded-lg border border-slate-200/80">
+            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-200/80 bg-slate-100/70 hover:bg-slate-100/70">
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
                       Bài học
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
                       Danh mục
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
                       Số câu hỏi
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
                       Có ảnh
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <TableHead className="h-11 px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90">
                       Thao tác
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lessonsQuery.data.length === 0 ? (
-                    <TableRow className="border-slate-200/70 hover:bg-transparent">
+                    <TableRow className="border-primary/10 hover:bg-transparent">
                       <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
                         Chưa có bài học nào trong danh mục này.
                       </TableCell>
@@ -155,26 +162,28 @@ export default function AdminDashboardPage() {
                   ) : (
                     lessonsQuery.data.map((lesson) => (
                       <TableRow
-                        className="border-slate-200/70 hover:bg-slate-50/90"
+                        className="border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]"
                         key={lesson.id}
                       >
                         <TableCell className="max-w-[360px] px-4 py-4 align-top">
                           <div className="space-y-1">
-                            <p className="font-medium">{lesson.title}</p>
+                            <p className="font-medium leading-6">{lesson.title}</p>
                             <p className="line-clamp-2 text-sm text-muted-foreground">
                               {lesson.summary}
                             </p>
                           </div>
                         </TableCell>
                         <TableCell className="px-4 py-4">
-                          <Badge variant="secondary">{lesson.category.name}</Badge>
+                          <Badge className="rounded-full border border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
+                            {lesson.category.name}
+                          </Badge>
                         </TableCell>
                         <TableCell className="px-4 py-4">{lesson._count.questions}</TableCell>
                         <TableCell className="px-4 py-4">
                           <Badge
                             className={
                               lesson.imageUrl
-                                ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                                ? "rounded-full border border-emerald-300/60 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
                                 : undefined
                             }
                             variant={lesson.imageUrl ? "secondary" : "outline"}
@@ -184,7 +193,12 @@ export default function AdminDashboardPage() {
                         </TableCell>
                         <TableCell className="px-4 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <Button asChild size="sm" variant="outline">
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white"
+                            >
                               <Link href={`/admin/lessons/${lesson.id}/edit`}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Sửa

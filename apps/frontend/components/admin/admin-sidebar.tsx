@@ -62,44 +62,56 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 md:grid md:grid-cols-[280px_1fr]">
-      <aside className="hidden border-r border-slate-800 bg-slate-950 text-slate-100 md:flex md:flex-col">
-        <div className="space-y-2 px-6 py-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+    <div className="min-h-screen bg-background md:grid md:grid-cols-[292px_1fr]">
+      <aside className="relative hidden border-r border-primary/20 bg-gradient-to-b from-slate-950 via-slate-900 to-[#112b4e] text-slate-100 md:flex md:flex-col">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-10 top-24 h-32 w-32 rounded-full bg-accent/25 blur-3xl"
+        />
+        <div className="relative space-y-2 px-6 py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400/90">
             Admin console
           </p>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <p className="text-lg font-semibold tracking-tight text-white">Azubi Admin</p>
-            <p className="text-sm text-slate-400">GastroLernplattform</p>
+            <p className="text-sm text-slate-300/80">Gastro-Hoga-Lernplattform</p>
           </div>
         </div>
-        <Separator className="bg-slate-800" />
-        <nav className="flex-1 space-y-2 p-4">
+        <Separator className="bg-slate-700/70" />
+        <nav className="relative flex-1 space-y-2 p-4">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActivePath(pathname, item.href);
 
             return (
-              <Button
-                asChild
+              <Link
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "h-11 w-full justify-start rounded-lg px-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white",
-                  active ? "bg-slate-800 text-white shadow-sm hover:bg-slate-800 hover:text-white" : "",
+                  "group/nav relative flex h-11 w-full items-center rounded-xl px-4 pl-5 text-sm font-medium transition-all duration-300",
+                  active
+                    ? "bg-gradient-to-r from-primary/30 via-primary/22 to-accent/24 text-white shadow-[0_14px_26px_-20px_rgba(251,191,36,0.9)]"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white",
                 )}
+                href={item.href}
                 key={item.href}
-                variant="ghost"
               >
-                <Link aria-current={active ? "page" : undefined} href={item.href}>
-                  <Icon className="mr-2 h-4 w-4" />
-                  {item.label}
-                </Link>
-              </Button>
+                <span
+                  className={cn(
+                    "absolute left-2 top-1/2 h-7 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-sky-300 to-amber-400 transition-all duration-300",
+                    active
+                      ? "translate-x-0 opacity-100"
+                      : "-translate-x-1 opacity-0 group-hover/nav:translate-x-0 group-hover/nav:opacity-70",
+                  )}
+                />
+                <Icon className="mr-2 h-4 w-4" />
+                <span className="truncate">{item.label}</span>
+              </Link>
             );
           })}
         </nav>
-        <div className="p-4">
+        <div className="p-4 pt-3">
           <Button
-            className="w-full justify-start border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white"
+            className="w-full justify-start rounded-xl border-slate-600/70 bg-slate-900/80 text-slate-200 hover:bg-slate-800/90 hover:text-white"
             disabled={isLoggingOut}
             onClick={() => {
               void handleLogout();
@@ -121,11 +133,11 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col bg-slate-50">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3 text-slate-100 md:hidden">
+      <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-slate-950 to-[#102848] px-4 py-3 text-slate-100 md:hidden">
           <div>
             <p className="text-sm font-semibold">Azubi Admin</p>
-            <p className="text-xs text-slate-400">Quản trị hệ thống</p>
+            <p className="text-xs text-slate-300/70">Quản trị hệ thống</p>
           </div>
 
           <DropdownMenu>
@@ -148,8 +160,8 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
                   <DropdownMenuItem asChild key={item.href}>
                     <Link
                       className={cn(
-                        "flex w-full cursor-pointer items-center gap-2",
-                        active ? "font-medium text-foreground" : "",
+                        "flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5",
+                        active ? "bg-primary/10 font-medium text-foreground" : "",
                       )}
                       href={item.href}
                     >
