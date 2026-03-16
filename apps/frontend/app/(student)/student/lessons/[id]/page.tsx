@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Download, Loader2 } from "lucide-react";
+import { BookOpenText, ChevronRight, Download, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,15 +35,15 @@ type DownloadResponse = {
 
 function StudentLessonDetailSkeleton() {
   return (
-    <section className="mx-auto max-w-4xl space-y-5">
+    <section className="mx-auto max-w-5xl space-y-5">
       <Skeleton className="h-5 w-48" />
-      <div className="space-y-3 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+      <div className="space-y-3 rounded-2xl border border-border/70 bg-white/70 p-6 shadow-glass">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
         <Skeleton className="h-56 w-full" />
       </div>
-      <div className="space-y-2 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+      <div className="space-y-2 rounded-2xl border border-border/70 bg-white/70 p-6 shadow-glass">
         <Skeleton className="h-5 w-40" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
@@ -89,7 +89,7 @@ export default function StudentLessonDetailPage() {
 
   if (!lessonId) {
     return (
-      <section className="mx-auto max-w-4xl rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+      <section className="mx-auto max-w-5xl rounded-2xl border border-border/70 bg-white/70 p-6 shadow-glass">
         <p className="text-sm text-destructive">Không tìm thấy bài học hợp lệ.</p>
       </section>
     );
@@ -101,7 +101,7 @@ export default function StudentLessonDetailPage() {
 
   if (lessonQuery.isError) {
     return (
-      <section className="mx-auto max-w-4xl rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+      <section className="mx-auto max-w-5xl rounded-2xl border border-border/70 bg-white/70 p-6 shadow-glass">
         <p className="text-sm text-destructive">{getApiErrorMessage(lessonQuery.error)}</p>
       </section>
     );
@@ -114,8 +114,8 @@ export default function StudentLessonDetailPage() {
   const lesson = lessonQuery.data;
 
   return (
-    <section className="mx-auto max-w-4xl space-y-8">
-      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-sm text-muted-foreground shadow-sm">
+    <section className="mx-auto max-w-5xl space-y-8">
+      <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur-sm">
         <Link className="hover:text-foreground" href="/student/lessons">
           Bài học
         </Link>
@@ -123,31 +123,39 @@ export default function StudentLessonDetailPage() {
         <span className="line-clamp-1 text-foreground">{lesson.title}</span>
       </div>
 
-      <article className="space-y-8 rounded-2xl border border-border/70 bg-white p-6 shadow-sm sm:p-8">
+      <article className="kokonut-glass-card kokonut-glow-border space-y-8 border-primary/15 bg-white/70 p-6 shadow-glass sm:p-8">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">{lesson.category.name}</Badge>
+            <Badge className="rounded-full border border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
+              {lesson.category.name}
+            </Badge>
             <Badge
               className={
-                lesson.isCompleted ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : ""
+                lesson.isCompleted
+                  ? "rounded-full border border-amber-300/60 bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 shadow-[0_0_0_1px_rgba(245,158,11,0.3),0_10px_20px_-14px_rgba(245,158,11,0.9)] hover:from-amber-100 hover:to-amber-200"
+                  : "rounded-full border border-slate-300/80 bg-white/70 text-slate-700 hover:bg-white/80"
               }
-              variant={lesson.isCompleted ? "secondary" : "outline"}
+              variant="secondary"
             >
               {lesson.isCompleted ? "Đã hoàn thành" : "Chưa hoàn thành"}
             </Badge>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">{lesson.title}</h1>
-          <p className="text-base leading-7 text-muted-foreground">{lesson.summary}</p>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{lesson.title}</h1>
+          <p className="max-w-4xl text-lg leading-8 text-muted-foreground">{lesson.summary}</p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium text-foreground shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
+            <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
+            Không gian học tập tập trung
+          </div>
         </div>
 
         {lesson.imageUrl ? (
           <div
-            className="h-72 w-full rounded-xl border border-slate-200/80 bg-cover bg-center bg-no-repeat"
+            className="h-72 w-full rounded-2xl border border-primary/15 bg-cover bg-center bg-no-repeat shadow-glow-soft"
             style={{ backgroundImage: `url(${lesson.imageUrl})` }}
           />
         ) : null}
 
-        <div className="student-markdown rounded-xl border border-slate-200/80 bg-white p-6">
+        <div className="student-markdown rounded-2xl border border-primary/15 bg-white/80 p-6 text-[1.04rem] leading-8 shadow-glass sm:p-8 sm:text-[1.08rem]">
           <ReactMarkdown
             rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }], rehypeSanitize]}
             remarkPlugins={[remarkGfm]}
@@ -156,15 +164,18 @@ export default function StudentLessonDetailPage() {
           </ReactMarkdown>
         </div>
 
-        <div className="space-y-4 rounded-xl border border-slate-200/80 bg-slate-50/60 p-5">
-          <h2 className="font-semibold">Tài liệu đính kèm</h2>
+        <div className="space-y-4 rounded-2xl border border-primary/15 bg-slate-50/55 p-5">
+          <h2 className="inline-flex items-center gap-2 font-semibold">
+            <BookOpenText className="h-4 w-4 text-primary" />
+            Tài liệu đính kèm
+          </h2>
           {lesson.files.length === 0 ? (
             <p className="text-sm text-muted-foreground">Bài học chưa có file đính kèm.</p>
           ) : (
             <div className="space-y-2">
               {lesson.files.map((file) => (
                 <div
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200/80 bg-white px-4 py-3 transition-colors hover:bg-slate-50"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/15 bg-white/85 px-4 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow-soft"
                   key={file.id}
                 >
                   <span className="text-sm">{file.fileName}</span>
@@ -176,6 +187,7 @@ export default function StudentLessonDetailPage() {
                     size="sm"
                     type="button"
                     variant="outline"
+                    className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white"
                   >
                     {downloadingFileId === file.id ? (
                       <>
@@ -196,9 +208,9 @@ export default function StudentLessonDetailPage() {
         </div>
       </article>
 
-      <section className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm sm:p-8">
-        <h2 className="text-lg font-semibold">Phần làm bài</h2>
-        <Separator className="my-3" />
+      <section className="kokonut-glass-card kokonut-glow-border rounded-2xl border-primary/20 bg-white/70 p-6 shadow-glass sm:p-8">
+        <h2 className="text-xl font-semibold">Phần làm bài</h2>
+        <Separator className="my-4" />
         {lesson.questions.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Bài học này chưa có câu hỏi để làm bài.

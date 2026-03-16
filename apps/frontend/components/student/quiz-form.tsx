@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Loader2, Send } from "lucide-react";
+import { GripVertical, Loader2, Send, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
@@ -103,8 +103,10 @@ function SortableAnswerItem({ answer, index }: SortableAnswerItemProps) {
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-shadow",
-        isDragging ? "shadow-lg ring-1 ring-primary/30" : "shadow-sm",
+        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 transition-all duration-300",
+        isDragging
+          ? "scale-[1.01] shadow-glow-soft ring-1 ring-accent/45"
+          : "shadow-sm hover:shadow-glow-soft",
       )}
       ref={setNodeRef}
       style={style}
@@ -113,7 +115,7 @@ function SortableAnswerItem({ answer, index }: SortableAnswerItemProps) {
         <div
           {...attributes}
           {...listeners}
-          className="rounded-md border border-slate-200/80 bg-slate-50 p-1.5 text-muted-foreground transition-colors hover:bg-slate-100"
+          className="rounded-md border border-primary/20 bg-primary/5 p-1.5 text-muted-foreground transition-colors hover:bg-primary/10"
         >
           <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
           <span className="sr-only">Kéo để thay đổi vị trí</span>
@@ -343,13 +345,21 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   };
 
   return (
-    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all">
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Phần làm bài</h2>
-        <p className="text-sm text-muted-foreground">
-          Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc tự
-          suy nghĩ đáp án cho phần tự luận.
-        </p>
+    <section className="kokonut-glass-card kokonut-glow-border space-y-6 border-primary/15 bg-white/70 p-6 shadow-glass transition-all">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold sm:text-xl">Phần làm bài</h2>
+            <p className="text-sm leading-7 text-muted-foreground">
+              Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc
+              tự suy nghĩ đáp án cho phần tự luận.
+            </p>
+          </div>
+          <Badge className="rounded-full border border-accent/40 bg-accent/15 text-foreground shadow-[0_8px_20px_-14px_hsl(var(--accent)/0.9)] hover:bg-accent/15">
+            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-accent-foreground" />
+            Focus mode
+          </Badge>
+        </div>
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
@@ -357,7 +367,10 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
             </span>
             <span>{Math.round((answeredCount / Math.max(totalQuestions, 1)) * 100)}%</span>
           </div>
-          <Progress className="h-2.5" value={(answeredCount / Math.max(totalQuestions, 1)) * 100} />
+          <Progress
+            className="h-2.5 overflow-hidden rounded-full bg-primary/10 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-accent"
+            value={(answeredCount / Math.max(totalQuestions, 1)) * 100}
+          />
         </div>
       </div>
 
@@ -376,14 +389,25 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               (answer): answer is StudentQuestion["answers"][number] =>
                 answer !== undefined,
             );
+          const questionAnswered = isQuestionAnswered(
+            question,
+            selectedAnswerIds,
+            orderingAnswerIds,
+            matchingSelections,
+          );
 
           return (
             <div
-              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm"
+              className={cn(
+                "space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300",
+                questionAnswered
+                  ? "shadow-glow-soft ring-1 ring-accent/20"
+                  : "hover:border-primary/35 hover:shadow-glow-soft",
+              )}
               key={question.id}
             >
               <div className="space-y-1">
-                <p className="font-medium">
+                <p className="font-medium leading-7">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -392,9 +416,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               </div>
 
               {question.type === "ESSAY" ? (
-                <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50/70 p-3">
+                <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
                   <Textarea
-                    className="min-h-32 resize-y bg-white text-muted-foreground"
+                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-muted-foreground"
                     placeholder="Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
                     readOnly
                     tabIndex={-1}
@@ -426,10 +450,10 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 <div className="space-y-3">
                   {question.answers.map((answer) => (
                     <div
-                      className="grid gap-3 rounded-lg border border-slate-200/80 bg-white p-3 md:grid-cols-[1fr_1fr]"
+                      className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr]"
                       key={answer.id}
                     >
-                      <div className="space-y-1 rounded-md border border-slate-200/80 bg-slate-50/70 px-3 py-2">
+                      <div className="space-y-1 rounded-md border border-primary/10 bg-primary/5 px-3 py-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           Vế trái
                         </p>
@@ -445,7 +469,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           }
                           value={matchingSelections[answer.id]}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="border-primary/20 bg-white/80">
                             <SelectValue placeholder="Chọn vế phải phù hợp" />
                           </SelectTrigger>
                           <SelectContent>
@@ -473,14 +497,17 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-colors duration-200 hover:bg-slate-50",
-                          isSelected ? "border-primary bg-primary/5 shadow-sm hover:bg-primary/5" : "",
+                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft",
+                          isSelected
+                            ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
+                            : "",
                         )}
                         htmlFor={checkboxId}
                         key={answer.id}
                       >
                         <Checkbox
                           checked={isSelected}
+                          className="mt-0.5 border-primary/40 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
                           id={checkboxId}
                           onCheckedChange={(checked) =>
                             handleMultipleChoiceChange(
@@ -494,7 +521,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           <p className="text-xs font-semibold text-muted-foreground">
                             Đáp án {answerLabel}
                           </p>
-                          <p className="text-sm">{answer.text}</p>
+                          <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                            {answer.text}
+                          </p>
                         </div>
                       </Label>
                     );
@@ -515,18 +544,26 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200/80 bg-white p-3 transition-colors duration-200 hover:bg-slate-50",
-                          isSelected ? "border-primary bg-primary/5 shadow-sm hover:bg-primary/5" : "",
+                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft",
+                          isSelected
+                            ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
+                            : "",
                         )}
                         htmlFor={radioId}
                         key={answer.id}
                       >
-                        <RadioGroupItem id={radioId} value={answer.id} />
+                        <RadioGroupItem
+                          className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
+                          id={radioId}
+                          value={answer.id}
+                        />
                         <div className="space-y-1">
                           <p className="text-xs font-semibold text-muted-foreground">
                             Đáp án {answerLabel}
                           </p>
-                          <p className="text-sm">{answer.text}</p>
+                          <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                            {answer.text}
+                          </p>
                         </div>
                       </Label>
                     );
@@ -538,8 +575,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
         })}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-2">
         <Button
+          className="kokonut-hover-lift h-12 rounded-xl border border-white/30 bg-gradient-to-r from-primary via-blue-700 to-amber-600 px-8 text-base font-semibold text-white shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
           disabled={submitQuizMutation.isPending || totalQuestions === 0}
           onClick={handleOpenConfirm}
           type="button"
@@ -570,6 +608,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
+              className="bg-gradient-to-r from-primary to-amber-600 text-white hover:brightness-105"
               disabled={submitQuizMutation.isPending}
               onClick={() => {
                 void handleSubmit();
