@@ -4,57 +4,57 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 47.4% 11.2%;
+    --background: 215 45% 97%;
+    --foreground: 221 47% 16%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
+    --card-foreground: 221 47% 16%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    --primary: 243 75% 59%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 214.3 31.8% 91.4%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 230 100% 97%;
-    --accent-foreground: 243 75% 35%;
-    --destructive: 346 87% 43%;
+    --popover-foreground: 221 47% 16%;
+    --primary: 221 64% 30%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 214 40% 92%;
+    --secondary-foreground: 221 46% 20%;
+    --muted: 214 38% 94%;
+    --muted-foreground: 218 17% 40%;
+    --accent: 40 94% 58%;
+    --accent-foreground: 221 46% 16%;
+    --destructive: 346 80% 46%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 85%;
-    --input: 214.3 31.8% 85%;
-    --ring: 243 75% 59%;
-    --chart-1: 243 75% 59%;
-    --chart-2: 160 84% 39%;
-    --chart-3: 43 96% 56%;
-    --chart-4: 346 87% 43%;
-    --chart-5: 215.4 16.3% 46.9%;
-    --radius: 0.5rem;
+    --border: 215 32% 82%;
+    --input: 215 32% 84%;
+    --ring: 221 64% 36%;
+    --chart-1: 221 64% 30%;
+    --chart-2: 204 73% 39%;
+    --chart-3: 40 94% 58%;
+    --chart-4: 166 63% 34%;
+    --chart-5: 18 82% 55%;
+    --radius: 0.875rem;
   }
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 221 45% 11%;
     --foreground: 0 0% 98%;
-    --card: 222.2 47.4% 11.2%;
+    --card: 220 40% 15%;
     --card-foreground: 0 0% 98%;
-    --popover: 222.2 47.4% 11.2%;
+    --popover: 220 40% 15%;
     --popover-foreground: 0 0% 98%;
-    --primary: 244 96% 77%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 219 73% 64%;
+    --primary-foreground: 221 45% 11%;
+    --secondary: 220 32% 22%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 215.4 27.9% 16.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 346 77% 49%;
+    --muted: 220 30% 19%;
+    --muted-foreground: 214 18% 74%;
+    --accent: 41 89% 66%;
+    --accent-foreground: 221 45% 11%;
+    --destructive: 346 76% 57%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 244 96% 77%;
-    --chart-1: 244 96% 77%;
-    --chart-2: 160 84% 45%;
-    --chart-3: 43 96% 62%;
-    --chart-4: 346 77% 55%;
-    --chart-5: 215 20.2% 65.1%;
+    --border: 219 26% 26%;
+    --input: 219 26% 24%;
+    --ring: 219 73% 70%;
+    --chart-1: 219 73% 64%;
+    --chart-2: 203 79% 63%;
+    --chart-3: 41 89% 66%;
+    --chart-4: 168 66% 49%;
+    --chart-5: 14 80% 66%;
   }
 }
 
@@ -62,12 +62,123 @@
   * {
     @apply border-border;
   }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family:
+      "Nunito Sans",
+      "Noto Sans",
+      "Segoe UI",
+      sans-serif;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    text-rendering: optimizeLegibility;
   }
 }
 
 @layer components {
+  .kokonut-glass-card {
+    @apply relative overflow-hidden rounded-2xl border border-white/30 bg-white/65 p-6 shadow-glass backdrop-blur-xl transition-all duration-300 ease-out dark:border-white/10 dark:bg-slate-950/45;
+  }
+
+  .kokonut-glass-card::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-primary/10;
+  }
+
+  .kokonut-glow-border {
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--accent) / 0.35),
+      0 0 0 1px hsl(var(--primary) / 0.18),
+      0 14px 34px -24px hsl(var(--primary) / 0.58);
+  }
+
+  .kokonut-hover-lift {
+    @apply transition-all duration-300 ease-out;
+    will-change: transform, box-shadow;
+  }
+
+  .kokonut-hover-lift:hover {
+    @apply -translate-y-1 shadow-glow-soft;
+  }
+
+  .learning-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        130% 100% at 0% 0%,
+        hsl(var(--primary) / 0.13),
+        transparent 58%
+      ),
+      radial-gradient(
+        110% 90% at 100% 0%,
+        hsl(var(--accent) / 0.14),
+        transparent 56%
+      ),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+
+  .learning-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(var(--primary) / 0.12) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+    opacity: 0.4;
+    mask-image: linear-gradient(180deg, black, transparent 88%);
+  }
+
+  .learning-backdrop-mesh {
+    position: absolute;
+    inset: 6% 10% auto;
+    height: 34rem;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle at 40% 50%,
+      hsl(var(--primary) / 0.26),
+      transparent 68%
+    );
+    filter: blur(70px);
+    opacity: 0.7;
+    transform: translateZ(0);
+  }
+
+  .learning-backdrop-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(56px);
+    opacity: 0.5;
+  }
+
+  .learning-backdrop-orb--primary {
+    top: 12%;
+    left: -4%;
+    width: 20rem;
+    height: 20rem;
+    background: hsl(var(--primary) / 0.32);
+  }
+
+  .learning-backdrop-orb--accent {
+    top: 28%;
+    right: -6%;
+    width: 18rem;
+    height: 18rem;
+    background: hsl(var(--accent) / 0.34);
+  }
+
   .student-markdown h1 {
     @apply mt-6 text-3xl font-bold tracking-tight;
   }
@@ -181,5 +292,15 @@
 
   .student-markdown td {
     @apply border border-slate-300 px-4 py-3 align-top leading-7;
+  }
+}
+
+@layer utilities {
+  .kokonut-enter {
+    @apply motion-safe:animate-slide-up;
+  }
+
+  .kokonut-fade {
+    @apply motion-safe:animate-fade-in;
   }
 }

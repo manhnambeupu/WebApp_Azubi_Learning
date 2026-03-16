@@ -11,6 +11,16 @@ export const metadata: Metadata = {
   description: "Azubi web application frontend",
 };
 
+function LearningBackdrop() {
+  return (
+    <div aria-hidden className="learning-backdrop">
+      <div className="learning-backdrop-mesh" />
+      <div className="learning-backdrop-orb learning-backdrop-orb--primary" />
+      <div className="learning-backdrop-orb learning-backdrop-orb--accent" />
+    </div>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,10 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <QueryProvider>
-          {children}
-          <Toaster />
-        </QueryProvider>
+        <div className="relative isolate min-h-screen overflow-x-hidden">
+          <LearningBackdrop />
+          <QueryProvider>
+            <div className="relative z-10 kokonut-fade">{children}</div>
+            <Toaster />
+          </QueryProvider>
+        </div>
       </body>
     </html>
   );

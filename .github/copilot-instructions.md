@@ -15,6 +15,22 @@
 
 ---
 
+## 1.1 GitNexus-first Workflow (MANDATORY)
+
+- Trước mọi tác vụ sửa code (không phải docs-only), Copilot **bắt buộc** chạy GitNexus theo thứ tự:
+  1. `gitnexus_query({query: "<feature/bug target>"})`
+  2. `gitnexus_context({name: "<primary symbol>"})`
+  3. `gitnexus_impact({target: "<primary symbol>", direction: "upstream"})`
+- Nếu MCP `gitnexus` chưa sẵn sàng hoặc index bị stale, **không được code ngay**. Phải khôi phục context trước:
+  - `/mcp reload`
+  - `/mcp show gitnexus`
+  - `npx -y gitnexus@1.3.10 status`
+  - `npx -y gitnexus@1.3.10 analyze --force` (nếu stale)
+- Trước khi hoàn tất bất kỳ thay đổi code nào, bắt buộc chạy `gitnexus_detect_changes({scope: "all"})` và tóm tắt blast radius.
+- Chỉ được bỏ qua workflow GitNexus ở trên với tác vụ **docs-only** hoặc task không đụng mã nguồn.
+
+---
+
 ## 2. High-Level Architecture
 
 ```
