@@ -1,4 +1,5 @@
 import Image from "next/image";
+import React from "react";
 
 type AuthLayoutProps = {
   children: React.ReactNode;
@@ -15,9 +16,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
-      <div className="relative z-10 mb-8 flex-shrink-0 animate-in fade-in zoom-in duration-700">
-        <div className="flex w-full items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+      
+      <div className="relative z-10 flex -translate-y-[25px] flex-col items-center">
+        {/* Header Section */}
+        <header className="flex h-fit w-fit flex-col items-center animate-in fade-in zoom-in duration-700">
           <Image
             src="/images/logo.png"
             alt="Hogapruefung logo"
@@ -26,10 +29,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             priority
             className="h-auto w-[280px] object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,1)] drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] sm:w-[400px] md:w-[500px]"
           />
+        </header>
+
+        <div className="w-full max-w-4xl animate-in fade-in zoom-in duration-500">
+          {children}
         </div>
-      </div>
-      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in duration-500">
-        {children}
       </div>
     </div>
   );

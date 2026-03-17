@@ -100,81 +100,82 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="kokonut-glass-card kokonut-glow-border border-primary/20 bg-white/60 text-foreground shadow-glow-soft dark:bg-slate-950/55">
-      <CardHeader className="space-y-3 pb-5">
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-primary">
-          <BookOpenText className="h-3.5 w-3.5" />
-          Learning Portal
-        </span>
-        <CardTitle className="text-2xl font-semibold tracking-tight text-primary sm:text-3xl">
-          Sign in
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Access your Azubi learning dashboard.
+    <main className="relative z-10 w-full overflow-hidden flex flex-col md:flex-row shadow-2xl rounded-[2rem] bg-white/40 backdrop-blur-[16px] border border-white/30">
+      {/* BEGIN: Sidebar Section */}
+      <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/30 backdrop-blur-[8px] border-r border-white/10 flex flex-col items-center justify-center text-center">
+        {/* User Icon */}
+        <div className="w-20 h-20 rounded-full border-2 border-white flex items-center justify-center mb-6">
+          <UserRound className="h-10 w-10" />
+        </div>
+        {/* Heading */}
+        <h2 className="text-2xl font-semibold mb-4 leading-tight">Học tập một cách<br/>hiệu quả</h2>
+        {/* Description */}
+        <p className="text-gray-200 text-sm leading-relaxed max-w-[250px]">
+          Ôn thi với các bài học có cấu trúc, bài kiểm tra có hướng dẫn, và theo dõi tiến độ thực tế.
         </p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-5 sm:grid-cols-[0.85fr_minmax(0,1.2fr)] sm:items-start">
-          <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/15 via-background/80 to-accent/20 p-4 text-sm text-muted-foreground">
-            <div
-              className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-accent/40 blur-2xl"
-              aria-hidden
+      </section>
+      {/* END: Sidebar Section */}
+
+      {/* BEGIN: Form Section */}
+      <section className="w-full md:w-7/12 p-8 md:p-12 flex flex-col items-center">
+        {/* Learning Portal Badge */}
+        <div className="inline-flex items-center gap-2 bg-white/50 px-4 py-1.5 rounded-full text-sm font-medium text-gray-800 mb-6 backdrop-blur-sm border border-white/40 shadow-sm">
+          <BookOpenText className="h-4 w-4" />
+          <span>Learning Portal</span>
+        </div>
+        
+        {/* Sign In Header */}
+        <div className="text-center mb-8 w-full">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
+          <p className="text-gray-700 text-sm">Access your Azubi learning dashboard</p>
+        </div>
+
+        {/* Login Form */}
+        <form className="w-full max-w-sm space-y-5" onSubmit={handleSubmit}>
+          {/* Email Input */}
+          <div className="space-y-1">
+            <Label className="block text-sm font-medium text-gray-800" htmlFor="email">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+              required
             />
-            <div className="relative space-y-3">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/40 bg-white/60 text-primary shadow-glow-soft dark:bg-slate-900/75">
-                <UserRound className="h-5 w-5" />
-              </div>
-              <p className="font-semibold leading-6 text-foreground">
-                Học tập một cách hiệu quả
-              </p>
-              <p className="text-xs leading-5">
-                Ôn thi với các bài học có cấu trúc,
-                bài kiểm tra có hướng dẫn, và theo dõi tiến độ thực tế.
-              </p>
-            </div>
           </div>
 
-          <form className="space-y-4 kokonut-enter" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <Label className="text-foreground/90" htmlFor="email">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="h-10 rounded-xl border-primary/20 bg-white/70 shadow-sm transition-all duration-300 focus-visible:border-accent/70 focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-0 dark:bg-slate-900/70"
-                required
-              />
-            </div>
+          {/* Password Input */}
+          <div className="space-y-1">
+            <Label className="block text-sm font-medium text-gray-800" htmlFor="password">
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+              required
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label className="text-foreground/90" htmlFor="password">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="h-10 rounded-xl border-primary/20 bg-white/70 shadow-sm transition-all duration-300 focus-visible:border-accent/70 focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-0 dark:bg-slate-900/70"
-                required
-              />
-            </div>
+          {errorMessage ? (
+            <p className="rounded-xl border border-destructive/35 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {errorMessage}
+            </p>
+          ) : null}
 
-            {errorMessage ? (
-              <p className="rounded-xl border border-destructive/35 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {errorMessage}
-              </p>
-            ) : null}
-
+          {/* Submit Button */}
+          <div className="pt-4">
             <Button
-              className="kokonut-hover-lift h-11 w-full rounded-xl border border-white/20 bg-gradient-to-r from-primary via-blue-700 to-amber-600 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
+              className="w-full h-14 rounded-xl text-white font-medium text-lg bg-gradient-to-r from-[#4F81C7] to-[#E58656] hover:opacity-90 transition-opacity duration-200 shadow-lg"
               disabled={isSubmitting}
               type="submit"
             >
@@ -187,9 +188,10 @@ export default function LoginPage() {
                 "Sign in"
               )}
             </Button>
-          </form>
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        </form>
+      </section>
+      {/* END: Form Section */}
+    </main>
   );
 }
