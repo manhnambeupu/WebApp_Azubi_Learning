@@ -73,6 +73,12 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
   const isEditMode = mode === "edit";
   const isSaving = createLessonMutation.isPending || updateLessonMutation.isPending;
+  const panelClassName =
+    "space-y-4 rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_16px_40px_-30px_rgba(12,24,60,0.5)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/60";
+  const fieldClassName =
+    "border-slate-300/80 bg-white/90 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+  const textareaClassName =
+    "resize-y border-slate-300/80 bg-white/90 leading-7 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
 
   useEffect(() => {
     if (!lesson) {
@@ -225,79 +231,118 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   };
 
   return (
-    <section className="space-y-6 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
+    <section className="kokonut-glass-card space-y-6 rounded-2xl p-6">
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/75">
+          Biên soạn nội dung
+        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {isEditMode ? "Chỉnh sửa bài học" : "Tạo bài học mới"}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Quản lý nội dung markdown, hình ảnh và danh mục cho bài học.
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          Chia bài học thành từng khối rõ ràng để quản lý thông tin chung, nội dung markdown và
+          hình ảnh đại diện mạch lạc hơn.
         </p>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div className="grid gap-6 lg:grid-cols-2">
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <div className={panelClassName}>
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              Thông tin chung
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Điền tiêu đề, danh mục và tóm tắt để học viên nắm rõ trọng tâm bài học.
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-title">
+                Tiêu đề
+              </Label>
+              <Input
+                className={fieldClassName}
+                id="lesson-title"
+                maxLength={255}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Ví dụ: Quy trình setup phòng tiêu chuẩn"
+                value={title}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-category">
+                Danh mục
+              </Label>
+              <Select onValueChange={setCategoryId} value={categoryId}>
+                <SelectTrigger className={fieldClassName} id="lesson-category">
+                  <SelectValue
+                    placeholder={
+                      categoriesQuery.isLoading ? "Đang tải danh mục..." : "Chọn danh mục"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {(categoriesQuery.data ?? []).map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {categoriesQuery.isError ? (
+                <p className="text-xs text-destructive">
+                  {getApiErrorMessage(categoriesQuery.error)}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="lesson-title">Tiêu đề</Label>
-            <Input
-              id="lesson-title"
-              maxLength={255}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Ví dụ: Quy trình setup phòng tiêu chuẩn"
-              value={title}
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-summary">
+                Tóm tắt
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                {summary.length}/{MAX_SUMMARY_LENGTH}
+              </span>
+            </div>
+            <Textarea
+              className={textareaClassName}
+              id="lesson-summary"
+              maxLength={MAX_SUMMARY_LENGTH}
+              onChange={(event) => setSummary(event.target.value)}
+              placeholder="Mô tả ngắn gọn mục tiêu của bài học..."
+              rows={4}
+              value={summary}
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="lesson-category">Danh mục</Label>
-            <Select onValueChange={setCategoryId} value={categoryId}>
-              <SelectTrigger id="lesson-category">
-                <SelectValue
-                  placeholder={
-                    categoriesQuery.isLoading ? "Đang tải danh mục..." : "Chọn danh mục"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {(categoriesQuery.data ?? []).map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {categoriesQuery.isError ? (
-              <p className="text-xs text-destructive">
-                {getApiErrorMessage(categoriesQuery.error)}
-              </p>
-            ) : null}
+        <div className={panelClassName}>
+          <div className="space-y-1">
+            <Label className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              Nội dung bài học (Markdown)
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Khu vực trình bày chính cho học viên, ưu tiên bố cục rõ ràng và dễ đọc.
+            </p>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 dark:border-slate-800/80 dark:bg-slate-950/70">
+            <MarkdownEditor value={contentMd} onChange={setContentMd} />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="lesson-summary">Tóm tắt</Label>
-            <span className="text-xs text-muted-foreground">
-              {summary.length}/{MAX_SUMMARY_LENGTH}
-            </span>
+        <div className={panelClassName}>
+          <div className="space-y-1">
+            <Label className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              Ảnh bài học (JPEG, PNG, WEBP, AVIF, GIF; tối đa 5MB)
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Hình ảnh đại diện giúp bài học trực quan hơn trong danh sách hiển thị.
+            </p>
           </div>
-          <Textarea
-            id="lesson-summary"
-            maxLength={MAX_SUMMARY_LENGTH}
-            onChange={(event) => setSummary(event.target.value)}
-            placeholder="Mô tả ngắn gọn mục tiêu của bài học..."
-            rows={4}
-            value={summary}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Nội dung bài học (Markdown)</Label>
-          <MarkdownEditor value={contentMd} onChange={setContentMd} />
-        </div>
-
-        <div className="space-y-3">
-          <Label>Ảnh bài học (JPEG, PNG, WEBP, AVIF, GIF; tối đa 5MB)</Label>
           <input
             accept={IMAGE_INPUT_ACCEPT}
             className="hidden"
@@ -307,10 +352,10 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
           />
 
           <div
-            className={`rounded-lg border border-dashed p-5 transition-colors ${
+            className={`rounded-2xl border border-dashed p-5 transition-all duration-300 ${
               isDraggingImage
-                ? "border-primary bg-primary/5"
-                : "border-border bg-slate-50/70"
+                ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_rgba(29,78,216,0.25),0_14px_30px_-20px_rgba(29,78,216,0.6)]"
+                : "border-slate-300/80 bg-slate-50/75 dark:border-slate-700/80 dark:bg-slate-900/45"
             }`}
             onDragEnter={(event) => {
               event.preventDefault();
@@ -330,12 +375,12 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
               {imagePreviewUrl ? (
                 <div
                   aria-label="Lesson preview"
-                  className="h-44 w-full max-w-md rounded-md border border-slate-200/80 bg-white bg-cover bg-center bg-no-repeat"
+                  className="h-44 w-full max-w-md rounded-xl border border-slate-200/80 bg-white bg-cover bg-center bg-no-repeat dark:border-slate-700/70 dark:bg-slate-950/80"
                   role="img"
                   style={{ backgroundImage: `url(${imagePreviewUrl})` }}
                 />
               ) : (
-                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-md border border-slate-200/80 bg-white">
+                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-xl border border-slate-200/80 bg-white dark:border-slate-700/70 dark:bg-slate-950/80">
                   <ImageIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
               )}
@@ -349,6 +394,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button
+                  className="border-primary/30 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
                   onClick={() => imageInputRef.current?.click()}
                   type="button"
                   variant="outline"
@@ -358,6 +404,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
                 </Button>
                 {imageFile ? (
                   <Button
+                    className="text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-slate-200/70 hover:text-foreground dark:hover:bg-slate-800/70"
                     onClick={() => {
                       setImageFile(null);
                       if (imageInputRef.current) {
@@ -377,7 +424,11 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button disabled={isSaving} type="submit">
+          <Button
+            className="h-11 rounded-xl bg-gradient-to-r from-primary via-blue-600 to-amber-500 px-6 text-sm font-semibold text-primary-foreground shadow-[0_14px_34px_-18px_rgba(37,99,235,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-amber-500 hover:shadow-[0_18px_36px_-18px_rgba(245,158,11,0.75)]"
+            disabled={isSaving}
+            type="submit"
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

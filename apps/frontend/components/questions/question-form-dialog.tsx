@@ -199,6 +199,12 @@ export function QuestionFormDialog({
   const isMatchingQuestion = questionType === "MATCHING";
   const isChoiceQuestion =
     questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
+  const fieldClassName =
+    "border-slate-300/80 bg-white/90 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+  const textareaClassName =
+    "resize-y border-slate-300/80 bg-white/90 leading-7 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+  const panelClassName =
+    "space-y-3 rounded-xl border border-slate-200/80 bg-white/80 p-4 shadow-[0_16px_32px_-28px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/55";
 
   useEffect(() => {
     if (!open) {
@@ -428,7 +434,7 @@ export function QuestionFormDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/90 sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Sửa câu hỏi" : "Thêm câu hỏi mới"}</DialogTitle>
           <DialogDescription>
@@ -439,9 +445,17 @@ export function QuestionFormDialog({
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="question-text">Nội dung câu hỏi</Label>
+          <div className={panelClassName}>
+            <div className="space-y-1">
+              <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="question-text">
+                Nội dung câu hỏi
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Đặt câu hỏi rõ ràng để học viên hiểu yêu cầu trước khi chọn hoặc nhập đáp án.
+              </p>
+            </div>
             <Textarea
+              className={textareaClassName}
               id="question-text"
               onChange={(event) => setQuestionText(event.target.value)}
               placeholder="Nhập nội dung câu hỏi..."
@@ -450,13 +464,15 @@ export function QuestionFormDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="question-type">Loại câu hỏi</Label>
+          <div className={panelClassName}>
+            <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="question-type">
+              Loại câu hỏi
+            </Label>
             <Select
               onValueChange={(value) => handleQuestionTypeChange(value as QuestionType)}
               value={questionType}
             >
-              <SelectTrigger id="question-type">
+              <SelectTrigger className={fieldClassName} id="question-type">
                 <SelectValue placeholder="Chọn loại câu hỏi" />
               </SelectTrigger>
               <SelectContent>
@@ -475,9 +491,15 @@ export function QuestionFormDialog({
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="question-explanation">Giải thích câu hỏi (tuỳ chọn)</Label>
+          <div className={panelClassName}>
+            <Label
+              className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+              htmlFor="question-explanation"
+            >
+              Giải thích câu hỏi (tuỳ chọn)
+            </Label>
             <Textarea
+              className={textareaClassName}
               id="question-explanation"
               onChange={(event) => setQuestionExplanation(event.target.value)}
               placeholder="Giải thích tổng quan cho câu hỏi..."
@@ -489,10 +511,13 @@ export function QuestionFormDialog({
           <Separator />
 
           {isEssayQuestion ? (
-            <div className="space-y-3">
+            <div className={panelClassName}>
               <div className="space-y-2">
-                <Label htmlFor="essay-sample-answer">Đáp án tự luận mẫu</Label>
+                <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="essay-sample-answer">
+                  Đáp án tự luận mẫu
+                </Label>
                 <Textarea
+                  className={textareaClassName}
                   id="essay-sample-answer"
                   onChange={(event) => setEssaySampleAnswer(event.target.value)}
                   placeholder="Nhập đoạn văn mẫu để admin tham chiếu khi chấm bài..."
@@ -500,16 +525,18 @@ export function QuestionFormDialog({
                   value={essaySampleAnswer}
                 />
               </div>
-              <p className="rounded-md border border-muted bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-muted bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                 Khi lưu câu hỏi tự luận, hệ thống sẽ gửi một đáp án mẫu duy nhất với
                 trạng thái đúng.
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className={panelClassName}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Danh sách đáp án</h3>
+                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    Danh sách đáp án
+                  </h3>
                   {questionType === "SINGLE_CHOICE" ? (
                     <p className="text-xs text-muted-foreground">
                       Khi chọn đáp án đúng mới, đáp án đúng cũ sẽ tự động bỏ chọn.
@@ -524,14 +551,20 @@ export function QuestionFormDialog({
                     </p>
                   ) : null}
                 </div>
-                <Button onClick={addAnswer} size="sm" type="button" variant="outline">
+                <Button
+                  className="border-primary/25 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
+                  onClick={addAnswer}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Thêm đáp án
                 </Button>
               </div>
 
               {br03Warning ? (
-                <p className="rounded-md border border-amber-300/50 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <p className="rounded-lg border border-amber-300/50 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                   {br03Warning}
                 </p>
               ) : null}
@@ -547,7 +580,10 @@ export function QuestionFormDialog({
                       ? "Tên bước"
                       : "Nội dung đáp án";
                   return (
-                    <div className="space-y-3 rounded-md border p-4" key={answer.key}>
+                    <div
+                      className="space-y-3 rounded-xl border border-slate-200/85 bg-white/90 p-4 shadow-[0_16px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 hover:border-amber-300/65 hover:shadow-[0_18px_34px_-24px_rgba(245,158,11,0.55)] dark:border-slate-700/80 dark:bg-slate-950/70"
+                      key={answer.key}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary">{answerLabel}</Badge>
@@ -558,6 +594,7 @@ export function QuestionFormDialog({
                           ) : null}
                         </div>
                         <Button
+                          className="text-muted-foreground transition-all hover:bg-slate-200/70 hover:text-foreground dark:hover:bg-slate-800/70"
                           disabled={answers.length <= 2}
                           onClick={() => removeAnswer(answer.key)}
                           size="icon"
@@ -570,8 +607,14 @@ export function QuestionFormDialog({
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`answer-text-${answer.key}`}>{answerTextLabel}</Label>
+                        <Label
+                          className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                          htmlFor={`answer-text-${answer.key}`}
+                        >
+                          {answerTextLabel}
+                        </Label>
                         <Input
+                          className={fieldClassName}
                           id={`answer-text-${answer.key}`}
                           onChange={(event) =>
                             updateAnswer(answer.key, { text: event.target.value })
@@ -589,8 +632,14 @@ export function QuestionFormDialog({
 
                       {isMatchingQuestion ? (
                         <div className="space-y-2">
-                          <Label htmlFor={`answer-match-text-${answer.key}`}>Vế phải</Label>
+                          <Label
+                            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                            htmlFor={`answer-match-text-${answer.key}`}
+                          >
+                            Vế phải
+                          </Label>
                           <Input
+                            className={fieldClassName}
                             id={`answer-match-text-${answer.key}`}
                             onChange={(event) =>
                               updateAnswer(answer.key, { matchText: event.target.value })
@@ -620,10 +669,14 @@ export function QuestionFormDialog({
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor={`answer-explanation-${answer.key}`}>
+                            <Label
+                              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                              htmlFor={`answer-explanation-${answer.key}`}
+                            >
                               Giải thích đáp án (tuỳ chọn)
                             </Label>
                             <Input
+                              className={fieldClassName}
                               id={`answer-explanation-${answer.key}`}
                               onChange={(event) =>
                                 updateAnswer(answer.key, {
@@ -650,7 +703,11 @@ export function QuestionFormDialog({
           ) : null}
 
           <DialogFooter>
-            <Button disabled={isSubmitting} type="submit">
+            <Button
+              className="h-10 rounded-xl bg-gradient-to-r from-primary via-blue-600 to-amber-500 px-5 text-primary-foreground shadow-[0_14px_32px_-20px_rgba(37,99,235,0.82)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-amber-500 hover:shadow-[0_18px_34px_-18px_rgba(245,158,11,0.72)]"
+              disabled={isSubmitting}
+              type="submit"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

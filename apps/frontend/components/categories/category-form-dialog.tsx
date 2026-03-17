@@ -18,18 +18,21 @@ import { ADMIN_CATEGORIES_QUERY_KEY } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
 type CategoryFormDialogProps = {
   initialData?: Pick<Category, "id" | "name">;
   triggerLabel: string;
   triggerVariant?: ButtonProps["variant"];
+  triggerClassName?: string;
 };
 
 export function CategoryFormDialog({
   initialData,
   triggerLabel,
   triggerVariant = "default",
+  triggerClassName,
 }: CategoryFormDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -97,11 +100,11 @@ export function CategoryFormDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button size="sm" variant={triggerVariant}>
+        <Button className={cn("rounded-full", triggerClassName)} size="sm" variant={triggerVariant}>
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
@@ -117,6 +120,7 @@ export function CategoryFormDialog({
           <div className="space-y-2">
             <Label htmlFor="category-name">Tên danh mục</Label>
             <Input
+              className="border-primary/20 bg-white/85"
               id="category-name"
               onChange={(event) => setName(event.target.value)}
               placeholder="Ví dụ: Buồng phòng"
@@ -125,7 +129,11 @@ export function CategoryFormDialog({
           </div>
 
           <DialogFooter>
-            <Button disabled={mutation.isPending} type="submit">
+            <Button
+              className="rounded-full border border-white/30 bg-gradient-to-r from-primary via-blue-700 to-amber-600 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110"
+              disabled={mutation.isPending}
+              type="submit"
+            >
               {mutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>

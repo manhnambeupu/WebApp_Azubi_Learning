@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { useCreateStudent } from "@/hooks/use-students";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { cn } from "@/lib/utils";
 
 type FieldErrors = {
   email?: string;
@@ -26,7 +27,11 @@ type FieldErrors = {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function CreateStudentDialog() {
+type CreateStudentDialogProps = {
+  triggerClassName?: string;
+};
+
+export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogProps) {
   const { toast } = useToast();
   const createStudentMutation = useCreateStudent();
 
@@ -115,12 +120,12 @@ export function CreateStudentDialog() {
       open={open}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button className={cn("rounded-full", triggerClassName)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Thêm học viên
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
         <DialogHeader>
           <DialogTitle>Tạo học viên mới</DialogTitle>
           <DialogDescription>
@@ -132,6 +137,7 @@ export function CreateStudentDialog() {
           <div className="space-y-2">
             <Label htmlFor="student-email">Email</Label>
             <Input
+              className="border-primary/20 bg-white/85"
               id="student-email"
               onChange={(event) => setEmail(event.target.value)}
               placeholder="student@azubi.de"
@@ -146,6 +152,7 @@ export function CreateStudentDialog() {
           <div className="space-y-2">
             <Label htmlFor="student-full-name">Họ tên</Label>
             <Input
+              className="border-primary/20 bg-white/85"
               id="student-full-name"
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Nguyễn Văn A"
@@ -159,6 +166,7 @@ export function CreateStudentDialog() {
           <div className="space-y-2">
             <Label htmlFor="student-password">Mật khẩu</Label>
             <Input
+              className="border-primary/20 bg-white/85"
               id="student-password"
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Tối thiểu 6 ký tự"
@@ -177,7 +185,11 @@ export function CreateStudentDialog() {
           ) : null}
 
           <DialogFooter>
-            <Button disabled={!canSubmit || isSubmitting} type="submit">
+            <Button
+              className="rounded-full border border-white/30 bg-gradient-to-r from-primary via-blue-700 to-amber-600 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110"
+              disabled={!canSubmit || isSubmitting}
+              type="submit"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -102,19 +102,28 @@ export function QuestionList({ lessonId }: QuestionListProps) {
   };
 
   return (
-    <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
+    <section className="kokonut-glass-card space-y-5 rounded-2xl p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">Câu hỏi & Đáp án</h2>
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
+            Quiz Builder
+          </p>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            Câu hỏi & Đáp án
+          </h2>
           <p className="text-sm text-muted-foreground">
-            Quản lý câu hỏi trắc nghiệm, tự luận, sắp xếp thứ tự và ghép đôi cho bài học.
+            Quản lý câu hỏi trắc nghiệm, tự luận, sắp xếp thứ tự và ghép đôi trong từng thẻ
+            accordion để tránh quá tải nội dung.
           </p>
         </div>
 
         <QuestionFormDialog
           lessonId={lessonId}
           trigger={
-            <Button size="sm">
+            <Button
+              className="rounded-xl bg-gradient-to-r from-primary via-blue-600 to-amber-500 text-primary-foreground shadow-[0_14px_32px_-20px_rgba(37,99,235,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-amber-500 hover:shadow-[0_16px_34px_-18px_rgba(245,158,11,0.75)]"
+              size="sm"
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Thêm câu hỏi
             </Button>
@@ -125,7 +134,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
       <Separator />
 
       {questionsQuery.isLoading ? (
-        <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm text-muted-foreground dark:border-slate-700/70 dark:bg-slate-900/45">
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải danh sách câu hỏi...
         </div>
@@ -139,14 +148,14 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
       {questionsQuery.data ? (
         questions.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-slate-300/80 bg-white/70 px-4 py-8 text-center text-sm text-muted-foreground dark:border-slate-700/80 dark:bg-slate-900/45">
             Chưa có câu hỏi nào. Hãy thêm câu hỏi đầu tiên cho bài học.
           </p>
         ) : (
-          <Accordion className="w-full space-y-3" collapsible type="single">
+          <Accordion className="w-full space-y-4" collapsible type="single">
             {questions.map((question, index) => (
               <AccordionItem
-                className="overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50/70 px-4"
+                className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 px-4 shadow-[0_14px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 data-[state=open]:border-primary/35 data-[state=open]:shadow-[0_20px_40px_-28px_rgba(37,99,235,0.85)] hover:-translate-y-0.5 hover:border-amber-300/65 hover:shadow-[0_20px_40px_-26px_rgba(245,158,11,0.6)] dark:border-slate-700/80 dark:bg-slate-900/55"
                 key={question.id}
                 value={question.id}
               >
@@ -154,11 +163,17 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                   <AccordionTrigger className="py-4 hover:no-underline">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline">#{question.orderIndex}</Badge>
-                        <Badge>{QUESTION_TYPE_LABELS[question.type]}</Badge>
-                        <Badge variant="secondary">{question.answers.length} đáp án</Badge>
+                        <Badge className="border-primary/30 bg-primary/10 text-primary" variant="outline">
+                          #{question.orderIndex}
+                        </Badge>
+                        <Badge className="bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900">
+                          {QUESTION_TYPE_LABELS[question.type]}
+                        </Badge>
+                        <Badge className="bg-amber-100/80 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100" variant="secondary">
+                          {question.answers.length} đáp án
+                        </Badge>
                       </div>
-                      <p className="line-clamp-2 text-left text-sm font-medium">
+                      <p className="line-clamp-2 text-left text-sm font-medium text-slate-800 dark:text-slate-100">
                         {question.text}
                       </p>
                     </div>
@@ -166,6 +181,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
                   <div className="flex flex-wrap items-center justify-end gap-2 pb-2 sm:pb-0">
                     <Button
+                      className="text-slate-600 transition-all hover:bg-primary/10 hover:text-primary dark:text-slate-300 dark:hover:bg-primary/20"
                       disabled={index === 0 || pendingReorderId === question.id}
                       onClick={() => {
                         void handleReorderQuestion(question.id, "up");
@@ -178,6 +194,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                       <span className="sr-only">Di chuyển lên</span>
                     </Button>
                     <Button
+                      className="text-slate-600 transition-all hover:bg-primary/10 hover:text-primary dark:text-slate-300 dark:hover:bg-primary/20"
                       disabled={index === questions.length - 1 || pendingReorderId === question.id}
                       onClick={() => {
                         void handleReorderQuestion(question.id, "down");
@@ -194,7 +211,12 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                       initialData={question}
                       lessonId={lessonId}
                       trigger={
-                        <Button size="sm" type="button" variant="outline">
+                        <Button
+                          className="border-primary/25 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
+                          size="sm"
+                          type="button"
+                          variant="outline"
+                        >
                           <Pencil className="mr-2 h-4 w-4" />
                           Sửa
                         </Button>
@@ -203,12 +225,17 @@ export function QuestionList({ lessonId }: QuestionListProps) {
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="sm" type="button" variant="destructive">
+                        <Button
+                          className="transition-all hover:-translate-y-0.5"
+                          size="sm"
+                          type="button"
+                          variant="destructive"
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Xóa
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/90">
                         <AlertDialogHeader>
                           <AlertDialogTitle>Xóa câu hỏi?</AlertDialogTitle>
                           <AlertDialogDescription>
@@ -232,9 +259,9 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                   </div>
                 </div>
 
-                <AccordionContent className="space-y-4">
+                <AccordionContent className="space-y-4 pb-4">
                   {question.explanation ? (
-                    <div className="space-y-1 rounded-lg bg-white p-3">
+                    <div className="space-y-1 rounded-xl border border-slate-200/80 bg-white p-3 dark:border-slate-700/80 dark:bg-slate-950/75">
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
                         Giải thích câu hỏi
                       </p>
@@ -299,8 +326,10 @@ function AnswerCard({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-white p-3",
-        isChoiceQuestion && answer.isCorrect ? "border-emerald-300 bg-emerald-50/70" : "",
+        "rounded-xl border border-slate-200/80 bg-white p-3 shadow-[0_12px_26px_-24px_rgba(15,23,42,0.7)] dark:border-slate-700/80 dark:bg-slate-950/70",
+        isChoiceQuestion && answer.isCorrect
+          ? "border-emerald-300/80 bg-emerald-50/80 shadow-[0_16px_28px_-20px_rgba(16,185,129,0.45)] dark:border-emerald-500/60 dark:bg-emerald-500/10"
+          : "",
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
