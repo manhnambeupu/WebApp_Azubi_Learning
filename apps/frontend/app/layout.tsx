@@ -7,8 +7,20 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hogaprüefung",
-  description: "Azubi web application frontend",
+  title: {
+    template: "%s | Azubi Learning",
+    default: "Hogaprüefung - Nền tảng học tập Azubi",
+  },
+  description:
+    "Hệ thống quản lý bài giảng, kiểm tra và theo dõi tiến độ học tập chuyên nghiệp.",
+  openGraph: {
+    title: "Azubi Learning App",
+    description: "Hệ thống quản lý bài giảng, kiểm tra và theo dõi tiến độ học tập.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 function LearningBackdrop() {

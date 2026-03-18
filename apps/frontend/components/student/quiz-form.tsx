@@ -425,7 +425,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 {question.imageUrl ? (
                   <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
                     <Image
-                      alt="Question"
+                      alt={`Hình ảnh đi kèm câu hỏi ${questionIndex + 1}`}
                       className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
                       height={720}
                       sizes="(max-width: 768px) 100vw, 768px"

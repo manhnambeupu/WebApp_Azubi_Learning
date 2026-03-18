@@ -143,6 +143,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
+                aria-label="Toggle navigation menu"
                 className="border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white"
                 size="icon"
                 variant="outline"

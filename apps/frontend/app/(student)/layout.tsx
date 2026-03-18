@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { RoleProtectedLayout } from "@/components/auth/role-protected-layout";
 import { StudentNav } from "@/components/student/student-nav";
 
 type StudentLayoutProps = {
   children: React.ReactNode;
+};
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Hệ thống học tập | Azubi",
+    default: "Hệ thống học tập | Azubi",
+  },
 };
 
 export default function StudentLayout({ children }: StudentLayoutProps) {

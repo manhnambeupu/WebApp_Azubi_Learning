@@ -53,7 +53,7 @@ export default function AdminEditLessonPage() {
           size="sm"
           variant="outline"
         >
-          <Link href="/admin/dashboard">
+          <Link aria-label="Quay lại danh sách bài học" href="/admin/dashboard">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Quay lại danh sách bài học
           </Link>
@@ -75,7 +75,7 @@ export default function AdminEditLessonPage() {
           size="sm"
           variant="outline"
         >
-          <Link href="/admin/dashboard">
+          <Link aria-label="Quay lại danh sách bài học" href="/admin/dashboard">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Quay lại danh sách bài học
           </Link>

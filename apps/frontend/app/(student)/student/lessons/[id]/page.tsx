@@ -152,7 +152,7 @@ export default function StudentLessonDetailPage() {
         {lesson.imageUrl ? (
           <div className="overflow-hidden rounded-2xl border border-primary/15 shadow-glow-soft">
             <Image
-              alt={lesson.title}
+              alt={`Ảnh minh hoạ cho bài học: ${lesson.title}`}
               className="h-auto w-full object-cover"
               height={720}
               sizes="(max-width: 768px) 100vw, 1024px"
