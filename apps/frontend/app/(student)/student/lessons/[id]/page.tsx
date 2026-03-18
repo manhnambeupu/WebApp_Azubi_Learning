@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpenText, ChevronRight, Download, Loader2, Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -149,10 +150,17 @@ export default function StudentLessonDetailPage() {
         </div>
 
         {lesson.imageUrl ? (
-          <div
-            className="h-72 w-full rounded-2xl border border-primary/15 bg-cover bg-center bg-no-repeat shadow-glow-soft"
-            style={{ backgroundImage: `url(${lesson.imageUrl})` }}
-          />
+          <div className="overflow-hidden rounded-2xl border border-primary/15 shadow-glow-soft">
+            <Image
+              alt={lesson.title}
+              className="h-auto w-full object-cover"
+              height={720}
+              sizes="(max-width: 768px) 100vw, 1024px"
+              src={lesson.imageUrl}
+              unoptimized
+              width={1280}
+            />
+          </div>
         ) : null}
 
         <div className="student-markdown rounded-2xl border border-primary/15 bg-white/80 p-6 text-[1.04rem] leading-8 shadow-glass sm:p-8 sm:text-[1.08rem]">

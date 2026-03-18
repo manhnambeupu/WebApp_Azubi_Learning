@@ -13,6 +13,7 @@ import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 
 const QUESTION_IMAGES_BUCKET = 'lesson-images';
+const WEBP_MIME_TYPE = 'image/webp';
 
 @Injectable()
 export class QuestionsService {
@@ -55,12 +56,16 @@ export class QuestionsService {
   async uploadQuestionImage(
     imageFile: Express.Multer.File,
   ): Promise<{ imageUrl: string }> {
-    const safeBuffer = await sharp(imageFile.buffer).rotate().toBuffer();
+    const safeBuffer = await sharp(imageFile.buffer)
+      .rotate()
+      .resize({ width: 1280, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
     const imageUrl = await this.minioService.uploadFile(
       QUESTION_IMAGES_BUCKET,
       this.buildImageObjectName(imageFile.originalname),
       safeBuffer,
-      imageFile.mimetype,
+      WEBP_MIME_TYPE,
     );
 
     return { imageUrl };
@@ -256,6 +261,8 @@ export class QuestionsService {
   }
 
   private buildImageObjectName(originalName: string): string {
-    return `questions/${randomUUID()}-${originalName.replace(/\s+/g, '-')}`;
+    const normalizedName = originalName.replace(/\s+/g, '-');
+    const baseName = normalizedName.replace(/\.[^/.]+$/, '');
+    return `questions/${randomUUID()}-${baseName}.webp`;
   }
 }

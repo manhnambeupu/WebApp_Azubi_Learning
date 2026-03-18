@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ImageIcon, Loader2, UploadCloud, X } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,11 @@ const ACCEPTED_IMAGE_TYPES = [
 ] as const;
 const ACCEPTED_IMAGE_TYPE_SET: ReadonlySet<string> = new Set(ACCEPTED_IMAGE_TYPES);
 const IMAGE_INPUT_ACCEPT = ACCEPTED_IMAGE_TYPES.join(",");
+const IMAGE_COMPRESSION_OPTIONS = {
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+};
 
 type LessonFormProps = {
   mode: "create" | "edit";
@@ -137,24 +143,51 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
     return true;
   };
 
-  const handleImageFile = (file: File) => {
+  const compressImageFile = async (file: File): Promise<File | null> => {
+    try {
+      return await imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
+    } catch (error) {
+      toast({
+        title: "Không thể nén ảnh",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Đã xảy ra lỗi khi nén ảnh trước khi tải lên.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleImageFile = async (file: File) => {
     if (!validateImageFile(file)) {
       return;
     }
 
-    setImageFile(file);
+    const compressedFile = await compressImageFile(file);
+    if (!compressedFile) {
+      setImageFile(null);
+      return;
+    }
+
+    if (!validateImageFile(compressedFile)) {
+      setImageFile(null);
+      return;
+    }
+
+    setImageFile(compressedFile);
   };
 
-  const onImageInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onImageInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) {
       return;
     }
 
-    handleImageFile(selectedFile);
+    await handleImageFile(selectedFile);
   };
 
-  const onImageDrop = (event: DragEvent<HTMLDivElement>) => {
+  const onImageDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDraggingImage(false);
 
@@ -163,7 +196,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
       return;
     }
 
-    handleImageFile(droppedFile);
+    await handleImageFile(droppedFile);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

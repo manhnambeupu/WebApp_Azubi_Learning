@@ -18,6 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Loader2, Send, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
@@ -423,10 +424,14 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 </p>
                 {question.imageUrl ? (
                   <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
-                    <img
+                    <Image
                       alt="Question"
-                      className="max-h-[400px] w-full object-contain bg-slate-50/50"
+                      className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
+                      height={720}
+                      sizes="(max-width: 768px) 100vw, 768px"
                       src={question.imageUrl}
+                      unoptimized
+                      width={1280}
                     />
                   </div>
                 ) : null}

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { RotateCcw } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -357,10 +358,14 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
                 </p>
                 {question.imageUrl ? (
                   <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
-                    <img
+                    <Image
                       alt="Question"
-                      className="max-h-[400px] w-full object-contain bg-slate-50/50"
+                      className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
+                      height={720}
+                      sizes="(max-width: 768px) 100vw, 768px"
                       src={question.imageUrl}
+                      unoptimized
+                      width={1280}
                     />
                   </div>
                 ) : null}

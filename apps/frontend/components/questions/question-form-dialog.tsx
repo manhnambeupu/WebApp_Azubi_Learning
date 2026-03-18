@@ -2,6 +2,7 @@
 
 import { Loader2, PlusCircle, Trash2, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import imageCompression from "browser-image-compression";
 import { Badge } from "@/components/ui/badge";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,6 +44,11 @@ const MATCHING_RIGHT_REQUIRED_MESSAGE = "Vế phải của cặp ghép không đ
 const IMAGE_UPLOAD_REQUIRED_MESSAGE = "Vui lòng tải ảnh cho câu hỏi Ảnh (Tự luận).";
 const DEFAULT_QUESTION_TYPE: QuestionType = "SINGLE_CHOICE";
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const IMAGE_COMPRESSION_OPTIONS = {
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+};
 const QUESTION_TYPE_OPTIONS: Array<{
   value: QuestionType;
   label: string;
@@ -332,7 +338,25 @@ export function QuestionFormDialog({
     return true;
   };
 
-  const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImageFile = async (file: File): Promise<File | null> => {
+    try {
+      return await imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Đã xảy ra lỗi khi nén ảnh trước khi tải lên.";
+      setFormError(message);
+      toast({
+        title: "Không thể nén ảnh câu hỏi",
+        description: message,
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleImageFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
       setSelectedImageFile(null);
@@ -345,7 +369,20 @@ export function QuestionFormDialog({
       return;
     }
 
-    setSelectedImageFile(file);
+    const compressedFile = await compressImageFile(file);
+    if (!compressedFile) {
+      setSelectedImageFile(null);
+      setImageInputKey((prev) => prev + 1);
+      return;
+    }
+
+    if (!validateImageFile(compressedFile)) {
+      setSelectedImageFile(null);
+      setImageInputKey((prev) => prev + 1);
+      return;
+    }
+
+    setSelectedImageFile(compressedFile);
   };
 
   const handleUploadImage = async () => {

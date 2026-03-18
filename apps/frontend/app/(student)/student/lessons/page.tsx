@@ -46,7 +46,7 @@ export default function StudentLessonsPage() {
 
   return (
     <section className="space-y-8">
-      <div className="kokonut-glass-card kokonut-glow-border relative overflow-hidden border-primary/20 bg-white/60 px-6 py-7 shadow-glow-soft dark:bg-slate-950/50 sm:px-8">
+      <section className="kokonut-glass-card kokonut-glow-border relative overflow-hidden border-primary/20 bg-white/60 px-6 py-7 shadow-glow-soft dark:bg-slate-950/50 sm:px-8">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent/30 blur-3xl"
@@ -72,7 +72,7 @@ export default function StudentLessonsPage() {
               : "Đang đồng bộ lộ trình"}
           </div>
         </div>
-      </div>
+      </section>
 
       {lessonsQuery.isLoading ? <LessonsGridSkeleton /> : null}
 
@@ -96,7 +96,7 @@ export default function StudentLessonsPage() {
             {lessonsQuery.data.map((lesson, index) => {
               const featured = index % 5 === 0;
               return (
-                <div
+                <article
                   className={cn(
                     "h-full",
                     featured ? "sm:col-span-2 xl:col-span-3" : "xl:col-span-2"
@@ -104,7 +104,7 @@ export default function StudentLessonsPage() {
                   key={lesson.id}
                 >
                   <LessonCard featured={featured} lesson={lesson} />
-                </div>
+                </article>
               );
             })}
           </div>

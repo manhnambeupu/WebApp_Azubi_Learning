@@ -30,9 +30,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-background text-foreground antialiased">
         <div className="relative isolate min-h-screen overflow-x-hidden">
-          <LearningBackdrop />
+          <div role="presentation">
+            <LearningBackdrop />
+          </div>
           <QueryProvider>
-            <div className="relative z-10 kokonut-fade">{children}</div>
+            <main className="relative z-10 kokonut-fade">{children}</main>
             <Toaster />
           </QueryProvider>
         </div>

@@ -26,7 +26,10 @@ export function StudentNav() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <nav
+        aria-label="Student top navigation"
+        className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
+      >
         <div className="space-y-0.5">
           <Link aria-label="GastroLernplattform" className="inline-block" href="/student/lessons">
             <Image
@@ -67,7 +70,7 @@ export function StudentNav() {
             )}
           </Button>
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

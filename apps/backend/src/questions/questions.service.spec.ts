@@ -559,19 +559,19 @@ describe('QuestionsService', () => {
     } as Express.Multer.File;
 
     minioService.uploadFile.mockResolvedValue(
-      'http://localhost:9000/lesson-images/questions/question-image.png',
+      'http://localhost:9000/lesson-images/questions/question-image.webp',
     );
 
     const result = await service.uploadQuestionImage(imageFile);
 
     expect(minioService.uploadFile).toHaveBeenCalledWith(
       'lesson-images',
-      expect.stringMatching(/^questions\/.+question-image\.png$/),
+      expect.stringMatching(/^questions\/.+question-image\.webp$/),
       expect.any(Buffer),
-      'image/png',
+      'image/webp',
     );
     expect(result).toEqual({
-      imageUrl: 'http://localhost:9000/lesson-images/questions/question-image.png',
+      imageUrl: 'http://localhost:9000/lesson-images/questions/question-image.webp',
     });
   });
 });

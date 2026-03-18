@@ -150,6 +150,45 @@ describe('LessonsService', () => {
     expect(result.id).toBe('lesson-1');
   });
 
+  it('Tạo lesson có ảnh -> resize + webp + upload image/webp', async () => {
+    const imageFile = {
+      originalname: 'new-image.png',
+      mimetype: 'image/png',
+      size: ONE_PIXEL_PNG_BUFFER.length,
+      buffer: ONE_PIXEL_PNG_BUFFER,
+    } as Express.Multer.File;
+    minioService.uploadFile.mockResolvedValue('http://localhost:9000/lesson-images/new-image.webp');
+    prisma.lesson.create.mockResolvedValue({
+      id: 'lesson-1',
+      ...baseDto,
+      imageUrl: 'http://localhost:9000/lesson-images/new-image.webp',
+      category: {
+        id: baseDto.categoryId,
+        name: 'Ẩm thực',
+      },
+      _count: {
+        questions: 0,
+        files: 0,
+      },
+    });
+
+    await service.create(baseDto, imageFile);
+
+    expect(minioService.uploadFile).toHaveBeenCalledWith(
+      'lesson-images',
+      expect.stringContaining('new-image.webp'),
+      expect.any(Buffer),
+      'image/webp',
+    );
+    expect(prisma.lesson.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          imageUrl: 'http://localhost:9000/lesson-images/new-image.webp',
+        }),
+      }),
+    );
+  });
+
   it('Xóa lesson cascade hoạt động', async () => {
     prisma.lesson.findUnique.mockResolvedValue({
       id: 'lesson-1',
@@ -265,7 +304,7 @@ describe('LessonsService', () => {
       id: 'lesson-1',
       imageUrl: 'http://localhost:9000/lesson-images/old-image.png',
     });
-    minioService.uploadFile.mockResolvedValue('http://localhost:9000/lesson-images/new-image.png');
+    minioService.uploadFile.mockResolvedValue('http://localhost:9000/lesson-images/new-image.webp');
     prisma.lesson.update.mockResolvedValue({ id: 'lesson-1', title: 'Updated' });
 
     await service.update('lesson-1', { title: 'Updated' }, imageFile);
@@ -273,16 +312,16 @@ describe('LessonsService', () => {
     expect(minioService.deleteFile).toHaveBeenCalledWith('lesson-images', 'old-image.png');
     expect(minioService.uploadFile).toHaveBeenCalledWith(
       'lesson-images',
-      expect.stringContaining('new-image.png'),
+      expect.stringContaining('new-image.webp'),
       expect.any(Buffer),
-      imageFile.mimetype,
+      'image/webp',
     );
     expect(prisma.lesson.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'lesson-1' },
         data: expect.objectContaining({
           title: 'Updated',
-          imageUrl: 'http://localhost:9000/lesson-images/new-image.png',
+          imageUrl: 'http://localhost:9000/lesson-images/new-image.webp',
         }),
       }),
     );
