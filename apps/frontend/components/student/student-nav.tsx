@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, LogOut } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -27,8 +28,15 @@ export function StudentNav() {
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="space-y-0.5">
-          <Link className="text-base font-semibold tracking-tight text-slate-900" href="/student/lessons">
-            GastroLernplattform
+          <Link aria-label="GastroLernplattform" className="inline-block" href="/student/lessons">
+            <Image
+              alt="GastroLernplattform"
+              className="h-12 w-auto"
+              height={48}
+              priority
+              src="/images/logo.png"
+              width={240}
+            />
           </Link>
           <p className="text-xs text-slate-500">Không gian học tập dành cho học viên</p>
         </div>

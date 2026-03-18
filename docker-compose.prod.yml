@@ -90,15 +90,25 @@ services:
       resources:
         limits:
           memory: 100M
-    ports:
-      - "80:80"
-      - "443:443"
+    # Không expose port ra host, chỉ giao tiếp nội bộ qua Docker Network
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/nginx/ssl:/etc/nginx/ssl:ro   # SSL certificates
     depends_on:
       - frontend
       - backend
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    depends_on:
+      - nginx
 
 volumes:
   postgres_data:

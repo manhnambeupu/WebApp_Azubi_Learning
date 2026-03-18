@@ -1,11 +1,11 @@
 "use client";
 
 import { AxiosError } from "axios";
-import { BookOpenText, Loader2, UserRound } from "lucide-react";
+import { BookOpenText, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -103,16 +103,15 @@ export default function LoginPage() {
     <main className="relative z-10 w-full overflow-hidden flex flex-col md:flex-row shadow-2xl rounded-[2rem] bg-white/40 backdrop-blur-[16px] border border-white/30">
       {/* BEGIN: Sidebar Section */}
       <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/30 backdrop-blur-[8px] border-r border-white/10 flex flex-col items-center justify-center text-center">
-        {/* User Icon */}
-        <div className="w-20 h-20 rounded-full border-2 border-white flex items-center justify-center mb-6">
-          <UserRound className="h-10 w-10" />
+        <div className="relative w-full max-w-[280px] sm:max-w-[300px] md:max-w-[320px] aspect-square animate-in fade-in zoom-in duration-1000">
+          <Image
+            src="/images/Logo_Book.png"
+            alt="Azubi Learning Logo"
+            fill
+            className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+            priority
+          />
         </div>
-        {/* Heading */}
-        <h2 className="text-2xl font-semibold mb-4 leading-tight">Học tập một cách<br/>hiệu quả</h2>
-        {/* Description */}
-        <p className="text-gray-200 text-sm leading-relaxed max-w-[250px]">
-          Ôn thi với các bài học có cấu trúc, bài kiểm tra có hướng dẫn, và theo dõi tiến độ thực tế.
-        </p>
       </section>
       {/* END: Sidebar Section */}
 
@@ -121,13 +120,13 @@ export default function LoginPage() {
         {/* Learning Portal Badge */}
         <div className="inline-flex items-center gap-2 bg-white/50 px-4 py-1.5 rounded-full text-sm font-medium text-gray-800 mb-6 backdrop-blur-sm border border-white/40 shadow-sm">
           <BookOpenText className="h-4 w-4" />
-          <span>Learning Portal</span>
+          <span>E-Learning-Plattform</span>
         </div>
         
         {/* Sign In Header */}
         <div className="text-center mb-8 w-full">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
-          <p className="text-gray-700 text-sm">Access your Azubi learning dashboard</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Anmeldung</h2>
+          <p className="text-gray-700 text-sm">Zugang zum Lernportal für Auszubildende</p>
         </div>
 
         {/* Login Form */}
@@ -152,7 +151,7 @@ export default function LoginPage() {
           {/* Password Input */}
           <div className="space-y-1">
             <Label className="block text-sm font-medium text-gray-800" htmlFor="password">
-              Password
+              Passwort
             </Label>
             <Input
               id="password"
@@ -182,10 +181,10 @@ export default function LoginPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  Anmelden...
                 </>
               ) : (
-                "Sign in"
+                "Anmelden"
               )}
             </Button>
           </div>
