@@ -433,6 +433,8 @@ export function QuestionFormDialog({
     updatePayload: UpdateQuestionPayload;
   } | null => {
     const normalizedQuestionText = questionText.trim();
+    const normalizedImageUrl = questionImageUrl.trim();
+
     if (!normalizedQuestionText) {
       setFormError("Nội dung câu hỏi không được để trống.");
       return null;
@@ -445,7 +447,6 @@ export function QuestionFormDialog({
         return null;
       }
 
-      const normalizedImageUrl = questionImageUrl.trim();
       if (isImageEssayQuestion && !normalizedImageUrl) {
         setFormError(IMAGE_UPLOAD_REQUIRED_MESSAGE);
         return null;
@@ -457,7 +458,7 @@ export function QuestionFormDialog({
         ...(questionExplanation.trim()
           ? { explanation: questionExplanation.trim() }
           : {}),
-        ...(isImageEssayQuestion ? { imageUrl: normalizedImageUrl } : {}),
+        ...(normalizedImageUrl ? { imageUrl: normalizedImageUrl } : { imageUrl: "" }),
         answers: [
           {
             text: normalizedEssaySampleAnswer,
@@ -523,6 +524,7 @@ export function QuestionFormDialog({
       ...(questionExplanation.trim()
         ? { explanation: questionExplanation.trim() }
         : {}),
+      ...(normalizedImageUrl ? { imageUrl: normalizedImageUrl } : { imageUrl: "" }),
       answers: normalizedAnswerPayload,
     };
 
@@ -652,6 +654,71 @@ export function QuestionFormDialog({
             />
           </div>
 
+          <div className="space-y-3 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/60 p-4 dark:border-slate-700/70 dark:bg-slate-900/40">
+            <div className="space-y-1">
+              <Label
+                className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                htmlFor="question-image-upload"
+              >
+                Ảnh câu hỏi
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Tải ảnh minh hoạ cho câu hỏi (image/*, tối đa 5MB). Với câu hỏi ảnh tự
+                luận, ảnh là bắt buộc trước khi lưu.
+              </p>
+            </div>
+
+            <Input
+              accept="image/*"
+              id="question-image-upload"
+              key={imageInputKey}
+              onChange={handleImageFileChange}
+              type="file"
+            />
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                disabled={!selectedImageFile || isUploadingImage || isSubmitting}
+                onClick={() => {
+                  void handleUploadImage();
+                }}
+                type="button"
+                variant="outline"
+              >
+                {isUploadingImage ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tải ảnh...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload ảnh
+                  </>
+                )}
+              </Button>
+              {selectedImageFile ? (
+                <span className="text-xs text-muted-foreground">
+                  Đã chọn: {selectedImageFile.name}
+                </span>
+              ) : null}
+            </div>
+
+            {questionImageUrl ? (
+              <p className="break-all text-xs text-muted-foreground">
+                URL ảnh hiện tại:{" "}
+                <a
+                  className="text-primary underline underline-offset-2"
+                  href={questionImageUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {questionImageUrl}
+                </a>
+              </p>
+            ) : null}
+          </div>
+
           <Separator />
 
           {isEssayQuestion ? (
@@ -673,73 +740,6 @@ export function QuestionFormDialog({
                 Khi lưu câu hỏi tự luận, hệ thống sẽ gửi một đáp án mẫu duy nhất với
                 trạng thái đúng.
               </p>
-
-              {isImageEssayQuestion ? (
-                <div className="space-y-3 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/60 p-4 dark:border-slate-700/70 dark:bg-slate-900/40">
-                  <div className="space-y-1">
-                    <Label
-                      className="text-sm font-semibold text-slate-800 dark:text-slate-100"
-                      htmlFor="question-image-upload"
-                    >
-                      Ảnh câu hỏi
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Tải ảnh lên trước khi lưu câu hỏi. Hệ thống chỉ chấp nhận image/*
-                      với dung lượng tối đa 5MB.
-                    </p>
-                  </div>
-
-                  <Input
-                    accept="image/*"
-                    id="question-image-upload"
-                    key={imageInputKey}
-                    onChange={handleImageFileChange}
-                    type="file"
-                  />
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      disabled={!selectedImageFile || isUploadingImage || isSubmitting}
-                      onClick={() => {
-                        void handleUploadImage();
-                      }}
-                      type="button"
-                      variant="outline"
-                    >
-                      {isUploadingImage ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Đang tải ảnh...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Upload ảnh
-                        </>
-                      )}
-                    </Button>
-                    {selectedImageFile ? (
-                      <span className="text-xs text-muted-foreground">
-                        Đã chọn: {selectedImageFile.name}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {questionImageUrl ? (
-                    <p className="break-all text-xs text-muted-foreground">
-                      URL ảnh hiện tại:{" "}
-                      <a
-                        className="text-primary underline underline-offset-2"
-                        href={questionImageUrl}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        {questionImageUrl}
-                      </a>
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
           ) : (
             <div className={panelClassName}>
