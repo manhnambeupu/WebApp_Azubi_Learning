@@ -12,6 +12,7 @@ type QuestionResult = {
   id: string;
   type: QuestionType;
   text: string;
+  imageUrl: string | null;
   explanation: string | null;
   answers: {
     id: string;
@@ -48,6 +49,7 @@ type LessonQuestionSnapshot = {
   id: string;
   type: QuestionType;
   text: string;
+  imageUrl: string | null;
   explanation: string | null;
   orderIndex: number;
   answers: {
@@ -268,6 +270,7 @@ export class SubmissionsService {
             id: true,
             type: true,
             text: true,
+            imageUrl: true,
             explanation: true,
             orderIndex: true,
             answers: {
@@ -326,7 +329,8 @@ export class SubmissionsService {
       }
 
       if (
-        question.type === QuestionType.ESSAY &&
+        (question.type === QuestionType.ESSAY ||
+          question.type === QuestionType.IMAGE_ESSAY) &&
         submittedAnswerIds.length > 1
       ) {
         throw new UnprocessableEntityException(ESSAY_CHOICE_LIMIT_MESSAGE);
@@ -334,6 +338,7 @@ export class SubmissionsService {
 
       if (
         question.type !== QuestionType.ESSAY &&
+        question.type !== QuestionType.IMAGE_ESSAY &&
         question.type !== QuestionType.MATCHING &&
         submittedAnswerIds.length === 0
       ) {
@@ -426,6 +431,7 @@ export class SubmissionsService {
         id: question.id,
         type: question.type,
         text: question.text,
+        imageUrl: question.imageUrl,
         explanation: question.explanation,
         answers: question.answers.map((answer) => ({
           id: answer.id,
@@ -532,7 +538,10 @@ export class SubmissionsService {
   ): QuestionEvaluation {
     const selectedAnswerIds = submittedAnswer.answerIds;
 
-    if (question.type === QuestionType.ESSAY) {
+    if (
+      question.type === QuestionType.ESSAY ||
+      question.type === QuestionType.IMAGE_ESSAY
+    ) {
       return {
         earnedCorrectCount: 0,
         isCorrect: false,
@@ -662,8 +671,11 @@ export class SubmissionsService {
   }
 
   private countGradableQuestions(lessonQuestions: LessonQuestionSnapshot[]): number {
-    return lessonQuestions.filter((question) => question.type !== QuestionType.ESSAY)
-      .length;
+    return lessonQuestions.filter(
+      (question) =>
+        question.type !== QuestionType.ESSAY &&
+        question.type !== QuestionType.IMAGE_ESSAY,
+    ).length;
   }
 
   private calculateCorrectCount(

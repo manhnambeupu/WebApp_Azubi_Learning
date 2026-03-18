@@ -3,6 +3,7 @@ export type QuestionType =
   | "SINGLE_CHOICE"
   | "MULTIPLE_CHOICE"
   | "ESSAY"
+  | "IMAGE_ESSAY"
   | "ORDERING"
   | "MATCHING";
 
@@ -53,6 +54,7 @@ export type QuestionDetail = {
   type: QuestionType;
   text: string;
   explanation: string | null;
+  imageUrl?: string | null;
   orderIndex: number;
   answers: AnswerDetail[];
 };
@@ -69,6 +71,7 @@ export type CreateQuestionPayload = {
   text: string;
   type: QuestionType;
   explanation?: string;
+  imageUrl?: string;
   answers: QuestionAnswerPayload[];
 };
 
@@ -76,6 +79,7 @@ export type UpdateQuestionPayload = {
   text?: string;
   type?: QuestionType;
   explanation?: string;
+  imageUrl?: string;
   orderIndex?: number;
   answers?: QuestionAnswerPayload[];
 };
@@ -133,6 +137,7 @@ export type StudentQuestion = {
   id: string;
   type: QuestionType;
   text: string;
+  imageUrl?: string | null;
   orderIndex: number;
   answers: StudentAnswer[];
   matchingOptions?: string[];
@@ -179,6 +184,7 @@ export type QuizResultQuestion = {
   id: string;
   type: QuestionType;
   text: string;
+  imageUrl?: string | null;
   explanation: string | null;
   answers: QuizResultAnswer[];
   selectedAnswerIds: string[];

@@ -88,6 +88,7 @@ export class StudentLessonsService {
               id: true,
               type: true,
               text: true,
+              imageUrl: true,
               orderIndex: true,
               answers: {
                 select: {
@@ -122,9 +123,11 @@ export class StudentLessonsService {
         id: question.id,
         type: question.type,
         text: question.text,
+        imageUrl: question.imageUrl,
         orderIndex: question.orderIndex,
         answers:
-          question.type === QuestionType.ESSAY
+          question.type === QuestionType.ESSAY ||
+          question.type === QuestionType.IMAGE_ESSAY
             ? []
             : question.answers.map((answer) => ({
                 id: answer.id,

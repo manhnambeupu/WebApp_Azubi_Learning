@@ -1,8 +1,12 @@
 import { NotFoundException } from '@nestjs/common';
-import { QuestionsController } from './questions.controller';
+import {
+  QuestionsController,
+  QuestionsUploadController,
+} from './questions.controller';
 
 describe('QuestionsController', () => {
   let controller: QuestionsController;
+  let uploadController: QuestionsUploadController;
   let questionsService: {
     findAllByLesson: jest.Mock;
     findById: jest.Mock;
@@ -10,6 +14,7 @@ describe('QuestionsController', () => {
     reorder: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
+    uploadQuestionImage: jest.Mock;
   };
 
   beforeEach(() => {
@@ -20,8 +25,10 @@ describe('QuestionsController', () => {
       reorder: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      uploadQuestionImage: jest.fn(),
     };
     controller = new QuestionsController(questionsService as never);
+    uploadController = new QuestionsUploadController(questionsService as never);
   });
 
   it('findAllByLesson delegates to service', async () => {
@@ -115,5 +122,25 @@ describe('QuestionsController', () => {
     expect(questionsService.findById).toHaveBeenCalledWith('q-1');
     expect(questionsService.delete).toHaveBeenCalledWith('q-1');
     expect(result).toEqual({ deleted: true, id: 'q-1' });
+  });
+
+  it('uploadImage delegates to service', async () => {
+    const imageFile = {
+      originalname: 'question.png',
+      mimetype: 'image/png',
+      size: 1024,
+      buffer: Buffer.from('test-buffer'),
+    } as Express.Multer.File;
+
+    questionsService.uploadQuestionImage.mockResolvedValue({
+      imageUrl: 'http://localhost:9000/lesson-images/questions/question.png',
+    });
+
+    const result = await uploadController.uploadImage(imageFile);
+
+    expect(questionsService.uploadQuestionImage).toHaveBeenCalledWith(imageFile);
+    expect(result).toEqual({
+      imageUrl: 'http://localhost:9000/lesson-images/questions/question.png',
+    });
   });
 });

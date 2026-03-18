@@ -94,6 +94,15 @@ const createEssayQuestion = (index: number): LessonQuestionFixture => ({
   answers: [],
 });
 
+const createImageEssayQuestion = (index: number): LessonQuestionFixture => ({
+  id: `q-${index}`,
+  type: QuestionType.IMAGE_ESSAY,
+  text: `Question ${index}`,
+  explanation: `Explanation ${index}`,
+  orderIndex: index,
+  answers: [],
+});
+
 const createOrderingQuestion = (index: number): LessonQuestionFixture => ({
   id: `q-${index}`,
   type: QuestionType.ORDERING,
@@ -399,6 +408,49 @@ describe('SubmissionsService', () => {
     expect(result.questions[1]).toMatchObject({
       id: 'q-2',
       type: QuestionType.ESSAY,
+      selectedAnswerIds: [],
+      selectedAnswerId: null,
+      isCorrect: false,
+    });
+  });
+
+  it('IMAGE_ESSAY không lưu submissions và không tính vào totalQuestions/score', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [
+        createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong'),
+        createImageEssayQuestion(2),
+      ],
+    });
+    prisma.lessonAttempt.count.mockResolvedValue(0);
+    const tx = setupTransactionMocks();
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [
+        { questionId: 'q-1', answerIds: ['a-1-correct'] },
+        { questionId: 'q-2', answerIds: [] },
+      ],
+    });
+
+    expect(tx.submission.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-correct',
+          orderIndex: null,
+          matchText: null,
+          isCorrect: true,
+        },
+      ],
+    });
+    expect(result.totalQuestions).toBe(1);
+    expect(result.correctCount).toBe(1);
+    expect(result.score).toBe(100);
+    expect(result.questions).toHaveLength(2);
+    expect(result.questions[1]).toMatchObject({
+      id: 'q-2',
+      type: QuestionType.IMAGE_ESSAY,
       selectedAnswerIds: [],
       selectedAnswerId: null,
       isCorrect: false,

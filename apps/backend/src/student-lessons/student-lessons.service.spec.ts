@@ -134,7 +134,7 @@ describe('StudentLessonsService', () => {
     expect(result[0].isCompleted).toBe(false);
   });
 
-  it('findDetail trả question type nhưng vẫn ẩn đáp án essay và metadata chấm điểm', async () => {
+  it('findDetail trả question type, imageUrl và vẫn ẩn đáp án essay/image essay + metadata chấm điểm', async () => {
     prisma.lesson.findUnique.mockResolvedValue({
       id: 'lesson-1',
       title: 'Buồng phòng cơ bản',
@@ -154,6 +154,7 @@ describe('StudentLessonsService', () => {
           id: 'question-1',
           type: QuestionType.SINGLE_CHOICE,
           text: 'Bước đầu tiên khi vào phòng là gì?',
+          imageUrl: 'https://example.com/question-1.png',
           orderIndex: 1,
           explanation: 'Không nên lộ cho student trước khi nộp bài',
           answers: [
@@ -162,6 +163,7 @@ describe('StudentLessonsService', () => {
               text: 'Chào khách và xác nhận yêu cầu',
               isCorrect: true,
               explanation: 'Không nên lộ cho student trước khi nộp bài',
+              matchText: null,
             },
           ],
         },
@@ -169,6 +171,7 @@ describe('StudentLessonsService', () => {
           id: 'question-2',
           type: QuestionType.ESSAY,
           text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
+          imageUrl: null,
           orderIndex: 2,
           answers: [
             {
@@ -176,6 +179,7 @@ describe('StudentLessonsService', () => {
               text: 'Bình tĩnh xin lỗi khách, xác nhận nhu cầu và phối hợp bổ sung khăn ngay.',
               isCorrect: true,
               explanation: 'Không nên lộ cho student trước khi nộp bài',
+              matchText: null,
             },
           ],
         },
@@ -183,6 +187,7 @@ describe('StudentLessonsService', () => {
           id: 'question-3',
           type: QuestionType.MATCHING,
           text: 'Ghép khái niệm với định nghĩa phù hợp.',
+          imageUrl: null,
           orderIndex: 3,
           answers: [
             {
@@ -201,6 +206,22 @@ describe('StudentLessonsService', () => {
             },
           ],
         },
+        {
+          id: 'question-4',
+          type: QuestionType.IMAGE_ESSAY,
+          text: 'Quan sát ảnh và mô tả quy trình an toàn thông tin.',
+          imageUrl: 'https://example.com/question-4.png',
+          orderIndex: 4,
+          answers: [
+            {
+              id: 'answer-4',
+              text: 'Mẫu đáp án tham khảo',
+              isCorrect: true,
+              explanation: 'Không nên lộ cho student trước khi nộp bài',
+              matchText: null,
+            },
+          ],
+        },
       ],
     } as unknown);
     prisma.lessonAttempt.findFirst.mockResolvedValue({ id: 'attempt-1' });
@@ -213,6 +234,7 @@ describe('StudentLessonsService', () => {
         id: 'question-1',
         type: QuestionType.SINGLE_CHOICE,
         text: 'Bước đầu tiên khi vào phòng là gì?',
+        imageUrl: 'https://example.com/question-1.png',
         orderIndex: 1,
         answers: [
           {
@@ -225,6 +247,7 @@ describe('StudentLessonsService', () => {
         id: 'question-2',
         type: QuestionType.ESSAY,
         text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
+        imageUrl: null,
         orderIndex: 2,
         answers: [],
       },
@@ -232,6 +255,7 @@ describe('StudentLessonsService', () => {
         id: 'question-3',
         type: QuestionType.MATCHING,
         text: 'Ghép khái niệm với định nghĩa phù hợp.',
+        imageUrl: null,
         orderIndex: 3,
         answers: [
           {
@@ -244,6 +268,14 @@ describe('StudentLessonsService', () => {
           },
         ],
         matchingOptions: ['Không tin cậy mặc định', 'Quyền tối thiểu'],
+      },
+      {
+        id: 'question-4',
+        type: QuestionType.IMAGE_ESSAY,
+        text: 'Quan sát ảnh và mô tả quy trình an toàn thông tin.',
+        imageUrl: 'https://example.com/question-4.png',
+        orderIndex: 4,
+        answers: [],
       },
     ]);
     expect('explanation' in result.questions[0]).toBe(false);

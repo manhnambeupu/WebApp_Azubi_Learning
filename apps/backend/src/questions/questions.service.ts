@@ -4,14 +4,22 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import sharp from 'sharp';
+import { MinioService } from '../files/minio.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 
+const QUESTION_IMAGES_BUCKET = 'lesson-images';
+
 @Injectable()
 export class QuestionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly minioService: MinioService,
+  ) {}
 
   findAllByLesson(lessonId: string) {
     return this.prisma.question.findMany({
@@ -42,6 +50,20 @@ export class QuestionsService {
     }
 
     return question;
+  }
+
+  async uploadQuestionImage(
+    imageFile: Express.Multer.File,
+  ): Promise<{ imageUrl: string }> {
+    const safeBuffer = await sharp(imageFile.buffer).rotate().toBuffer();
+    const imageUrl = await this.minioService.uploadFile(
+      QUESTION_IMAGES_BUCKET,
+      this.buildImageObjectName(imageFile.originalname),
+      safeBuffer,
+      imageFile.mimetype,
+    );
+
+    return { imageUrl };
   }
 
   async create(lessonId: string, dto: CreateQuestionDto) {
@@ -231,5 +253,9 @@ export class QuestionsService {
         ? { explanation: answer.explanation }
         : {}),
     }));
+  }
+
+  private buildImageObjectName(originalName: string): string {
+    return `questions/${randomUUID()}-${originalName.replace(/\s+/g, '-')}`;
   }
 }

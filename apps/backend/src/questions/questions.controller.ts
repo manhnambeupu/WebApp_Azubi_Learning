@@ -2,15 +2,23 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -23,6 +31,9 @@ import { CreateQuestionDto } from './dto/create-question.dto';
 import { ReorderQuestionsDto } from './dto/reorder-questions.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { QuestionsService } from './questions.service';
+
+const IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const IMAGE_MIME_TYPE = /image\/(jpeg|png|webp|avif|gif)/;
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
@@ -107,5 +118,43 @@ export class QuestionsController {
     }
 
     return question;
+  }
+}
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN')
+@ApiTags('Admin — Questions')
+@ApiBearerAuth()
+@Controller('admin/questions')
+export class QuestionsUploadController {
+  constructor(private readonly questionsService: QuestionsService) {}
+
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({ summary: 'Upload ảnh câu hỏi' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+      required: ['image'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Upload ảnh câu hỏi thành công.' })
+  @ApiResponse({ status: 422, description: 'File ảnh không hợp lệ.' })
+  uploadImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: IMAGE_MAX_SIZE_BYTES }),
+          new FileTypeValidator({ fileType: IMAGE_MIME_TYPE }),
+        ],
+      }),
+    )
+    imageFile: Express.Multer.File,
+  ) {
+    return this.questionsService.uploadQuestionImage(imageFile);
   }
 }

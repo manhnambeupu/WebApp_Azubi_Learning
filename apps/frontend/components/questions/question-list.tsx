@@ -300,6 +300,7 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   SINGLE_CHOICE: "Chọn 1 đáp án",
   MULTIPLE_CHOICE: "Chọn nhiều đáp án",
   ESSAY: "Tự luận",
+  IMAGE_ESSAY: "Câu hỏi Ảnh (Tự luận)",
   ORDERING: "Sắp xếp thứ tự",
   MATCHING: "Ghép đôi",
 };
@@ -314,7 +315,8 @@ function AnswerCard({
   questionType: QuestionType;
 }) {
   const answerLabel = String.fromCharCode(65 + answerIndex);
-  const isEssayQuestion = questionType === "ESSAY";
+  const isEssayQuestion =
+    questionType === "ESSAY" || questionType === "IMAGE_ESSAY";
   const isChoiceQuestion =
     questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
   const isOrderingQuestion = questionType === "ORDERING";

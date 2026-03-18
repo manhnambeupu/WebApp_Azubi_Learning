@@ -81,6 +81,8 @@ const getQuestionInstruction = (question: StudentQuestion): string => {
       return "Chọn tất cả đáp án bạn cho là đúng.";
     case "ESSAY":
       return "Tự suy nghĩ đáp án, sau khi nộp bài bạn sẽ xem được đáp án mẫu.";
+    case "IMAGE_ESSAY":
+      return "Quan sát hình ảnh và tự suy nghĩ đáp án, sau khi nộp bài sẽ xem được đáp án mẫu.";
     default:
       return "Chọn một đáp án đúng nhất.";
   }
@@ -133,7 +135,7 @@ const isQuestionAnswered = (
   orderingAnswerIds: string[] | undefined,
   matchingSelectionsByAnswerId: Record<string, string> | undefined,
 ): boolean => {
-  if (question.type === "ESSAY") {
+  if (question.type === "ESSAY" || question.type === "IMAGE_ESSAY") {
     return true;
   }
 
@@ -156,6 +158,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   const submitQuizMutation = useSubmitQuiz(lessonId);
 
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string[]>>({});
+  const [essayInputs, setEssayInputs] = useState<Record<string, string>>({});
   const [orderingAnswerIdsByQuestion, setOrderingAnswerIdsByQuestion] = useState<
     Record<string, string[]>
   >({});
@@ -195,6 +198,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     }
 
     setSelectedAnswers({});
+    setEssayInputs({});
     setOrderingAnswerIdsByQuestion(nextOrderingAnswerIdsByQuestion);
     setMatchingSelectionsByQuestion({});
     setMatchingOptionsByQuestion(nextMatchingOptionsByQuestion);
@@ -321,6 +325,13 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
             };
           }
 
+          if (question.type === "ESSAY" || question.type === "IMAGE_ESSAY") {
+            return {
+              questionId: question.id,
+              answerIds: [],
+            };
+          }
+
           return {
             questionId: question.id,
             answerIds: selectedAnswers[question.id] ?? [],
@@ -410,19 +421,36 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 <p className="font-medium leading-7">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
+                {question.imageUrl ? (
+                  <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+                    <img
+                      alt="Question"
+                      className="max-h-[400px] w-full object-contain bg-slate-50/50"
+                      src={question.imageUrl}
+                    />
+                  </div>
+                ) : null}
                 <p className="text-xs text-muted-foreground">
                   {getQuestionInstruction(question)}
                 </p>
               </div>
 
-              {question.type === "ESSAY" ? (
+              {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
                 <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
                   <Textarea
-                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-muted-foreground"
-                    placeholder="Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
-                    readOnly
-                    tabIndex={-1}
-                    value=""
+                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70"
+                    onChange={(event) =>
+                      setEssayInputs((prev) => ({
+                        ...prev,
+                        [question.id]: event.target.value,
+                      }))
+                    }
+                    placeholder={
+                      question.type === "IMAGE_ESSAY"
+                        ? "Mời bạn nhập câu trả lời / suy luận của mình vào đây..."
+                        : "Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
+                    }
+                    value={essayInputs[question.id] ?? ""}
                   />
                 </div>
               ) : question.type === "ORDERING" ? (

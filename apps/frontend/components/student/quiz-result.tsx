@@ -47,7 +47,7 @@ const getNormalizedSelectedAnswerIds = (question: QuizResultQuestion): string[] 
 const getQuestionStatus = (
   question: QuizResultQuestion,
 ): { className: string; label: string } => {
-  if (question.type === "ESSAY") {
+  if (question.type === "ESSAY" || question.type === "IMAGE_ESSAY") {
     return {
       className: "text-amber-800",
       label: "Câu tự luận không được chấm điểm tự động",
@@ -355,10 +355,19 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
                 <p className="text-sm font-semibold">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
+                {question.imageUrl ? (
+                  <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+                    <img
+                      alt="Question"
+                      className="max-h-[400px] w-full object-contain bg-slate-50/50"
+                      src={question.imageUrl}
+                    />
+                  </div>
+                ) : null}
                 <p className={cn("text-xs font-medium", status.className)}>{status.label}</p>
               </div>
 
-              {question.type === "ESSAY" ? (
+              {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
                 <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-4">
                   <p className="text-xs font-semibold uppercase text-amber-700">
                     Đáp án tự luận mẫu

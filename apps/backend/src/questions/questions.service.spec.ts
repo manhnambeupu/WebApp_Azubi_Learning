@@ -1,5 +1,6 @@
 import { QuestionType } from '@prisma/client';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MinioService } from '../files/minio.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { QuestionsService } from './questions.service';
@@ -7,6 +8,9 @@ import { UnprocessableEntityException } from '@nestjs/common';
 
 describe('QuestionsService', () => {
   let service: QuestionsService;
+  let minioService: {
+    uploadFile: jest.Mock;
+  };
   let prisma: {
     lesson: {
       findUnique: jest.Mock;
@@ -24,6 +28,10 @@ describe('QuestionsService', () => {
     };
     $transaction: jest.Mock;
   };
+  const validPngBuffer = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+gWQAAAAASUVORK5CYII=',
+    'base64',
+  );
 
   const createDto: CreateQuestionDto = {
     text: 'Quy trình setup phòng gồm bước nào đầu tiên?',
@@ -36,6 +44,10 @@ describe('QuestionsService', () => {
   };
 
   beforeEach(async () => {
+    minioService = {
+      uploadFile: jest.fn(),
+    };
+
     prisma = {
       lesson: {
         findUnique: jest.fn(),
@@ -60,6 +72,10 @@ describe('QuestionsService', () => {
         {
           provide: PrismaService,
           useValue: prisma,
+        },
+        {
+          provide: MinioService,
+          useValue: minioService,
         },
       ],
     }).compile();
@@ -531,6 +547,31 @@ describe('QuestionsService', () => {
           orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
         },
       },
+    });
+  });
+
+  it('Upload ảnh câu hỏi thành công', async () => {
+    const imageFile = {
+      originalname: 'question-image.png',
+      mimetype: 'image/png',
+      size: validPngBuffer.length,
+      buffer: validPngBuffer,
+    } as Express.Multer.File;
+
+    minioService.uploadFile.mockResolvedValue(
+      'http://localhost:9000/lesson-images/questions/question-image.png',
+    );
+
+    const result = await service.uploadQuestionImage(imageFile);
+
+    expect(minioService.uploadFile).toHaveBeenCalledWith(
+      'lesson-images',
+      expect.stringMatching(/^questions\/.+question-image\.png$/),
+      expect.any(Buffer),
+      'image/png',
+    );
+    expect(result).toEqual({
+      imageUrl: 'http://localhost:9000/lesson-images/questions/question-image.png',
     });
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateQuestion, useUpdateQuestion } from "@/hooks/use-questions";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type {
   CreateQuestionPayload,
@@ -39,7 +40,9 @@ const BR03_MIN_ANSWERS_MESSAGE = "Mỗi câu hỏi phải có ít nhất 2 đáp
 const BR03_MIN_CORRECT_MESSAGE = "Phải có ít nhất 1 đáp án đúng.";
 const ESSAY_SAMPLE_ANSWER_REQUIRED_MESSAGE = "Đáp án tự luận mẫu không được để trống.";
 const MATCHING_RIGHT_REQUIRED_MESSAGE = "Vế phải của cặp ghép không được để trống.";
+const IMAGE_UPLOAD_REQUIRED_MESSAGE = "Vui lòng tải ảnh cho câu hỏi Ảnh (Tự luận).";
 const DEFAULT_QUESTION_TYPE: QuestionType = "SINGLE_CHOICE";
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const QUESTION_TYPE_OPTIONS: Array<{
   value: QuestionType;
   label: string;
@@ -59,6 +62,11 @@ const QUESTION_TYPE_OPTIONS: Array<{
     value: "ESSAY",
     label: "Tự luận",
     description: "Nhập một đáp án mẫu duy nhất cho câu hỏi tự luận.",
+  },
+  {
+    value: "IMAGE_ESSAY",
+    label: "Câu hỏi Ảnh (Tự luận)",
+    description: "Tự luận có kèm ảnh minh hoạ, cần upload ảnh trước khi lưu câu hỏi.",
   },
   {
     value: "ORDERING",
@@ -98,7 +106,7 @@ const createEmptyAnswer = (): AnswerFormItem => ({
 });
 
 const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
-  if (question?.type === "ESSAY") {
+  if (question?.type === "ESSAY" || question?.type === "IMAGE_ESSAY") {
     return [createEmptyAnswer(), createEmptyAnswer()];
   }
 
@@ -125,7 +133,7 @@ const buildInitialAnswers = (question?: QuestionDetail): AnswerFormItem[] => {
 };
 
 const buildInitialEssaySampleAnswer = (question?: QuestionDetail): string => {
-  if (question?.type !== "ESSAY") {
+  if (question?.type !== "ESSAY" && question?.type !== "IMAGE_ESSAY") {
     return "";
   }
 
@@ -189,12 +197,19 @@ export function QuestionFormDialog({
   const [essaySampleAnswer, setEssaySampleAnswer] = useState(
     buildInitialEssaySampleAnswer(initialData),
   );
+  const [questionImageUrl, setQuestionImageUrl] = useState(
+    initialData?.imageUrl ?? "",
+  );
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [imageInputKey, setImageInputKey] = useState(0);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const isEditMode = Boolean(initialData);
   const isSubmitting =
     createQuestionMutation.isPending || updateQuestionMutation.isPending;
-  const isEssayQuestion = questionType === "ESSAY";
+  const isImageEssayQuestion = questionType === "IMAGE_ESSAY";
+  const isEssayQuestion = questionType === "ESSAY" || isImageEssayQuestion;
   const isOrderingQuestion = questionType === "ORDERING";
   const isMatchingQuestion = questionType === "MATCHING";
   const isChoiceQuestion =
@@ -216,6 +231,10 @@ export function QuestionFormDialog({
     setQuestionExplanation(initialData?.explanation ?? "");
     setAnswers(buildInitialAnswers(initialData));
     setEssaySampleAnswer(buildInitialEssaySampleAnswer(initialData));
+    setQuestionImageUrl(initialData?.imageUrl ?? "");
+    setSelectedImageFile(null);
+    setImageInputKey((prev) => prev + 1);
+    setIsUploadingImage(false);
     setFormError(null);
   }, [initialData, open]);
 
@@ -276,7 +295,7 @@ export function QuestionFormDialog({
     setQuestionType(nextType);
     setFormError(null);
 
-    if (nextType === "ESSAY") {
+    if (nextType === "ESSAY" || nextType === "IMAGE_ESSAY") {
       return;
     }
 
@@ -289,6 +308,87 @@ export function QuestionFormDialog({
           ? nextAnswers.map((answer) => ({ ...answer, isCorrect: true }))
           : nextAnswers;
     });
+  };
+
+  const validateImageFile = (file: File): boolean => {
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Ảnh không hợp lệ",
+        description: "Chỉ chấp nhận file ảnh (image/*).",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast({
+        title: "Ảnh vượt quá dung lượng",
+        description: "Kích thước ảnh tối đa là 5MB.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setSelectedImageFile(null);
+      return;
+    }
+
+    if (!validateImageFile(file)) {
+      setSelectedImageFile(null);
+      setImageInputKey((prev) => prev + 1);
+      return;
+    }
+
+    setSelectedImageFile(file);
+  };
+
+  const handleUploadImage = async () => {
+    if (!selectedImageFile) {
+      setFormError("Vui lòng chọn ảnh trước khi tải lên.");
+      return;
+    }
+
+    setFormError(null);
+    setIsUploadingImage(true);
+
+    const formData = new FormData();
+    formData.append("image", selectedImageFile);
+
+    try {
+      const response = await api.post<{ imageUrl: string }>(
+        "/admin/questions/upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setQuestionImageUrl(response.data.imageUrl);
+      setSelectedImageFile(null);
+      setImageInputKey((prev) => prev + 1);
+
+      toast({
+        title: "Tải ảnh câu hỏi thành công",
+      });
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      setFormError(message);
+      toast({
+        title: "Không thể tải ảnh câu hỏi",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const normalizePayload = (): {
@@ -308,12 +408,19 @@ export function QuestionFormDialog({
         return null;
       }
 
+      const normalizedImageUrl = questionImageUrl.trim();
+      if (isImageEssayQuestion && !normalizedImageUrl) {
+        setFormError(IMAGE_UPLOAD_REQUIRED_MESSAGE);
+        return null;
+      }
+
       const basePayload = {
         text: normalizedQuestionText,
         type: questionType,
         ...(questionExplanation.trim()
           ? { explanation: questionExplanation.trim() }
           : {}),
+        ...(isImageEssayQuestion ? { imageUrl: normalizedImageUrl } : {}),
         answers: [
           {
             text: normalizedEssaySampleAnswer,
@@ -529,6 +636,73 @@ export function QuestionFormDialog({
                 Khi lưu câu hỏi tự luận, hệ thống sẽ gửi một đáp án mẫu duy nhất với
                 trạng thái đúng.
               </p>
+
+              {isImageEssayQuestion ? (
+                <div className="space-y-3 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/60 p-4 dark:border-slate-700/70 dark:bg-slate-900/40">
+                  <div className="space-y-1">
+                    <Label
+                      className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                      htmlFor="question-image-upload"
+                    >
+                      Ảnh câu hỏi
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Tải ảnh lên trước khi lưu câu hỏi. Hệ thống chỉ chấp nhận image/*
+                      với dung lượng tối đa 5MB.
+                    </p>
+                  </div>
+
+                  <Input
+                    accept="image/*"
+                    id="question-image-upload"
+                    key={imageInputKey}
+                    onChange={handleImageFileChange}
+                    type="file"
+                  />
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      disabled={!selectedImageFile || isUploadingImage || isSubmitting}
+                      onClick={() => {
+                        void handleUploadImage();
+                      }}
+                      type="button"
+                      variant="outline"
+                    >
+                      {isUploadingImage ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Đang tải ảnh...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload ảnh
+                        </>
+                      )}
+                    </Button>
+                    {selectedImageFile ? (
+                      <span className="text-xs text-muted-foreground">
+                        Đã chọn: {selectedImageFile.name}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {questionImageUrl ? (
+                    <p className="break-all text-xs text-muted-foreground">
+                      URL ảnh hiện tại:{" "}
+                      <a
+                        className="text-primary underline underline-offset-2"
+                        href={questionImageUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        {questionImageUrl}
+                      </a>
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className={panelClassName}>
