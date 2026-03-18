@@ -20,6 +20,11 @@ export class CreateQuestionDto {
   @IsString()
   explanation?: string;
 
+  @ApiPropertyOptional({ description: 'URL của ảnh đính kèm với câu hỏi' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
   @ApiProperty({
     enum: QuestionType,
     enumName: 'QuestionType',
@@ -31,7 +36,7 @@ export class CreateQuestionDto {
   @ApiProperty({
     type: [CreateAnswerDto],
     description:
-      'Supports SINGLE_CHOICE, MULTIPLE_CHOICE, ESSAY, ORDERING, MATCHING; ordering/matching metadata can be passed in each answer.',
+      'Supports SINGLE_CHOICE, MULTIPLE_CHOICE, ESSAY, IMAGE_ESSAY, ORDERING, MATCHING; ordering/matching metadata can be passed in each answer.',
   })
   @IsArray()
   @ValidateNested({ each: true })

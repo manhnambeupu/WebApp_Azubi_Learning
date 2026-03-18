@@ -73,7 +73,10 @@ export class QuestionsService {
       data: {
         lessonId,
         text: dto.text,
-        ...(dto.explanation !== undefined ? { explanation: dto.explanation } : {}),
+        ...(dto.explanation !== undefined
+          ? { explanation: dto.explanation }
+          : {}),
+        ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),
         type: questionType,
         orderIndex: nextOrderIndex,
         answers: {
@@ -109,9 +112,14 @@ export class QuestionsService {
         where: { id },
         data: {
           ...(dto.text !== undefined ? { text: dto.text } : {}),
-          ...(dto.explanation !== undefined ? { explanation: dto.explanation } : {}),
+          ...(dto.explanation !== undefined
+            ? { explanation: dto.explanation }
+            : {}),
+          ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),
           ...(dto.type !== undefined ? { type: dto.type } : {}),
-          ...(dto.orderIndex !== undefined ? { orderIndex: dto.orderIndex } : {}),
+          ...(dto.orderIndex !== undefined
+            ? { orderIndex: dto.orderIndex }
+            : {}),
           ...(dto.answers !== undefined
             ? {
                 answers: {
@@ -182,12 +190,10 @@ export class QuestionsService {
     answers: Array<{ isCorrect: boolean }>,
   ): void {
     if (!Array.isArray(answers)) {
-      throw new UnprocessableEntityException(
-        'Danh sách đáp án không hợp lệ.',
-      );
+      throw new UnprocessableEntityException('Danh sách đáp án không hợp lệ.');
     }
 
-    if (type === QuestionType.ESSAY) {
+    if (type === QuestionType.ESSAY || type === QuestionType.IMAGE_ESSAY) {
       if (answers.length > 1) {
         throw new UnprocessableEntityException(
           'Câu hỏi tự luận chỉ được có tối đa 1 đáp án mẫu.',
@@ -215,8 +221,12 @@ export class QuestionsService {
     return answers.map((answer) => ({
       text: answer.text,
       isCorrect: answer.isCorrect,
-      ...(answer.orderIndex !== undefined ? { orderIndex: answer.orderIndex } : {}),
-      ...(answer.matchText !== undefined ? { matchText: answer.matchText } : {}),
+      ...(answer.orderIndex !== undefined
+        ? { orderIndex: answer.orderIndex }
+        : {}),
+      ...(answer.matchText !== undefined
+        ? { matchText: answer.matchText }
+        : {}),
       ...(answer.explanation !== undefined
         ? { explanation: answer.explanation }
         : {}),

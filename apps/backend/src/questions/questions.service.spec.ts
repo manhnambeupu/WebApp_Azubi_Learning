@@ -72,14 +72,14 @@ describe('QuestionsService', () => {
     prisma.question.findFirst.mockResolvedValue({ orderIndex: 2 });
     prisma.question.create.mockResolvedValue({
       id: 'question-1',
-        lessonId: 'lesson-1',
-        text: createDto.text,
-        explanation: createDto.explanation,
-        type: QuestionType.SINGLE_CHOICE,
-        orderIndex: 3,
-        answers: [
-          { id: 'answer-1', questionId: 'question-1', ...createDto.answers[0] },
-          { id: 'answer-2', questionId: 'question-1', ...createDto.answers[1] },
+      lessonId: 'lesson-1',
+      text: createDto.text,
+      explanation: createDto.explanation,
+      type: QuestionType.SINGLE_CHOICE,
+      orderIndex: 3,
+      answers: [
+        { id: 'answer-1', questionId: 'question-1', ...createDto.answers[0] },
+        { id: 'answer-2', questionId: 'question-1', ...createDto.answers[1] },
       ],
     });
 
@@ -161,8 +161,16 @@ describe('QuestionsService', () => {
       text: 'Ghép khái niệm',
       type: QuestionType.MATCHING,
       answers: [
-        { text: 'Zero Trust', isCorrect: true, matchText: 'Không tin cậy mặc định' },
-        { text: 'Least Privilege', isCorrect: true, matchText: 'Quyền tối thiểu' },
+        {
+          text: 'Zero Trust',
+          isCorrect: true,
+          matchText: 'Không tin cậy mặc định',
+        },
+        {
+          text: 'Least Privilege',
+          isCorrect: true,
+          matchText: 'Quyền tối thiểu',
+        },
       ],
     });
 
@@ -250,13 +258,18 @@ describe('QuestionsService', () => {
       question: {
         update: jest.fn().mockResolvedValue({
           id: 'question-1',
-            lessonId: 'lesson-1',
-            text: 'New text',
-            explanation: 'Giải thích mới',
-            type: QuestionType.SINGLE_CHOICE,
-            orderIndex: 1,
-            answers: [
-              { id: 'answer-1', questionId: 'question-1', text: 'A', isCorrect: true },
+          lessonId: 'lesson-1',
+          text: 'New text',
+          explanation: 'Giải thích mới',
+          type: QuestionType.SINGLE_CHOICE,
+          orderIndex: 1,
+          answers: [
+            {
+              id: 'answer-1',
+              questionId: 'question-1',
+              text: 'A',
+              isCorrect: true,
+            },
             {
               id: 'answer-2',
               questionId: 'question-1',
@@ -420,6 +433,98 @@ describe('QuestionsService', () => {
         answers: {
           create: [],
         },
+      },
+      include: {
+        answers: {
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
+        },
+      },
+    });
+  });
+
+  it('Tạo question IMAGE_ESSAY lưu imageUrl và cho phép không có đáp án mẫu', async () => {
+    const imageUrl = 'https://cdn.example.com/questions/image-essay-1.png';
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.question.findFirst.mockResolvedValue(null);
+    prisma.question.create.mockResolvedValue({
+      id: 'question-image-essay-1',
+      lessonId: 'lesson-1',
+      text: 'Quan sát ảnh và mô tả quy trình dọn phòng.',
+      explanation: null,
+      imageUrl,
+      type: QuestionType.IMAGE_ESSAY,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    await service.create('lesson-1', {
+      text: 'Quan sát ảnh và mô tả quy trình dọn phòng.',
+      imageUrl,
+      type: QuestionType.IMAGE_ESSAY,
+      answers: [],
+    });
+
+    expect(prisma.question.create).toHaveBeenCalledWith({
+      data: {
+        lessonId: 'lesson-1',
+        text: 'Quan sát ảnh và mô tả quy trình dọn phòng.',
+        imageUrl,
+        type: QuestionType.IMAGE_ESSAY,
+        orderIndex: 1,
+        answers: {
+          create: [],
+        },
+      },
+      include: {
+        answers: {
+          orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
+        },
+      },
+    });
+  });
+
+  it('Update question IMAGE_ESSAY cập nhật imageUrl', async () => {
+    const imageUrl = 'https://cdn.example.com/questions/image-essay-updated.png';
+    prisma.question.findUnique.mockResolvedValue({
+      id: 'question-1',
+      lessonId: 'lesson-1',
+      text: 'Quan sát ảnh và mô tả quy trình.',
+      explanation: null,
+      imageUrl: null,
+      type: QuestionType.IMAGE_ESSAY,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    const tx = {
+      answer: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      question: {
+        update: jest.fn().mockResolvedValue({
+          id: 'question-1',
+          lessonId: 'lesson-1',
+          text: 'Quan sát ảnh và mô tả quy trình.',
+          explanation: null,
+          imageUrl,
+          type: QuestionType.IMAGE_ESSAY,
+          orderIndex: 1,
+          answers: [],
+        }),
+      },
+    };
+
+    prisma.$transaction.mockImplementation(
+      async (callback: (transaction: typeof tx) => Promise<unknown>) =>
+        callback(tx),
+    );
+
+    await service.update('question-1', {
+      imageUrl,
+    });
+
+    expect(tx.question.update).toHaveBeenCalledWith({
+      where: { id: 'question-1' },
+      data: {
+        imageUrl,
       },
       include: {
         answers: {

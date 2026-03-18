@@ -22,6 +22,11 @@ export class UpdateQuestionDto {
   @IsString()
   explanation?: string;
 
+  @ApiPropertyOptional({ description: 'URL của ảnh đính kèm với câu hỏi' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
   @ApiPropertyOptional({ enum: QuestionType, enumName: 'QuestionType' })
   @IsOptional()
   @IsEnum(QuestionType)
