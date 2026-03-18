@@ -31,11 +31,11 @@ export function StudentNav() {
           <Link aria-label="GastroLernplattform" className="inline-block" href="/student/lessons">
             <Image
               alt="GastroLernplattform"
-              className="h-12 w-auto"
-              height={48}
+              className="h-16 w-auto"
+              height={64}
               priority
               src="/images/logo.png"
-              width={240}
+              width={320}
             />
           </Link>
           <p className="text-xs text-slate-500">Không gian học tập dành cho học viên</p>
