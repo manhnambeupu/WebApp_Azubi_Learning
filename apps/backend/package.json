@@ -107,6 +107,7 @@
     "seed": "node -r ts-node/register prisma/seed.ts"
   },
   "overrides": {
-    "ajv": "^8.17.1"
+    "ajv": "^8.17.1",
+    "flatted": "^3.4.2"
   }
 }
