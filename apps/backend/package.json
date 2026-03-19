@@ -105,5 +105,8 @@
   },
   "prisma": {
     "seed": "node -r ts-node/register prisma/seed.ts"
+  },
+  "overrides": {
+    "ajv": "^8.17.1"
   }
 }
