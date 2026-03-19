@@ -9,7 +9,6 @@
 </p>
 
 # 🏨 Azubi Webapp — Hệ thống đào tạo nghiệp vụ khách sạn
-
 > **Azubi** (tiếng Đức: *Auszubildende*) — Nền tảng E-Learning dành cho học viên ngành khách sạn, nơi Admin quản lý bài học và câu hỏi, còn Student tự học, làm quiz và theo dõi tiến độ.
 
 [![CI](https://github.com/yourusername/Azubi_Webapp/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/Azubi_Webapp/actions)
