@@ -1,8 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { History, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { QuizResult } from "@/components/student/quiz-result";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -20,6 +20,16 @@ import {
 } from "@/hooks/use-submissions";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
+
+const QuizResult = dynamic(
+  () => import("@/components/student/quiz-result").then((mod) => mod.QuizResult),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">Đang tải chi tiết kết quả...</p>
+    ),
+  },
+);
 
 type AttemptHistoryProps = {
   lessonId: string;

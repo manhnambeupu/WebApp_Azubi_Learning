@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpenText, ChevronRight, Download, Loader2, Sparkles } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -9,9 +10,6 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import { AttemptHistory } from "@/components/student/attempt-history";
-import { QuizForm } from "@/components/student/quiz-form";
-import { QuizResult } from "@/components/student/quiz-result";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,6 +31,36 @@ const normalizeParam = (value: string | string[] | undefined): string | undefine
 type DownloadResponse = {
   downloadUrl: string;
 };
+
+const QuizForm = dynamic(
+  () => import("@/components/student/quiz-form").then((mod) => mod.QuizForm),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">Đang tải form làm bài...</p>
+    ),
+  },
+);
+
+const QuizResult = dynamic(
+  () => import("@/components/student/quiz-result").then((mod) => mod.QuizResult),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">Đang tải kết quả làm bài...</p>
+    ),
+  },
+);
+
+const AttemptHistory = dynamic(
+  () => import("@/components/student/attempt-history").then((mod) => mod.AttemptHistory),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">Đang tải lịch sử nộp bài...</p>
+    ),
+  },
+);
 
 function StudentLessonDetailSkeleton() {
   return (

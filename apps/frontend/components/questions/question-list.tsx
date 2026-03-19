@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ArrowDown, ArrowUp, Loader2, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
@@ -31,11 +32,20 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
 import type { QuestionDetail, QuestionType } from "@/types";
-import { QuestionFormDialog } from "./question-form-dialog";
 
 type QuestionListProps = {
   lessonId: string;
 };
+
+const QuestionFormDialog = dynamic(
+  () => import("./question-form-dialog").then((mod) => mod.QuestionFormDialog),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-xs text-muted-foreground">Đang tải hộp thoại câu hỏi...</p>
+    ),
+  },
+);
 
 export function QuestionList({ lessonId }: QuestionListProps) {
   const { toast } = useToast();

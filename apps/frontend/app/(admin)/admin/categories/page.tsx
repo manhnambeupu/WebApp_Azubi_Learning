@@ -1,9 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Loader2, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CategoryFormDialog } from "@/components/categories/category-form-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +30,19 @@ import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
+
+const CategoryFormDialog = dynamic(
+  () =>
+    import("@/components/categories/category-form-dialog").then(
+      (mod) => mod.CategoryFormDialog,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-xs text-muted-foreground">Đang tải hộp thoại danh mục...</p>
+    ),
+  },
+);
 
 export default function AdminCategoriesPage() {
   const { toast } = useToast();

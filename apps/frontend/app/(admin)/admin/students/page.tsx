@@ -1,8 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Loader2, Sparkles, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { CreateStudentDialog } from "@/components/admin/create-student-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,19 @@ import { useDeleteStudent, useGetStudents } from "@/hooks/use-students";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
+
+const CreateStudentDialog = dynamic(
+  () =>
+    import("@/components/admin/create-student-dialog").then(
+      (mod) => mod.CreateStudentDialog,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-xs text-muted-foreground">Đang tải hộp thoại học viên...</p>
+    ),
+  },
+);
 
 const formatCreatedAt = (value: string): string =>
   new Date(value).toLocaleString("vi-VN", {

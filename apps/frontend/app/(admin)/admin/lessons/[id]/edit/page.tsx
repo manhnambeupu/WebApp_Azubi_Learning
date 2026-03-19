@@ -1,11 +1,10 @@
 "use client";
 
 import { ChevronLeft, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { LessonFilesManager } from "@/components/lessons/lesson-files-manager";
 import { LessonForm } from "@/components/lessons/lesson-form";
-import { QuestionList } from "@/components/questions/question-list";
 import { Button } from "@/components/ui/button";
 import { useGetLesson } from "@/hooks/use-lessons";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -17,6 +16,33 @@ const normalizeParam = (value: string | string[] | undefined): string | undefine
 
   return Array.isArray(value) ? value[0] : value;
 };
+
+const LessonFilesManager = dynamic(
+  () =>
+    import("@/components/lessons/lesson-files-manager").then(
+      (mod) => mod.LessonFilesManager,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">
+        Đang tải khu vực quản lý file đính kèm...
+      </p>
+    ),
+  },
+);
+
+const QuestionList = dynamic(
+  () => import("@/components/questions/question-list").then((mod) => mod.QuestionList),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="text-sm text-muted-foreground">
+        Đang tải khu vực quản lý câu hỏi...
+      </p>
+    ),
+  },
+);
 
 export default function AdminEditLessonPage() {
   const params = useParams<{ id?: string | string[] }>();
