@@ -133,7 +133,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70">
+      <div className="flex min-h-screen min-w-0 flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-slate-950 to-primary/70 px-4 py-3 text-slate-100 md:hidden">
           <div>
             <p className="text-sm font-semibold">Azubi Admin</p>

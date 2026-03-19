@@ -35,6 +35,37 @@ const refreshClient = axios.create({
 
 let refreshPromise: Promise<string> | null = null;
 
+export const forceRefreshToken = async (): Promise<string> => {
+  if (!refreshPromise) {
+    refreshPromise = refreshClient
+      .post<RefreshResponse>("/auth/refresh")
+      .then((response) => {
+        const newToken = response.data.accessToken;
+        if (!newToken) {
+          throw new Error("No access token returned from refresh endpoint");
+        }
+
+        const payload = decodeJwtPayload(newToken);
+        if (!payload) {
+          throw new Error("Invalid access token returned from refresh endpoint");
+        }
+
+        if (hasSessionRoleConflict(payload.role)) {
+          handleSessionRoleConflict();
+          throw createSessionRoleConflictError();
+        }
+
+        useAuthStore.getState().setAccessToken(newToken);
+        return newToken;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+};
+
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -76,49 +107,22 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      if (!refreshPromise) {
-        refreshPromise = refreshClient
-          .post<RefreshResponse>("/auth/refresh")
-          .then((response) => {
-            const newToken = response.data.accessToken;
-            if (!newToken) {
-              throw new Error("No access token returned from refresh endpoint");
-            }
-
-            const payload = decodeJwtPayload(newToken);
-            if (!payload) {
-              throw new Error("Invalid access token returned from refresh endpoint");
-            }
-
-            if (hasSessionRoleConflict(payload.role)) {
-              handleSessionRoleConflict();
-              throw createSessionRoleConflictError();
-            }
-
-            useAuthStore.getState().setAccessToken(newToken);
-            return newToken;
-          })
-          .finally(() => {
-            refreshPromise = null;
-          });
-      }
-
-      const newToken = await refreshPromise;
+      const newToken = await forceRefreshToken();
       originalRequest.headers = originalRequest.headers ?? {};
       (originalRequest.headers as Record<string, string>).Authorization =
         `Bearer ${newToken}`;
 
-       return api(originalRequest);
-     } catch (refreshError) {
-       if (!isSessionRoleConflictError(refreshError)) {
-         useAuthStore.getState().clearAuth();
-         if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-           window.location.href = "/login";
-         }
-       }
-       return Promise.reject(refreshError);
-     }
-   },
+      return api(originalRequest);
+    } catch (refreshError) {
+      if (!isSessionRoleConflictError(refreshError)) {
+        useAuthStore.getState().clearAuth();
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      }
+      return Promise.reject(refreshError);
+    }
+  },
 );
 
 export { api };
