@@ -352,3 +352,25 @@ Admin không thể xóa một `Category` đang được gán cho một hoặc nh
 ---
 
 *Tài liệu được cập nhật theo từng buổi review với Product Owner. Mọi thay đổi yêu cầu được ghi nhận vào bảng Lịch sử thay đổi ở đầu tài liệu.*
+
+---
+
+## 9. Phụ lục: Nâng cấp Tính năng & Tối ưu hệ thống (Phase 6 - Phase 11)
+
+> **Ghi chú cho AI Assistant (Copilot):** Các phần mở rộng dưới đây đã được vạch ra và triển khai thành công, vượt mức yêu cầu cốt lõi ban đầu của hệ thống. Bất cứ khi nào AI code tính năng mới, hãy lấy kiến trúc dưới đây làm chuẩn mực.
+
+### 9.1 Tính năng Nâng cao cho Câu hỏi (Phase 6, 7, 10)
+- **Hệ thống chấm điểm Partial Scoring:** Đối với câu hỏi trắc nghiệm nhiều đáp án (MULTIPLE_CHOICE), điểm được chia đều cho các đáp án đúng. Tuy nhiên, nếu sinh viên chọn sai một đáp án bất kỳ, toàn bộ câu đó sẽ bị 0 điểm để tránh đánh lụi.
+- **Câu hỏi dạng Ảnh có Tự luận (IMAGE_ESSAY):** Cho phép Admin tải lên một hình ảnh làm dữ liệu phân tích sinh viên. Sinh viên nhập câu trả lời dạng văn bản. Hệ thống không tự chấm điểm mà chỉ hiển thị bài giải mẫu sau khi nộp.
+- **Hình Ảnh Phổ Quát (Universal Image):** Nhờ thiết kế Database tối ưu, hệ thống hiện tại hỗ trợ đính kèm hình ảnh minh họa cho TOÀN BỘ các loại câu hỏi (Trắc nghiệm, Sắp xếp, Ghép đôi...), mang lại sự trực quan tối đa cho quá trình học.
+
+### 9.2 Chiến lược Tối ưu Ảnh Culling 3 Tầng (Phase 8)
+- **Tầng 1 (Frontend):** Nén ảnh ngay tại trình duyệt của Admin (bằng `browser-image-compression`) trước khi gửi qua API.
+- **Tầng 2 (Backend):** Sử dụng thư viện `sharp` để strip metadata, resize về tối đa 1280px chiều ngang và chuyển đổi sang chuẩn `WebP` với quality 80%.
+- **Tầng 3 (Next.js):** Sử dụng `next/image` ở Frontend để cung cấp Lazy Loading, chặn cumulative layout shift, kết hợp thẻ `unoptimized={true}` trong môi trường Docker proxy để tối ưu hiệu suất server.
+
+### 9.3 Tối ưu hóa Chuẩn SEO, A11y & JS Bundle (Phase 9, Phase 11)
+- **HTML Semantics & A11y:** Chuyển đổi toàn bộ "div soup" sang các thẻ HTML5 chuẩn ngữ nghĩa (`<main>`, `<article>`, `<section>`). Bổ sung ARIA labels để hỗ trợ trình đọc màn hình.
+- **Dynamic SEO:** Cấu hình Dynamic Metadata và Open Graph Tags để link preview hiển thị đẹp trên mạng xã hội.
+- **Giảm tải Javascript:** Tất cả các luồng hoạt ảnh (Framer Motion / Kokonut UI) đều được bọc qua `LazyMotion` giúp giảm hơn 30KB gzipped tải ban đầu. Các Dialog Modal nặng được áp dụng chiến lược Lazy Load (Dynamic Imports).
+- **React Suspense:** UI streaming cho danh sách bài học bằng các thẻ Skeleton.

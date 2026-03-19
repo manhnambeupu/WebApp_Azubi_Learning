@@ -736,6 +736,42 @@ chore: upgrade dependencies
 - [ ] Swagger API docs hoàn chỉnh
 - [ ] Testing coverage ≥ 70%
 
+### Phase 6 — Câu hỏi Tự luận & Trắc nghiệm Nhiều đáp án
+- [x] Task 6.1: Database Schema & Backend DTOs (Prompt 25)
+- [x] Task 6.2: Backend Scoring Logic (Prompt 26)
+- [x] Task 6.3: Frontend Admin Question UI (Prompt 27)
+- [x] Task 6.4: Frontend Student Quiz UI (Prompt 28)
+
+### Phase 7 — Câu hỏi dạng Ảnh (IMAGE_ESSAY)
+*Dạng câu hỏi có kèm ảnh đính kèm minh họa, sinh viên điền đáp án tự luận (không chấm điểm) và xem giải thích sau khi nộp.*
+- [x] Task 7.1: Database Schema & Backend DTOs (Prompt 62)
+- [x] Task 7.2: Backend - API xử lý upload ảnh câu hỏi (Prompt 63)
+- [x] Task 7.3: Frontend Admin - Quản lý câu hỏi kèm ảnh (Prompt 64)
+- [x] Task 7.4: Frontend Student - Giao diện làm bài có ảnh (Prompt 65)
+
+### Phase 8 — Tối ưu hóa Ảnh Hệ thống toàn diện
+*Tối ưu hóa hình ảnh tải lên để tiết kiệm dung lượng MinIO, tiết kiệm băng thông mạng và tăng tốc độ tải trang cho học viên dựa theo chiến lược Culling 3 tầng.*
+- [x] Task 8.1: Backend - Tối ưu bằng sharp (Resize & WebP) (Prompt 69)
+- [x] Task 8.2: Frontend - Nén ảnh lúc upload với browser-image-compression (Prompt 70)
+- [x] Task 8.3: Frontend - Render tối ưu bằng next/image (Prompt 71)
+- [x] Task 8.4: Frontend - Fix lỗi 500 Docker Bypassing Image Optimization (Prompt 72)
+
+### Phase 9 — Tối ưu SEO, HTML Semantics & Accessibility (A11y)
+*Nâng cấp bộ khung HTML của Next.js để Googlebot dễ dàng thu thập dữ liệu (Crawl & Index) và tăng trải nghiệm cho các công cụ hỗ trợ đọc màn hình.*
+- [x] Task 9.1: Cấu trúc HTML Ngữ nghĩa (Semantic HTML) (Prompt 73)
+- [x] Task 9.2: Tối ưu Metadata & Open Graph động (Prompt 74)
+- [x] Task 9.3: Khả năng tiếp cận (Accessibility - a11y) (Prompt 75)
+
+### Phase 10 — Hình Ảnh Phổ Quát Cho Mọi Loại Câu Hỏi
+*Cho phép đính kèm ảnh minh họa vào tất cả các loại câu hỏi (Trắc nghiệm, Sắp xếp, Ghép đôi...) thay vì chỉ giới hạn ở Ảnh Tự luận. Kiến trúc Database và Backend đã hỗ trợ sẵn, chỉ cần mở khóa trên Admin UI.*
+- [x] Task 10.1: Mở khóa Upload Ảnh cho mọi loại câu hỏi tại Admin (Prompt 76)
+
+### Phase 11 — Tối ưu hóa Hiệu năng Frontend & Bundle Size (JS Optimization)
+*Do chúng ta sử dụng Kokonut UI (cực nhiều animation) nên dung lượng Javascript (JS Bundle) tải về ban đầu sẽ khá nặng, gây chậm thời gian TTI (Time to Interactive). Ta cần tối ưu để giảm tải CPU và tăng tốc tải trang.*
+- [ ] Task 11.1: Tối ưu hóa Framer Motion với LazyMotion (Prompt 79)
+- [ ] Task 11.2: Lười Tải (Lazy Load / Dynamic Import) các Component Nặng (Prompt 80)
+- [ ] Task 11.3: React Suspense & Tối ưu luồng dữ liệu (Prompt 81)
+
 ---
 
 ## 13. Checklist chuẩn production

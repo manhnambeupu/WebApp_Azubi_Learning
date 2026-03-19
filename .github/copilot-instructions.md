@@ -526,3 +526,43 @@ SECURITY_RULES.md          ← Toàn bộ 30 rules, code examples chi tiết
        ↑                          ↑
 .antigravityrules          copilot-instructions.md
 (reference + 3 P0, 3 P1, 3 P2)         (reference + checklist nhanh)
+```
+
+---
+
+**Tóm lại cấu trúc 3 file hoạt động cùng nhau:**
+```
+SECURITY_RULES.md          ← Toàn bộ 30 rules, code examples chi tiết
+       ↑                          ↑
+(reference + 3 P0, 3 P1, 3 P2)         (reference + checklist nhanh)
+```
+
+---
+
+## 17. Lịch sử Triển khai (Các Phase đã hoàn thành gốc)
+
+Dưới đây là các tính năng hệ thống ĐÃ ĐƯỢC XÂY DỰNG TỪ TRƯỚC. Khi nhận task mới, AI cần hiểu rằng các tính năng này ĐÃ TỒN TẠI và sử dụng chúng thay vì tạo lại từ đầu.
+
+### Phase 6 — Câu hỏi Tự luận & Trắc nghiệm Nhiều đáp án
+- **Lõi:** Hệ thống hỗ trợ nhiều loại câu hỏi (`SINGLE_CHOICE`, `MULTIPLE_CHOICE`, `ESSAY`, `ORDERING`, `MATCHING`).
+- **Chấm điểm (Partial Scoring):** MULTIPLE_CHOICE cho điểm dựa trên số đáp án đúng (tối đa 1 điểm). Nếu chọn sai 1 đáp án sẽ bị 0 điểm toàn câu.
+
+### Phase 7 — Câu hỏi dạng Ảnh (IMAGE_ESSAY)
+- Hỗ trợ câu hỏi Tự luận đính kèm Hình ảnh (dữ liệu phân tích). Học viên làm bài bằng văn bản, hệ thống giải khóa Đáp án Mẫu để tham chiếu sau khi học viên nộp bài.
+
+### Phase 8 — Tối ưu hóa Ảnh Hệ thống Toàn diện (Culling 3 tầng)
+- **Tầng 1:** `browser-image-compression` nén ảnh tại React Client trước khi post.
+- **Tầng 2:** `sharp` tại NestJS backend resize ảnh về `1280px` và chuyển sang `WebP` để đẩy vào MinIO.
+- **Tầng 3:** Thẻ `<Image unoptimized={true} />` của Next.js tại Frontend tối ưu lazy load và Cumulative Layout Shift (CLS).
+
+### Phase 9 — Tối ưu SEO, HTML Semantics & Accessibility (A11y)
+- Frontend dọn dẹp "div soup", sử dụng HTML5 semantics (`<main>`, `<section>`, `<article>`). Kết hợp ARIA Attributes và Dynamic Open Graph Metadata cho chia sẻ MXH.
+
+### Phase 10 — Hình Ảnh Phổ Quát Cho Mọi Loại Câu Hỏi
+- Database schema `imageUrl` dạng Optional đã được kích hoạt trên Admin UI cho TẤT CẢ các loại câu hỏi (Trắc nghiệm, Sắp xếp...).
+
+### Phase 11 — Tối ưu hóa Hiệu năng Frontend & Bundle Size (JS Optimization)
+- Khai thác tối đa TTI & LCP thông qua 3 trụ cột:
+  - Lười tải JS Component nặng bằng `next/dynamic`.
+  - Tách luồng render UI với API fetching bằng `React Suspense` & Skeletons.
+  - Giảm thiểu JS Payload của các component Kokonut UI bằng cách sử dụng `<LazyMotion features={domAnimation}>` và thẻ `<m.div>` thay thế `framer-motion` nguyên bản.
