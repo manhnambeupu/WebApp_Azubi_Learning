@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { InactivityProvider } from "@/components/auth/inactivity-provider";
 import { useAuth } from "@/lib/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import type { UserRole } from "@/types";
@@ -59,5 +60,5 @@ export function RoleProtectedLayout({
     );
   }
 
-  return <>{children}</>;
+  return <InactivityProvider>{children}</InactivityProvider>;
 }

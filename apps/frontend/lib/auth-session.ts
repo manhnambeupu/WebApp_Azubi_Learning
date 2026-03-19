@@ -3,8 +3,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { UserRole } from "@/types";
 
 type JwtPayload = {
-  sub: string;
-  email: string;
+  userId: string;
   role: UserRole;
 };
 
@@ -31,16 +30,14 @@ export function decodeJwtPayload(token: string): JwtPayload | null {
     const parsedPayload = JSON.parse(decodedPayload) as Partial<JwtPayload>;
 
     if (
-      typeof parsedPayload.sub !== "string" ||
-      typeof parsedPayload.email !== "string" ||
+      typeof parsedPayload.userId !== "string" ||
       (parsedPayload.role !== "ADMIN" && parsedPayload.role !== "STUDENT")
     ) {
       return null;
     }
 
     return {
-      sub: parsedPayload.sub,
-      email: parsedPayload.email,
+      userId: parsedPayload.userId,
       role: parsedPayload.role,
     };
   } catch {
