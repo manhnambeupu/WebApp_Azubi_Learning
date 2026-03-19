@@ -1,5 +1,6 @@
-import { GraduationCap, Sparkles } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 import { Suspense } from "react";
+import { StudentLessonCounterBadge } from "@/components/student/student-lesson-counter-badge";
 import { StudentLessonsListFetcher } from "@/components/student/student-lessons-list-fetcher";
 import { LessonsGridSkeleton } from "@/components/ui/lessons-list-skeleton";
 
@@ -25,10 +26,7 @@ export default function StudentLessonsPage() {
               việc học sâu và theo dõi tiến độ trực quan.
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-4 py-2 text-xs font-medium text-foreground shadow-[0_8px_24px_-16px_hsl(var(--accent)/0.85)]">
-            <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
-            Đang đồng bộ lộ trình
-          </div>
+          <StudentLessonCounterBadge />
         </div>
       </section>
 

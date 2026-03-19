@@ -63,7 +63,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
 
   return (
     <div className="min-h-screen bg-background md:grid md:grid-cols-[292px_1fr]">
-      <aside className="relative hidden border-r border-primary/20 bg-gradient-to-b from-slate-950 via-slate-900 to-[#112b4e] text-slate-100 md:flex md:flex-col">
+      <aside className="relative hidden border-r border-primary/20 bg-gradient-to-b from-slate-950 via-slate-900 to-primary/65 text-slate-100 md:flex md:flex-col">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 top-24 h-32 w-32 rounded-full bg-accent/25 blur-3xl"
@@ -97,7 +97,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
               >
                 <span
                   className={cn(
-                    "absolute left-2 top-1/2 h-7 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-sky-300 to-amber-400 transition-all duration-300",
+                    "absolute left-2 top-1/2 h-7 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-primary to-accent transition-all duration-300",
                     active
                       ? "translate-x-0 opacity-100"
                       : "-translate-x-1 opacity-0 group-hover/nav:translate-x-0 group-hover/nav:opacity-70",
@@ -134,7 +134,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
       </aside>
 
       <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-slate-950 to-[#102848] px-4 py-3 text-slate-100 md:hidden">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-slate-950 to-primary/70 px-4 py-3 text-slate-100 md:hidden">
           <div>
             <p className="text-sm font-semibold">Azubi Admin</p>
             <p className="text-xs text-slate-300/70">Quản trị hệ thống</p>

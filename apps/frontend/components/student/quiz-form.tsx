@@ -610,7 +610,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
 
       <div className="flex justify-end pt-2">
         <Button
-          className="kokonut-hover-lift h-12 rounded-xl border border-white/30 bg-gradient-to-r from-primary via-blue-700 to-amber-600 px-8 text-base font-semibold text-white shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
+          className="kokonut-hover-lift h-12 rounded-xl border border-white/30 bg-gradient-to-r from-primary to-amber-600 px-8 text-base font-semibold text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
           disabled={submitQuizMutation.isPending || totalQuestions === 0}
           onClick={handleOpenConfirm}
           type="button"
@@ -641,7 +641,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-gradient-to-r from-primary to-amber-600 text-white hover:brightness-105"
+              className="bg-gradient-to-r from-primary to-amber-600 text-slate-950 hover:brightness-105"
               disabled={submitQuizMutation.isPending}
               onClick={() => {
                 void handleSubmit();

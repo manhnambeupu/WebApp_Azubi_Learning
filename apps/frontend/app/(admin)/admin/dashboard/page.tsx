@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
 
           <Button
             asChild
-            className="kokonut-hover-lift h-11 w-full rounded-xl border border-white/25 bg-gradient-to-r from-primary via-blue-700 to-amber-600 px-5 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong sm:w-auto"
+            className="kokonut-hover-lift h-11 w-full rounded-xl border border-white/25 bg-gradient-to-r from-primary to-amber-600 px-5 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong sm:w-auto"
           >
             <Link href="/admin/lessons/new">
               <Plus className="mr-2 h-4 w-4" />

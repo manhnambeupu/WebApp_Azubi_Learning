@@ -458,7 +458,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
         <div className="flex justify-end">
           <Button
-            className="h-11 rounded-xl bg-gradient-to-r from-primary via-blue-600 to-amber-500 px-6 text-sm font-semibold text-primary-foreground shadow-[0_14px_34px_-18px_rgba(37,99,235,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-amber-500 hover:shadow-[0_18px_36px_-18px_rgba(245,158,11,0.75)]"
+            className="h-11 rounded-xl bg-gradient-to-r from-primary to-amber-500 px-6 text-sm font-semibold text-slate-950 shadow-[0_14px_34px_-18px_hsl(var(--primary) / 0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-primary/90 hover:to-amber-500 hover:shadow-[0_18px_36px_-18px_rgba(245,158,11,0.75)]"
             disabled={isSaving}
             type="submit"
           >

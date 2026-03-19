@@ -186,7 +186,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
 
           <DialogFooter>
             <Button
-              className="rounded-full border border-white/30 bg-gradient-to-r from-primary via-blue-700 to-amber-600 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110"
+              className="rounded-full border border-white/30 bg-gradient-to-r from-primary to-amber-600 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110"
               disabled={!canSubmit || isSubmitting}
               type="submit"
             >

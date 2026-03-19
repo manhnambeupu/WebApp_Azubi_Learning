@@ -143,7 +143,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
               required
             />
           </div>
@@ -160,7 +160,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
               required
             />
           </div>
@@ -174,7 +174,7 @@ export default function LoginPage() {
           {/* Submit Button */}
           <div className="pt-4">
             <Button
-              className="w-full h-14 rounded-xl text-white font-medium text-lg bg-gradient-to-r from-[#4F81C7] to-[#E58656] hover:opacity-90 transition-opacity duration-200 shadow-lg"
+              className="w-full h-14 rounded-xl text-slate-950 font-medium text-lg bg-gradient-to-r from-[#2F913C] to-[#FFD24A] hover:opacity-90 transition-opacity duration-200 shadow-lg"
               disabled={isSubmitting}
               type="submit"
             >

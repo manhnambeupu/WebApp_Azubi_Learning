@@ -131,7 +131,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
           lessonId={lessonId}
           trigger={
             <Button
-              className="rounded-xl bg-gradient-to-r from-primary via-blue-600 to-amber-500 text-primary-foreground shadow-[0_14px_32px_-20px_rgba(37,99,235,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-amber-500 hover:shadow-[0_16px_34px_-18px_rgba(245,158,11,0.75)]"
+              className="rounded-xl bg-gradient-to-r from-primary to-amber-500 text-slate-950 shadow-[0_14px_32px_-20px_hsl(var(--primary) / 0.76)] transition-all duration-300 hover:-translate-y-0.5 hover:from-primary/90 hover:to-amber-500 hover:shadow-[0_16px_34px_-18px_rgba(245,158,11,0.75)]"
               size="sm"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -165,7 +165,7 @@ export function QuestionList({ lessonId }: QuestionListProps) {
           <Accordion className="w-full space-y-4" collapsible type="single">
             {questions.map((question, index) => (
               <AccordionItem
-                className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 px-4 shadow-[0_14px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 data-[state=open]:border-primary/35 data-[state=open]:shadow-[0_20px_40px_-28px_rgba(37,99,235,0.85)] hover:-translate-y-0.5 hover:border-amber-300/65 hover:shadow-[0_20px_40px_-26px_rgba(245,158,11,0.6)] dark:border-slate-700/80 dark:bg-slate-900/55"
+                className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 px-4 shadow-[0_14px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 data-[state=open]:border-primary/35 data-[state=open]:shadow-[0_20px_40px_-28px_hsl(var(--primary) / 0.8)] hover:-translate-y-0.5 hover:border-amber-300/65 hover:shadow-[0_20px_40px_-26px_rgba(245,158,11,0.6)] dark:border-slate-700/80 dark:bg-slate-900/55"
                 key={question.id}
                 value={question.id}
               >
@@ -347,11 +347,11 @@ function AnswerCard({
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary">{answerLabel}</Badge>
         {isEssayQuestion ? (
-          <Badge className="bg-sky-600 text-white hover:bg-sky-600">Mẫu</Badge>
+          <Badge className="bg-primary text-slate-950 hover:bg-primary">Mẫu</Badge>
         ) : isOrderingQuestion ? (
           <Badge variant="outline">Bước</Badge>
         ) : isMatchingQuestion ? (
-          <Badge className="bg-indigo-600 text-white hover:bg-indigo-600">Cặp đúng</Badge>
+          <Badge className="bg-primary text-slate-950 hover:bg-primary">Cặp đúng</Badge>
         ) : answer.isCorrect ? (
           <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">Đúng</Badge>
         ) : (

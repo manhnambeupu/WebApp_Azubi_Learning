@@ -93,7 +93,7 @@ export default function AdminCategoriesPage() {
           </div>
 
           <CategoryFormDialog
-            triggerClassName="h-11 rounded-xl border border-white/25 bg-gradient-to-r from-primary via-blue-700 to-amber-600 px-5 text-white shadow-glow-soft transition-all duration-300 hover:brightness-110"
+            triggerClassName="h-11 rounded-xl border border-white/25 bg-gradient-to-r from-primary to-amber-600 px-5 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110"
             triggerLabel="Thêm danh mục"
           />
         </CardHeader>
