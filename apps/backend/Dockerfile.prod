@@ -1,4 +1,7 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
+
+# Prisma strictly requires OpenSSL in Debian-based systems
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -10,7 +13,10 @@ RUN npx prisma generate
 RUN npm run build
 RUN npm prune --omit=dev --legacy-peer-deps
 
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
+
+# The runner stage also needs OpenSSL to execute the Prisma Query Engine
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
