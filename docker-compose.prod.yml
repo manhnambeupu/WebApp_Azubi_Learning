@@ -44,6 +44,7 @@ services:
           memory: 300M
     environment:
       NODE_ENV: production
+      PRISMA_SCHEMA_PATH: /app/prisma/schema.prisma
       BACKEND_PORT: ${BACKEND_PORT:-3001}
       CORS_ORIGIN: ${CORS_ORIGIN:-https://yourdomain.com}
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
