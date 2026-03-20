@@ -193,6 +193,13 @@ export default function StudentLessonDetailPage() {
 
         <div className="student-markdown rounded-2xl border border-primary/15 bg-white/80 p-6 text-[1.04rem] leading-8 shadow-glass sm:p-8 sm:text-[1.08rem]">
           <ReactMarkdown
+            components={{
+              table: ({ children, ...props }) => (
+                <div className="table-wrapper">
+                  <table {...props}>{children}</table>
+                </div>
+              ),
+            }}
             rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }], rehypeSanitize]}
             remarkPlugins={[remarkGfm]}
           >

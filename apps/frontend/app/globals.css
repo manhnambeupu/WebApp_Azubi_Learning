@@ -282,6 +282,10 @@
     @apply rounded-md bg-rose-50 px-1.5 py-0.5 font-mono text-[0.85em] text-rose-600;
   }
 
+  .student-markdown .table-wrapper {
+    @apply -mx-2 overflow-x-auto px-2;
+  }
+
   .student-markdown table {
     @apply mt-4 w-full border-collapse text-sm;
   }

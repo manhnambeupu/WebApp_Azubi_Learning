@@ -4,6 +4,7 @@ import {
   DndContext,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   type DragEndEvent,
   useSensor,
@@ -95,12 +96,11 @@ type SortableAnswerItemProps = {
 };
 
 function SortableAnswerItem({ answer, index }: SortableAnswerItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
     useSortable({ id: answer.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
   };
 
   return (
@@ -173,6 +173,12 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 6,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 6,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -502,16 +508,17 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           }
                           value={matchingSelections[answer.id]}
                         >
-                          <SelectTrigger className="border-primary/20 bg-white/80">
+                          <SelectTrigger className="max-w-full border-primary/20 bg-white/80 [&>span]:truncate">
                             <SelectValue placeholder="Chọn vế phải phù hợp" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-w-[calc(100vw-2rem)]">
                             {matchingOptions.map((option, optionIndex) => (
                               <SelectItem
+                                className="max-w-[calc(100vw-6rem)]"
                                 key={`${question.id}-${answer.id}-${optionIndex}`}
                                 value={option}
                               >
-                                {option}
+                                <span className="break-words whitespace-normal">{option}</span>
                               </SelectItem>
                             ))}
                           </SelectContent>
