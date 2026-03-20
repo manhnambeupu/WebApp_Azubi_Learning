@@ -1,24 +1,7 @@
 "use client";
 
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  closestCenter,
-  type DragEndEvent,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Loader2, Send, Sparkles } from "lucide-react";
+import { arrayMove } from "@dnd-kit/sortable";
+import { ChevronDown, ChevronUp, Loader2, Send, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -76,7 +59,7 @@ const shuffleArray = <T,>(items: T[]): T[] => {
 const getQuestionInstruction = (question: StudentQuestion): string => {
   switch (question.type) {
     case "ORDERING":
-      return "Kéo thả các bước để sắp xếp lại theo đúng thứ tự.";
+      return "Bấm nút mũi tên lên để di chuyển thứ tự lên trên, và mũi tên xuống để di chuyển xuống dưới.";
     case "MATCHING":
       return "Chọn vế phải phù hợp cho từng vế trái.";
     case "MULTIPLE_CHOICE":
@@ -89,46 +72,6 @@ const getQuestionInstruction = (question: StudentQuestion): string => {
       return "Chọn một đáp án đúng nhất.";
   }
 };
-
-type SortableAnswerItemProps = {
-  answer: StudentQuestion["answers"][number];
-  index: number;
-};
-
-function SortableAnswerItem({ answer, index }: SortableAnswerItemProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useSortable({ id: answer.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-  };
-
-  return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 transition-all duration-300",
-        isDragging
-          ? "scale-[1.01] shadow-glow-soft ring-1 ring-accent/45"
-          : "shadow-sm hover:shadow-glow-soft",
-      )}
-      ref={setNodeRef}
-      style={style}
-    >
-      <div className="flex items-center gap-3">
-        <div
-          {...attributes}
-          {...listeners}
-          className="rounded-md border border-primary/20 bg-primary/5 p-1.5 text-muted-foreground transition-colors hover:bg-primary/10"
-        >
-          <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
-          <span className="sr-only">Kéo để thay đổi vị trí</span>
-        </div>
-        <Badge variant="secondary">#{index + 1}</Badge>
-        <p className="text-sm">{answer.text}</p>
-      </div>
-    </div>
-  );
-}
 
 const isQuestionAnswered = (
   question: StudentQuestion,
@@ -169,22 +112,6 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     Record<string, string[]>
   >({});
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 6,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 6,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
 
   useEffect(() => {
     const nextOrderingAnswerIdsByQuestion: Record<string, string[]> = {};
@@ -253,27 +180,23 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     });
   };
 
-  const handleDragEnd = (event: DragEndEvent, questionId: string) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
-
+  const moveAnswer = (questionId: string, fromIndex: number, toIndex: number) => {
     setOrderingAnswerIdsByQuestion((prev) => {
       const currentAnswerIds = prev[questionId] ?? [];
-      const activeId = String(active.id);
-      const overId = String(over.id);
-      const oldIndex = currentAnswerIds.findIndex((answerId) => answerId === activeId);
-      const newIndex = currentAnswerIds.findIndex((answerId) => answerId === overId);
 
-      if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) {
+      if (
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= currentAnswerIds.length ||
+        toIndex >= currentAnswerIds.length ||
+        fromIndex === toIndex
+      ) {
         return prev;
       }
 
       return {
         ...prev,
-        [questionId]: arrayMove(currentAnswerIds, oldIndex, newIndex),
+        [questionId]: arrayMove(currentAnswerIds, fromIndex, toIndex),
       };
     });
   };
@@ -465,26 +388,45 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                   />
                 </div>
               ) : question.type === "ORDERING" ? (
-                <DndContext
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEnd(event, question.id)}
-                  sensors={sensors}
-                >
-                  <SortableContext
-                    items={orderedAnswers.map((answer) => answer.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-2">
-                      {orderedAnswers.map((answer, answerIndex) => (
-                        <SortableAnswerItem
-                          answer={answer}
-                          index={answerIndex}
-                          key={answer.id}
-                        />
-                      ))}
+                <div className="space-y-2">
+                  {orderedAnswers.map((answer, answerIndex) => (
+                    <div
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft"
+                      key={answer.id}
+                    >
+                      <div className="flex flex-1 items-center gap-3">
+                        <Badge variant="secondary">#{answerIndex + 1}</Badge>
+                        <p className="text-sm">{answer.text}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          className="h-8 w-8 rounded-full border-primary/20"
+                          disabled={answerIndex === 0}
+                          onClick={() =>
+                            moveAnswer(question.id, answerIndex, answerIndex - 1)
+                          }
+                          size="icon"
+                          type="button"
+                          variant="outline"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          className="h-8 w-8 rounded-full border-primary/20"
+                          disabled={answerIndex === orderedAnswers.length - 1}
+                          onClick={() =>
+                            moveAnswer(question.id, answerIndex, answerIndex + 1)
+                          }
+                          size="icon"
+                          type="button"
+                          variant="outline"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </SortableContext>
-                </DndContext>
+                  ))}
+                </div>
               ) : question.type === "MATCHING" ? (
                 <div className="space-y-3">
                   {question.answers.map((answer) => (
@@ -508,17 +450,19 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           }
                           value={matchingSelections[answer.id]}
                         >
-                          <SelectTrigger className="max-w-full border-primary/20 bg-white/80 [&>span]:truncate">
+                          <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate">
                             <SelectValue placeholder="Chọn vế phải phù hợp" />
                           </SelectTrigger>
                           <SelectContent className="max-w-[calc(100vw-2rem)]">
                             {matchingOptions.map((option, optionIndex) => (
                               <SelectItem
-                                className="max-w-[calc(100vw-6rem)]"
+                                className="max-w-[calc(100vw-2rem)] shrink-0"
                                 key={`${question.id}-${answer.id}-${optionIndex}`}
                                 value={option}
                               >
-                                <span className="break-words whitespace-normal">{option}</span>
+                                <span className="break-words whitespace-normal text-left">
+                                  {option}
+                                </span>
                               </SelectItem>
                             ))}
                           </SelectContent>
