@@ -170,7 +170,6 @@ describe('SubmissionsService', () => {
       findUnique: jest.Mock;
     };
     lessonAttempt: {
-      count: jest.Mock;
       findMany: jest.Mock;
       findFirst: jest.Mock;
     };
@@ -189,9 +188,8 @@ describe('SubmissionsService', () => {
         findUnique: jest.fn(),
       },
       lessonAttempt: {
-        count: jest.fn(),
         findMany: jest.fn(),
-        findFirst: jest.fn(),
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       submission: {
         createMany: jest.fn(),
@@ -215,6 +213,8 @@ describe('SubmissionsService', () => {
   const setupTransactionMocks = () => {
     const tx = {
       lessonAttempt: {
+        findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
         create: jest.fn().mockImplementation(async ({ data }) => ({
           id: `attempt-${data.attemptNumber}`,
           attemptNumber: data.attemptNumber,
@@ -243,7 +243,6 @@ describe('SubmissionsService', () => {
         createSingleChoiceQuestion(2, 'a-2-correct', 'a-2-wrong'),
       ],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const dto: SubmitQuizDto = {
@@ -298,7 +297,9 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong')],
     });
-    prisma.lessonAttempt.count.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+    prisma.lessonAttempt.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ attemptNumber: 1 });
     setupTransactionMocks();
 
     const dto: SubmitQuizDto = {
@@ -310,6 +311,68 @@ describe('SubmissionsService', () => {
 
     expect(firstAttempt.attemptNumber).toBe(1);
     expect(secondAttempt.attemptNumber).toBe(2);
+  });
+
+  it('rolling window giữ lần 1,2 và xóa lần cũ nhất trong nhóm attempt > 2', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong')],
+    });
+    prisma.lessonAttempt.findFirst.mockResolvedValue({ attemptNumber: 5 });
+    const tx = setupTransactionMocks();
+    tx.lessonAttempt.findMany.mockResolvedValue([
+      { id: 'attempt-3' },
+      { id: 'attempt-4' },
+      { id: 'attempt-5' },
+    ]);
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [{ questionId: 'q-1', answerIds: ['a-1-correct'] }],
+    });
+
+    expect(tx.lessonAttempt.findMany).toHaveBeenCalledWith({
+      where: {
+        userId,
+        lessonId,
+        attemptNumber: {
+          gt: 2,
+        },
+      },
+      orderBy: {
+        attemptNumber: 'asc',
+      },
+      select: {
+        id: true,
+      },
+    });
+    expect(tx.lessonAttempt.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: {
+          in: ['attempt-3'],
+        },
+      },
+    });
+    expect(result.attemptNumber).toBe(6);
+  });
+
+  it('rolling window không xóa khi nhóm attempt > 2 chưa đầy 3 bản ghi', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong')],
+    });
+    prisma.lessonAttempt.findFirst.mockResolvedValue({ attemptNumber: 4 });
+    const tx = setupTransactionMocks();
+    tx.lessonAttempt.findMany.mockResolvedValue([
+      { id: 'attempt-3' },
+      { id: 'attempt-4' },
+    ]);
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [{ questionId: 'q-1', answerIds: ['a-1-correct'] }],
+    });
+
+    expect(tx.lessonAttempt.deleteMany).not.toHaveBeenCalled();
+    expect(result.attemptNumber).toBe(5);
   });
 
   it('Nộp thiếu câu -> 422', async () => {
@@ -350,7 +413,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong')],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -379,7 +441,6 @@ describe('SubmissionsService', () => {
         createEssayQuestion(2),
       ],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -422,7 +483,6 @@ describe('SubmissionsService', () => {
         createImageEssayQuestion(2),
       ],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -462,7 +522,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createMultipleChoiceQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -505,7 +564,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createMultipleChoiceQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -547,7 +605,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createMultipleChoiceQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -593,7 +650,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createOrderingQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -656,7 +712,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createOrderingQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {
@@ -700,7 +755,6 @@ describe('SubmissionsService', () => {
       id: lessonId,
       questions: [createMatchingQuestion(1)],
     });
-    prisma.lessonAttempt.count.mockResolvedValue(0);
     const tx = setupTransactionMocks();
 
     const result = await service.submitQuiz(userId, lessonId, {

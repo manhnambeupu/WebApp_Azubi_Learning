@@ -106,15 +106,54 @@ export class SubmissionsService {
     const correctCount = this.calculateCorrectCount(evaluationsByQuestion);
     const score = this.calculateScore(correctCount, totalQuestions);
 
-    const currentAttempts = await this.prisma.lessonAttempt.count({
+    const lastAttempt = await this.prisma.lessonAttempt.findFirst({
       where: {
         userId,
         lessonId,
       },
+      orderBy: {
+        attemptNumber: 'desc',
+      },
+      select: {
+        attemptNumber: true,
+      },
     });
-    const attemptNumber = currentAttempts + 1;
+    const attemptNumber = (lastAttempt?.attemptNumber ?? 0) + 1;
 
     const attempt = await this.prisma.$transaction(async (tx) => {
+      const rollingAttempts = await tx.lessonAttempt.findMany({
+        where: {
+          userId,
+          lessonId,
+          attemptNumber: {
+            gt: 2,
+          },
+        },
+        orderBy: {
+          attemptNumber: 'asc',
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (rollingAttempts.length >= 3) {
+        const attemptsToDelete = rollingAttempts.slice(
+          0,
+          rollingAttempts.length - 2,
+        );
+
+        if (attemptsToDelete.length > 0) {
+          await tx.lessonAttempt.deleteMany({
+            where: {
+              id: {
+                in: attemptsToDelete.map((attempt) => attempt.id),
+              },
+            },
+          });
+        }
+      }
+
       const createdAttempt = await tx.lessonAttempt.create({
         data: {
           userId,
