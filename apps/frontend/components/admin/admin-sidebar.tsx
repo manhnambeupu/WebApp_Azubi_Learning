@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpenText, FolderTree, Loader2, LogOut, Menu, Users } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -109,7 +110,8 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
             );
           })}
         </nav>
-        <div className="p-4 pt-3">
+        <div className="space-y-2 p-4 pt-3">
+          <ThemeToggle className="w-full justify-center" />
           <Button
             className="w-full justify-start rounded-xl border-slate-600/70 bg-slate-900/80 text-slate-200 hover:bg-slate-800/90 hover:text-white"
             disabled={isLoggingOut}
@@ -133,7 +135,7 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen min-w-0 flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70">
+      <div className="flex min-h-screen min-w-0 flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70 dark:from-slate-950 dark:via-background dark:to-slate-900/70">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-slate-950 to-primary/70 px-4 py-3 text-slate-100 md:hidden">
           <div>
             <p className="text-sm font-semibold">Azubi Admin</p>
@@ -172,6 +174,10 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
                   </DropdownMenuItem>
                 );
               })}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <ThemeToggle className="w-full cursor-pointer" />
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer text-destructive focus:text-destructive"

@@ -335,19 +335,26 @@ describe('QuestionsService', () => {
     expect(result.text).toBe('New text');
   });
 
-  it('Xóa question thành công', async () => {
+  it('Xóa question thành công và reorder remaining questions', async () => {
     prisma.question.findUnique.mockResolvedValue({
-      id: 'question-1',
+      id: 'question-2',
       lessonId: 'lesson-1',
       text: 'Delete me',
       explanation: null,
       type: QuestionType.SINGLE_CHOICE,
-      orderIndex: 1,
+      orderIndex: 2,
       answers: [],
     });
 
     const tx = {
-      question: { delete: jest.fn().mockResolvedValue({ id: 'question-1' }) },
+      question: {
+        delete: jest.fn().mockResolvedValue({ id: 'question-2' }),
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'question-1' },
+          { id: 'question-3' },
+        ]),
+        update: jest.fn().mockResolvedValue({}),
+      },
     };
 
     prisma.$transaction.mockImplementation(
@@ -355,12 +362,26 @@ describe('QuestionsService', () => {
         callback(tx),
     );
 
-    const result = await service.delete('question-1');
+    const result = await service.delete('question-2');
 
     expect(tx.question.delete).toHaveBeenCalledWith({
-      where: { id: 'question-1' },
+      where: { id: 'question-2' },
     });
-    expect(result).toEqual({ deleted: true, id: 'question-1' });
+    expect(tx.question.findMany).toHaveBeenCalledWith({
+      where: { lessonId: 'lesson-1' },
+      orderBy: { orderIndex: 'asc' },
+      select: { id: true },
+    });
+    expect(tx.question.update).toHaveBeenCalledTimes(2);
+    expect(tx.question.update).toHaveBeenNthCalledWith(1, {
+      where: { id: 'question-1' },
+      data: { orderIndex: 1 },
+    });
+    expect(tx.question.update).toHaveBeenNthCalledWith(2, {
+      where: { id: 'question-3' },
+      data: { orderIndex: 2 },
+    });
+    expect(result).toEqual({ deleted: true, id: 'question-2' });
   });
 
   it('Reorder questions thành công', async () => {

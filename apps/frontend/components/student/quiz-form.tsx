@@ -286,11 +286,11 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   };
 
   return (
-    <section className="kokonut-glass-card kokonut-glow-border space-y-6 border-primary/15 bg-white/70 p-6 shadow-glass transition-all">
+    <section className="kokonut-glass-card kokonut-glow-border space-y-6 border-primary/15 bg-white/70 p-6 shadow-glass transition-all dark:bg-slate-900/70">
       <div className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold sm:text-xl">Phần làm bài</h2>
+            <h2 className="text-lg font-semibold sm:text-xl">📚BÀI TẬP</h2>
             <p className="text-sm leading-7 text-muted-foreground">
               Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc
               tự suy nghĩ đáp án cho phần tự luận.
@@ -298,7 +298,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           </div>
           <Badge className="rounded-full border border-accent/40 bg-accent/15 text-foreground shadow-[0_8px_20px_-14px_hsl(var(--accent)/0.9)] hover:bg-accent/15">
             <Sparkles className="mr-1.5 h-3.5 w-3.5 text-accent-foreground" />
-            Focus mode
+            🎓Chúc bạn hoàn thành bài tập một cách xuất sắc💯
           </Badge>
         </div>
         <div className="space-y-1">
@@ -340,7 +340,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           return (
             <div
               className={cn(
-                "space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300",
+                "space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300 dark:bg-slate-900/80",
                 questionAnswered
                   ? "shadow-glow-soft ring-1 ring-accent/20"
                   : "hover:border-primary/35 hover:shadow-glow-soft",
@@ -372,7 +372,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
                 <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
                   <Textarea
-                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70"
+                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70 dark:bg-slate-950/85"
                     onChange={(event) =>
                       setEssayInputs((prev) => ({
                         ...prev,
@@ -391,7 +391,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 <div className="space-y-2">
                   {orderedAnswers.map((answer, answerIndex) => (
                     <div
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft dark:bg-slate-900/85"
                       key={answer.id}
                     >
                       <div className="flex flex-1 items-center gap-3">
@@ -431,7 +431,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 <div className="space-y-3">
                   {question.answers.map((answer) => (
                     <div
-                      className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr]"
+                      className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr] dark:bg-slate-900/85"
                       key={answer.id}
                     >
                       <div className="space-y-1 rounded-md border border-primary/10 bg-primary/5 px-3 py-2">
@@ -450,7 +450,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           }
                           value={matchingSelections[answer.id]}
                         >
-                          <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate">
+                          <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate dark:bg-slate-950/80">
                             <SelectValue placeholder="Chọn vế phải phù hợp" />
                           </SelectTrigger>
                           <SelectContent className="max-w-[calc(100vw-2rem)]">
@@ -481,7 +481,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft",
+                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
                           isSelected
                             ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
                             : "",
@@ -528,7 +528,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     return (
                       <Label
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft",
+                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
                           isSelected
                             ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
                             : "",

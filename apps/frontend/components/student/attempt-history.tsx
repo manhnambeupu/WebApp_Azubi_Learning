@@ -58,7 +58,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
   const attemptDetailQuery = useGetAttemptDetail(lessonId, selectedAttemptId);
 
   return (
-    <section className="space-y-5 rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+    <section className="space-y-5 rounded-2xl border border-border/70 bg-white p-6 shadow-sm dark:bg-slate-950">
       <div className="space-y-2">
         <h2 className="text-lg font-semibold">Lịch sử nộp bài</h2>
         <p className="text-sm text-muted-foreground">

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/lib/auth";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -25,31 +26,31 @@ export function StudentNav() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur dark:border-slate-700/80 dark:bg-slate-950/95">
       <nav
         aria-label="Student top navigation"
         className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
       >
-        <div className="space-y-0.5">
+        <div>
           <Link aria-label="GastroLernplattform" className="inline-block" href="/student/lessons">
             <Image
               alt="GastroLernplattform"
-              className="h-16 w-auto"
-              height={64}
+              className="h-20 w-auto"
+              height={80}
               priority
               src="/images/logo.png"
               width={320}
             />
           </Link>
-          <p className="text-xs text-slate-500">Không gian học tập dành cho học viên</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <p className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-600 sm:block">
+          <ThemeToggle />
+          <p className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:block">
             {displayName}
           </p>
           <Button
-            className="border-slate-200 bg-white shadow-sm hover:bg-slate-50"
+            className="border-slate-200 bg-white shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
             disabled={isLoggingOut}
             onClick={() => {
               void handleLogout();

@@ -81,7 +81,7 @@ export default function AdminCategoriesPage() {
 
   return (
     <section className="space-y-6 kokonut-fade">
-      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass">
+      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
         <CardHeader className="flex flex-col gap-4 border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
@@ -113,17 +113,17 @@ export default function AdminCategoriesPage() {
           ) : null}
 
           {categoriesQuery.data ? (
-            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass">
+            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
               <Table>
                 <TableHeader>
                   <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Tên danh mục
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Số bài học
                     </TableHead>
-                    <TableHead className="w-[220px] px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="w-[220px] px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -140,7 +140,7 @@ export default function AdminCategoriesPage() {
                       <TableRow
                         className={cn(
                           "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
-                          index % 2 === 0 ? "bg-white/90" : "bg-slate-50/45",
+                          index % 2 === 0 ? "bg-white/90 dark:bg-slate-900/90" : "bg-slate-50/45 dark:bg-slate-800/45",
                         )}
                         key={category.id}
                       >
@@ -150,7 +150,7 @@ export default function AdminCategoriesPage() {
                           <div className="flex justify-end gap-2 opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100">
                             <CategoryFormDialog
                               initialData={{ id: category.id, name: category.name }}
-                              triggerClassName="h-8 rounded-full border-primary/25 bg-white/90 px-3 hover:border-primary/40 hover:bg-white"
+                              triggerClassName="h-8 rounded-full border-primary/25 bg-white/90 px-3 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
                               triggerLabel="Sửa"
                               triggerVariant="outline"
                             />
@@ -167,7 +167,7 @@ export default function AdminCategoriesPage() {
                                   Xóa
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
+                              <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Xóa danh mục?</AlertDialogTitle>
                                   <AlertDialogDescription>

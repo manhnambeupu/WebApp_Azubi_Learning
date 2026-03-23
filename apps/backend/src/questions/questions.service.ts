@@ -165,12 +165,26 @@ export class QuestionsService {
   }
 
   async delete(id: string): Promise<{ deleted: true; id: string }> {
-    await this.findById(id);
+    const question = await this.findById(id);
+    const lessonId = question.lessonId;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.question.delete({
         where: { id },
       });
+
+      const remainingQuestions = await tx.question.findMany({
+        where: { lessonId },
+        orderBy: { orderIndex: 'asc' },
+        select: { id: true },
+      });
+
+      for (let i = 0; i < remainingQuestions.length; i++) {
+        await tx.question.update({
+          where: { id: remainingQuestions[i].id },
+          data: { orderIndex: i + 1 },
+        });
+      }
     });
 
     return {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "highlight.js/styles/github.css";
 import "@uiw/react-markdown-preview/markdown.css";
@@ -39,17 +40,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <div className="relative isolate min-h-screen overflow-x-hidden">
-          <div role="presentation">
-            <LearningBackdrop />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <div className="relative isolate min-h-screen overflow-x-hidden">
+            <div role="presentation">
+              <LearningBackdrop />
+            </div>
+            <QueryProvider>
+              <main className="relative z-10 kokonut-fade">{children}</main>
+              <Toaster />
+            </QueryProvider>
           </div>
-          <QueryProvider>
-            <main className="relative z-10 kokonut-fade">{children}</main>
-            <Toaster />
-          </QueryProvider>
-        </div>
+        </ThemeProvider>
       </body>
     </html>
   );

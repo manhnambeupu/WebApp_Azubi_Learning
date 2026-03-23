@@ -208,7 +208,7 @@
   }
 
   .student-markdown blockquote {
-    @apply relative mt-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-slate-700 shadow-sm;
+    @apply relative mt-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200;
   }
 
   .student-markdown blockquote::before {
@@ -279,7 +279,7 @@
   }
 
   .student-markdown code {
-    @apply rounded-md bg-rose-50 px-1.5 py-0.5 font-mono text-[0.85em] text-rose-600;
+    @apply rounded-md bg-rose-50 px-1.5 py-0.5 font-mono text-[0.85em] text-rose-600 dark:bg-rose-500/10 dark:text-rose-400;
   }
 
   .student-markdown .table-wrapper {
@@ -291,11 +291,11 @@
   }
 
   .student-markdown th {
-    @apply border border-slate-300 bg-slate-100 px-4 py-2 text-left font-semibold text-slate-800;
+    @apply border border-slate-300 bg-slate-100 px-4 py-2 text-left font-semibold text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100;
   }
 
   .student-markdown td {
-    @apply border border-slate-300 px-4 py-3 align-top leading-7;
+    @apply border border-slate-300 px-4 py-3 align-top leading-7 dark:border-slate-600;
   }
 }
 

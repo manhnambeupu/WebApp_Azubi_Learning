@@ -53,7 +53,7 @@ const formatCreatedAt = (value: string): string =>
 
 function StudentsTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass">
+    <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
       <div className="h-11 border-b border-primary/15 bg-primary/5" />
       <div className="space-y-2 p-4">
         {Array.from({ length: 4 }).map((_, index) => (
@@ -98,7 +98,7 @@ export default function AdminStudentsPage() {
 
   return (
     <section className="space-y-6 kokonut-fade">
-      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass">
+      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
         <CardHeader className="flex flex-col gap-4 border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
@@ -124,23 +124,23 @@ export default function AdminStudentsPage() {
           ) : null}
 
           {studentsQuery.data ? (
-            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass">
+            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
               <Table>
                 <TableHeader>
                   <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                    <TableHead className="w-[72px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="w-[72px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       STT
                     </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Email
                     </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Họ tên
                     </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Ngày tạo
                     </TableHead>
-                    <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                    <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
                       Thao tác
                     </TableHead>
                   </TableRow>
@@ -157,7 +157,7 @@ export default function AdminStudentsPage() {
                       <TableRow
                         className={cn(
                           "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
-                          index % 2 === 0 ? "bg-white/90" : "bg-slate-50/45",
+                          index % 2 === 0 ? "bg-white/90 dark:bg-slate-900/90" : "bg-slate-50/45 dark:bg-slate-800/45",
                         )}
                         key={student.id}
                       >
@@ -182,7 +182,7 @@ export default function AdminStudentsPage() {
                                 Xóa
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
+                            <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Xóa học viên?</AlertDialogTitle>
                                 <AlertDialogDescription>
