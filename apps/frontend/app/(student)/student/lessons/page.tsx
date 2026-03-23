@@ -22,8 +22,9 @@ export default function StudentLessonsPage() {
               Danh sách bài học
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-              Khám phá nội dung theo lộ trình Azubi với giao diện tập trung cho
-              việc học sâu và theo dõi tiến độ trực quan.
+              🏆 📈Làm chủ lộ trình ôn thi của bạn: Tăng cường và củng có kiến
+              thức dựa trên các bài học liên quan mật thiết với
+              Abschlussprüfung, tự tin chinh phục từng mục tiêu🎯🏆
             </p>
           </div>
           <StudentLessonCounterBadge />
