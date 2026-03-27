@@ -49,7 +49,10 @@
   },
   "overrides": {
     "glob": "^11.0.0",
-    "flatted": "^3.4.2"
+    "flatted": "^3.4.2",
+    "picomatch": "^4.0.4",
+    "brace-expansion": "^1.1.13",
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.10",
