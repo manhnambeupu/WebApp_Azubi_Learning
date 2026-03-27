@@ -362,7 +362,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
               key={question.id}
             >
               <div className="space-y-1">
-                <p className="text-sm font-semibold">
+                <p className="text-sm font-semibold whitespace-pre-wrap">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
                 {question.imageUrl ? (
