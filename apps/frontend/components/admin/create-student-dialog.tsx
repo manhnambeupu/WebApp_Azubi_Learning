@@ -125,7 +125,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
           Thêm học viên
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
+      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
         <DialogHeader>
           <DialogTitle>Tạo học viên mới</DialogTitle>
           <DialogDescription>
@@ -137,7 +137,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
           <div className="space-y-2">
             <Label htmlFor="student-email">Email</Label>
             <Input
-              className="border-primary/20 bg-white/85"
+              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
               id="student-email"
               onChange={(event) => setEmail(event.target.value)}
               placeholder="student@azubi.de"
@@ -152,7 +152,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
           <div className="space-y-2">
             <Label htmlFor="student-full-name">Họ tên</Label>
             <Input
-              className="border-primary/20 bg-white/85"
+              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
               id="student-full-name"
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Nguyễn Văn A"
@@ -166,7 +166,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
           <div className="space-y-2">
             <Label htmlFor="student-password">Mật khẩu</Label>
             <Input
-              className="border-primary/20 bg-white/85"
+              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
               id="student-password"
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Tối thiểu 6 ký tự"

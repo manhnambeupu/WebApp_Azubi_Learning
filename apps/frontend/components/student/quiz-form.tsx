@@ -348,7 +348,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               key={question.id}
             >
               <div className="space-y-1">
-                <p className="font-medium leading-7">
+                <p className="font-medium leading-7 whitespace-pre-wrap">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
                 {question.imageUrl ? (

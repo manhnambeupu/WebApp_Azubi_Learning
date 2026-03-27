@@ -133,7 +133,7 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
   };
 
   return (
-    <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm">
+    <section className="space-y-5 rounded-xl border border-border/80 bg-card p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">File tài liệu đính kèm</h2>
@@ -180,14 +180,14 @@ export function LessonFilesManager({ lessonId, files }: LessonFilesManagerProps)
       <Separator />
 
       {files.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-muted-foreground dark:border-slate-700/80 dark:bg-slate-900/40">
           Chưa có file tài liệu nào được đính kèm.
         </p>
       ) : (
         <div className="space-y-3">
           {files.map((file) => (
             <div
-              className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-lg border border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800/80 dark:bg-slate-900/70"
               key={file.id}
             >
               <div className="space-y-1">

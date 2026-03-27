@@ -75,7 +75,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
       <Separator />
 
       {historyQuery.isLoading ? (
-        <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground dark:border-slate-800/80 dark:bg-slate-900/70">
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải lịch sử nộp bài...
         </div>
@@ -89,7 +89,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
 
       {historyQuery.data ? (
         historyQuery.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/70 px-6 py-12 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/70 px-6 py-12 text-center dark:border-slate-800/80 dark:bg-slate-900/70">
             <History className="h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">
               Bạn chưa có lần nộp bài nào cho bài học này.
@@ -100,7 +100,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
             <div className="overflow-hidden rounded-xl border border-slate-200/80">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-200/80 bg-slate-50/80 hover:bg-slate-50/80">
+                  <TableRow className="border-slate-200/80 bg-slate-50/80 hover:bg-slate-50/80 dark:bg-slate-900/80 dark:hover:bg-slate-900/80">
                     <TableHead className="w-[90px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
                       Lần nộp
                     </TableHead>
@@ -122,7 +122,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
                   {historyQuery.data.map((attempt) => (
                     <TableRow
                       className={cn(
-                        "border-slate-200/70 hover:bg-slate-50/90",
+                        "border-slate-200/70 hover:bg-slate-50/90 dark:hover:bg-slate-800/60",
                         selectedAttemptId === attempt.id ? "bg-primary/5 hover:bg-primary/10" : "",
                       )}
                       key={attempt.id}
@@ -153,7 +153,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
 
             {selectedAttemptId ? (
               attemptDetailQuery.isLoading ? (
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm text-muted-foreground dark:border-slate-800/80 dark:bg-slate-900/70">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Đang tải chi tiết lần nộp...
                 </div>
@@ -165,7 +165,7 @@ export function AttemptHistory({ lessonId }: AttemptHistoryProps) {
                 <QuizResult result={attemptDetailQuery.data} showActions={false} />
               ) : null
             ) : (
-              <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-sm text-muted-foreground dark:border-slate-800/80 dark:bg-slate-900/60">
                 Chọn một lần nộp để xem kết quả chi tiết.
               </p>
             )}

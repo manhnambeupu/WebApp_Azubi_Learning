@@ -73,12 +73,15 @@ export function AdminLessonsTableFetcher() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 rounded-2xl border border-primary/15 bg-white/65 p-4 md:max-w-sm">
+      <div className="grid gap-3 rounded-2xl border border-primary/15 bg-white/65 p-4 dark:bg-slate-900/65 md:max-w-sm">
         <label className="text-sm font-medium" htmlFor="lesson-category-filter">
           Lọc theo danh mục
         </label>
         <Select onValueChange={setCategoryFilter} value={categoryFilter}>
-          <SelectTrigger className="border-primary/20 bg-white/80" id="lesson-category-filter">
+          <SelectTrigger
+            className="border-primary/20 bg-white/80 dark:bg-slate-900/80"
+            id="lesson-category-filter"
+          >
             <SelectValue placeholder="Chọn danh mục" />
           </SelectTrigger>
           <SelectContent>
@@ -101,7 +104,7 @@ export function AdminLessonsTableFetcher() {
       ) : null}
 
       {lessonsQuery.data ? (
-        <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass">
+        <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
           <Table>
             <TableHeader>
               <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
@@ -165,7 +168,7 @@ export function AdminLessonsTableFetcher() {
                       <div className="flex justify-end gap-2">
                         <Button
                           asChild
-                          className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white"
+                          className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
                           size="sm"
                           variant="outline"
                         >

@@ -73,13 +73,13 @@ export function StudentLessonsListFetcher() {
             placeholder="Tìm kiếm tên bài học, nội dung..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="border-primary/20 bg-white/80 pl-9 focus-visible:ring-primary/30"
+            className="border-primary/20 bg-white/80 pl-9 focus-visible:ring-primary/30 dark:bg-slate-900/80"
           />
         </div>
 
         <div className="flex items-center gap-3">
           <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-            <SelectTrigger className="w-[180px] border-primary/20 bg-white/80">
+            <SelectTrigger className="w-[180px] border-primary/20 bg-white/80 dark:bg-slate-900/80">
               <SelectValue placeholder="Chọn danh mục" />
             </SelectTrigger>
             <SelectContent>

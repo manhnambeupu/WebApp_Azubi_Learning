@@ -104,7 +104,7 @@ export function CategoryFormDialog({
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up">
+      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
@@ -120,7 +120,7 @@ export function CategoryFormDialog({
           <div className="space-y-2">
             <Label htmlFor="category-name">Tên danh mục</Label>
             <Input
-              className="border-primary/20 bg-white/85"
+              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
               id="category-name"
               onChange={(event) => setName(event.target.value)}
               placeholder="Ví dụ: Buồng phòng"

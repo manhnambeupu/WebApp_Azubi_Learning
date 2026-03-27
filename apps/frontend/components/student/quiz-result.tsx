@@ -137,9 +137,11 @@ const getQuestionStatus = (
 
 const getAnswerContainerClass = (isCorrect: boolean, isSelected: boolean): string =>
   cn(
-    "rounded-lg border border-slate-200/80 bg-white p-3",
-    isCorrect ? "border-emerald-300 bg-emerald-50/90" : "",
-    isSelected && !isCorrect ? "border-rose-300 bg-rose-50/90" : "",
+    "rounded-lg border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/50",
+    isCorrect ? "border-emerald-300 bg-emerald-50/90 dark:border-emerald-800/60 dark:bg-emerald-950/40" : "",
+    isSelected && !isCorrect
+      ? "border-rose-300 bg-rose-50/90 dark:border-rose-800/60 dark:bg-rose-950/40"
+      : "",
   );
 
 const getQuestionExplanationText = (question: QuizResultQuestion): string | null => {
@@ -196,7 +198,14 @@ function ObjectiveAnswerRow({ answer, control, isSelected }: ObjectiveAnswerRowP
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm">{answer.text}</p>
-            {isSelected ? <Badge variant="outline">Bạn đã chọn</Badge> : null}
+            {isSelected ? (
+              <Badge
+                className="dark:border-slate-700 dark:text-slate-300 dark:bg-slate-800/50"
+                variant="outline"
+              >
+                Bạn đã chọn
+              </Badge>
+            ) : null}
             {answer.isCorrect ? (
               <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
                 Đáp án đúng
@@ -234,8 +243,8 @@ function OrderingResultRows({ question }: { question: QuizResultQuestion }) {
             className={cn(
               "rounded-lg border p-3",
               isPositionCorrect
-                ? "border-emerald-300 bg-emerald-50/90"
-                : "border-rose-300 bg-rose-50/90",
+                ? "border-emerald-300 bg-emerald-50/90 dark:border-emerald-800/60 dark:bg-emerald-950/40"
+                : "border-rose-300 bg-rose-50/90 dark:border-rose-800/60 dark:bg-rose-950/40",
             )}
             key={correctAnswer.id}
           >
@@ -287,8 +296,8 @@ function MatchingResultRows({ question }: { question: QuizResultQuestion }) {
             className={cn(
               "rounded-lg border p-3",
               isPairCorrect
-                ? "border-emerald-300 bg-emerald-50/90"
-                : "border-rose-300 bg-rose-50/90",
+                ? "border-emerald-300 bg-emerald-50/90 dark:border-emerald-800/60 dark:bg-emerald-950/40"
+                : "border-rose-300 bg-rose-50/90 dark:border-rose-800/60 dark:bg-rose-950/40",
             )}
             key={answer.id}
           >
@@ -320,7 +329,7 @@ function MatchingResultRows({ question }: { question: QuizResultQuestion }) {
 
 export function QuizResult({ result, onRetry, showActions = true }: QuizResultProps) {
   return (
-    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all">
+    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all dark:bg-slate-900/50">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={scoreBadgeClass(result.score)}>
@@ -349,7 +358,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
 
           return (
             <div
-              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm"
+              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/50"
               key={question.id}
             >
               <div className="space-y-1">
@@ -373,7 +382,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
               </div>
 
               {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
-                <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-4">
+                <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-900/60 dark:bg-amber-950/40">
                   <p className="text-xs font-semibold uppercase text-amber-700">
                     Đáp án tự luận mẫu
                   </p>
@@ -432,7 +441,7 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
               )}
 
               {explanationText ? (
-                <div className="rounded-lg bg-white p-4">
+                <div className="rounded-lg bg-white p-4 dark:border-slate-800/80 dark:bg-slate-900/50">
                   <p className="text-xs font-semibold uppercase text-muted-foreground">
                     Giải thích câu hỏi
                   </p>
