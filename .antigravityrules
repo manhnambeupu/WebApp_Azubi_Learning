@@ -28,3 +28,23 @@ Các lỗ hổng sau đã được audit và xử lý dứt điểm:
 8. **[ĐÃ FIX] Dependency Scan** (SECURITY_RULES Rule 23): Đã thêm `npm audit` vào CI pipeline.
 
 Các feature mới có thể triển khai bình thường mà không bị block bởi các lỗi này nữa. Tuy nhiên vẫn phải soi 30 Security Rules ở SECURITY_RULES.md.
+
+## OpenSpace MCP memory loop (manual rules)
+
+- Applies to Gemini, Copilot, Antigravity, and Claude agents in this repository.
+- MCP command path MUST point to the repo venv executable:
+  - `.claude/skills/openspace/venv/bin/openspace-mcp`
+- Use these env defaults for stable headless execution:
+  - `OPENSPACE_WORKSPACE=/home/namtm/Azubi_Webapp/.claude/skills/openspace`
+  - `OPENSPACE_HOST_SKILL_DIRS=/home/namtm/Azubi_Webapp/.claude/skills`
+  - `OPENSPACE_BACKEND_SCOPE=shell,mcp,web,system`
+
+### Required pre/post execution hooks
+
+1. Before non-doc actions, call `search_skills(query="<task>", source="all", auto_import=true)` to reuse prior experience.
+2. For multi-step work, prefer `execute_task(task="<user request>", search_scope="all")` so OpenSpace performs post-execution analysis and auto-evolution.
+3. After execution:
+   - If `evolved_skills[].upload_ready=true`, decide visibility and call `upload_skill(skill_dir, visibility)`.
+   - If a skill is broken, call `fix_skill(skill_dir, direction)` then retry once.
+4. In the final user response, summarize which skills were reused/evolved/uploaded.
+

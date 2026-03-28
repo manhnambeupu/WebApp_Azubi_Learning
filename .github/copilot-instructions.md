@@ -31,6 +31,21 @@
 
 ---
 
+
+## 1.2 OpenSpace-first Memory Loop (MANDATORY)
+
+- Trước mọi tác vụ non-doc, Copilot/Gemini/Antigravity/Claude phải gọi OpenSpace trước để tái sử dụng kinh nghiệm:
+  1. `search_skills(query: "<task>", source: "all", auto_import: true)`
+  2. Với tác vụ nhiều bước, ưu tiên `execute_task(task: "<user request>", search_scope: "all")`
+- Sau khi thực thi:
+  - Nếu có `evolved_skills[].upload_ready=true`, phải quyết định `visibility` và gọi `upload_skill(skill_dir, visibility)`.
+  - Nếu skill lỗi, gọi `fix_skill(skill_dir, direction)` rồi retry 1 lần.
+- Bắt buộc dùng đúng binary MCP từ venv của project:
+  - `.claude/skills/openspace/venv/bin/openspace-mcp`
+- Để tránh lỗi GUI/X11 trên môi trường headless, đặt backend mặc định:
+  - `OPENSPACE_BACKEND_SCOPE=shell,mcp,web,system`
+
+
 ## 2. High-Level Architecture
 
 ```

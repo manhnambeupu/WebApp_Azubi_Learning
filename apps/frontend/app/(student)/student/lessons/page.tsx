@@ -22,7 +22,7 @@ export default function StudentLessonsPage() {
               Danh sách bài học
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-              🏆 📈Làm chủ lộ trình ôn thi của bạn: Tăng cường và củng có kiến
+              🏆 📈Làm chủ lộ trình ôn thi của bạn: Tăng cường và củng cố kiến
               thức dựa trên các bài học liên quan mật thiết với
               Abschlussprüfung, tự tin chinh phục từng mục tiêu🎯🏆
             </p>
