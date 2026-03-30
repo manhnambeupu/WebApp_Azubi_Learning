@@ -117,6 +117,40 @@ export class UsersService {
     });
   }
 
+  async findOrCreateByProvider(
+    email: string,
+    fullName: string,
+    authProvider: string,
+    providerId: string,
+  ): Promise<User> {
+    const existingByProvider = await this.prisma.user.findFirst({
+      where: { authProvider, providerId },
+    });
+    if (existingByProvider) {
+      return existingByProvider;
+    }
+
+    const existingByEmail = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingByEmail) {
+      return this.prisma.user.update({
+        where: { id: existingByEmail.id },
+        data: { authProvider, providerId },
+      });
+    }
+
+    return this.prisma.user.create({
+      data: {
+        email,
+        fullName,
+        role: Role.STUDENT,
+        authProvider,
+        providerId,
+      },
+    });
+  }
+
   findById(id: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id },

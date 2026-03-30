@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { RotateCcw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { DonationBanner } from "@/components/student/donation-banner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -471,6 +472,8 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
           </Button>
         </div>
       ) : null}
+
+      <DonationBanner variant="inline" />
     </section>
   );
 }

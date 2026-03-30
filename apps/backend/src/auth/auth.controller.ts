@@ -27,6 +27,19 @@ import {
   JwtAccessPayload,
 } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { FacebookAuthGuard } from './facebook-auth.guard';
+import { GoogleAuthGuard } from './google-auth.guard';
+
+type OAuthRequestUser = {
+  email: string;
+  fullName: string;
+  provider: string;
+  providerId: string;
+};
+
+type OAuthRequest = Request & {
+  user?: OAuthRequestUser;
+};
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -138,6 +151,71 @@ export class AuthController {
     }
 
     return this.authService.toSafeUser(user);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Đăng nhập bằng Google' })
+  googleLogin(): void {
+    return;
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
+    const oauthUser = (req as OAuthRequest).user;
+    if (!oauthUser?.email) {
+      throw new UnauthorizedException('OAuth user information is missing');
+    }
+
+    const { accessToken, refreshToken } = await this.authService.validateOAuthLogin(
+      oauthUser.email,
+      oauthUser.fullName,
+      oauthUser.provider,
+      oauthUser.providerId,
+    );
+
+    res.cookie('refreshToken', refreshToken, this.refreshTokenCookieOptions);
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(
+      `${frontendUrl}/auth/oauth-callback?accessToken=${encodeURIComponent(accessToken)}`,
+    );
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookAuthGuard)
+  @ApiOperation({ summary: 'Đăng nhập bằng Facebook' })
+  facebookLogin(): void {
+    return;
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(FacebookAuthGuard)
+  @ApiOperation({ summary: 'Facebook OAuth callback' })
+  async facebookCallback(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    const oauthUser = (req as OAuthRequest).user;
+    if (!oauthUser?.email) {
+      throw new UnauthorizedException('OAuth user information is missing');
+    }
+
+    const { accessToken, refreshToken } = await this.authService.validateOAuthLogin(
+      oauthUser.email,
+      oauthUser.fullName,
+      oauthUser.provider,
+      oauthUser.providerId,
+    );
+
+    res.cookie('refreshToken', refreshToken, this.refreshTokenCookieOptions);
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(
+      `${frontendUrl}/auth/oauth-callback?accessToken=${encodeURIComponent(accessToken)}`,
+    );
   }
 
   private get refreshTokenCookieOptions(): CookieOptions {

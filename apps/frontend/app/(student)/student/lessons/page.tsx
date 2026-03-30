@@ -1,5 +1,6 @@
 import { GraduationCap } from "lucide-react";
 import { Suspense } from "react";
+import { DonationBanner } from "@/components/student/donation-banner";
 import { StudentLessonCounterBadge } from "@/components/student/student-lesson-counter-badge";
 import { StudentLessonsListFetcher } from "@/components/student/student-lessons-list-fetcher";
 import { LessonsGridSkeleton } from "@/components/ui/lessons-list-skeleton";
@@ -34,6 +35,8 @@ export default function StudentLessonsPage() {
       <Suspense fallback={<LessonsGridSkeleton />}>
         <StudentLessonsListFetcher />
       </Suspense>
+
+      <DonationBanner />
     </section>
   );
 }

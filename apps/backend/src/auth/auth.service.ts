@@ -46,6 +46,11 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (!user.password) {
+      throw new UnauthorizedException(
+        'Tài khoản này sử dụng đăng nhập bằng Google/Facebook. Vui lòng dùng nút đăng nhập tương ứng.',
+      );
+    }
 
     const now = new Date();
     if (user.lockedUntil && user.lockedUntil.getTime() > now.getTime()) {
@@ -91,6 +96,34 @@ export class AuthService {
         lockedUntil: null,
         refreshTokenHash,
       },
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: this.toSafeUser(user),
+    };
+  }
+
+  async validateOAuthLogin(
+    email: string,
+    fullName: string,
+    authProvider: string,
+    providerId: string,
+  ): Promise<LoginResult> {
+    const user = await this.usersService.findOrCreateByProvider(
+      email,
+      fullName,
+      authProvider,
+      providerId,
+    );
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 12);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshTokenHash },
     });
 
     return {
