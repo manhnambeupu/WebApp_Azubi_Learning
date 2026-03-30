@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, FolderTree, Loader2, LogOut, Menu, Users } from "lucide-react";
+import { BarChart3, BookOpenText, FolderTree, Loader2, LogOut, Menu, Users } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -42,6 +42,11 @@ const navItems: NavItem[] = [
     href: "/admin/students",
     label: "Quản lý học viên",
     icon: Users,
+  },
+  {
+    href: "/admin/analytics",
+    label: "Phân tích",
+    icon: BarChart3,
   },
 ];
 

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ActivityModule } from './activity/activity.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -22,6 +24,8 @@ import { StudentLessonsModule } from './student-lessons/student-lessons.module';
       ],
     }),
     AuthModule,
+    ActivityModule,
+    AnalyticsModule,
     CategoriesModule,
     LessonsModule,
     QuestionsModule,

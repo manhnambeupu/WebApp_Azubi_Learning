@@ -1,21 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
-    let clientID = process.env.GOOGLE_CLIENT_ID;
-    let clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    let callbackURL = process.env.GOOGLE_CALLBACK_URL;
+    const isProduction = process.env.NODE_ENV === 'production';
+    let clientID = process.env.GOOGLE_CLIENT_ID ?? '';
+    let clientSecret = process.env.GOOGLE_CLIENT_SECRET ?? '';
+    let callbackURL = process.env.GOOGLE_CALLBACK_URL ?? '';
 
     if (!clientID || !clientSecret || !callbackURL) {
-      if (process.env.NODE_ENV === 'test') {
-        clientID = 'mock_google_id';
-        clientSecret = 'mock_google_secret';
-        callbackURL = 'http://localhost/callback';
-      } else {
+      if (isProduction) {
         throw new Error('Google OAuth configuration is missing');
+      }
+
+      clientID = 'mock_google_id';
+      clientSecret = 'mock_google_secret';
+      callbackURL = 'http://localhost:3001/api/auth/google/callback';
+
+      if (process.env.NODE_ENV !== 'test') {
+        Logger.warn(
+          'Google OAuth env is missing. Using local mock config for development.',
+          GoogleStrategy.name,
+        );
       }
     }
 

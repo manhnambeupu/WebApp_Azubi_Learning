@@ -21,6 +21,11 @@ enum QuestionType {
   MATCHING
 }
 
+enum SessionType {
+  LESSON_VIEW
+  QUIZ_ATTEMPT
+}
+
 model User {
   id               String          @id @default(uuid()) @db.Uuid
   email            String          @unique
@@ -34,6 +39,7 @@ model User {
   lockedUntil      DateTime?       @map("locked_until")
   createdAt        DateTime        @default(now()) @map("created_at")
   lessonAttempts   LessonAttempt[]
+  activitySessions ActivitySession[]
 
   @@unique([authProvider, providerId])
   @@map("users")
@@ -60,6 +66,7 @@ model Lesson {
   files          LessonFile[]
   questions      Question[]
   lessonAttempts LessonAttempt[]
+  activitySessions ActivitySession[]
 
   @@map("lessons")
 }
@@ -134,4 +141,22 @@ model Submission {
   answer     Answer        @relation(fields: [answerId], references: [id], onDelete: Cascade)
 
   @@map("submissions")
+}
+
+model ActivitySession {
+  id                    String      @id @default(uuid()) @db.Uuid
+  userId                String      @map("user_id") @db.Uuid
+  lessonId              String      @map("lesson_id") @db.Uuid
+  startedAt             DateTime    @default(now()) @map("started_at")
+  endedAt               DateTime?   @map("ended_at")
+  lastHeartbeatAt       DateTime    @default(now()) @map("last_heartbeat_at")
+  activeDurationSeconds Int         @default(0) @map("active_duration_seconds")
+  idleDurationSeconds   Int         @default(0) @map("idle_duration_seconds")
+  sessionType           SessionType @map("session_type")
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson                Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lessonId])
+  @@index([lastHeartbeatAt])
+  @@map("activity_sessions")
 }

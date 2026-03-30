@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-facebook';
 
@@ -7,17 +7,25 @@ type DoneCallback = (error: Error | null, user?: Record<string, string>) => void
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor() {
-    let clientID = process.env.FACEBOOK_APP_ID;
-    let clientSecret = process.env.FACEBOOK_APP_SECRET;
-    let callbackURL = process.env.FACEBOOK_CALLBACK_URL;
+    const isProduction = process.env.NODE_ENV === 'production';
+    let clientID = process.env.FACEBOOK_APP_ID ?? '';
+    let clientSecret = process.env.FACEBOOK_APP_SECRET ?? '';
+    let callbackURL = process.env.FACEBOOK_CALLBACK_URL ?? '';
 
     if (!clientID || !clientSecret || !callbackURL) {
-      if (process.env.NODE_ENV === 'test') {
-        clientID = 'mock_facebook_id';
-        clientSecret = 'mock_facebook_secret';
-        callbackURL = 'http://localhost/callback';
-      } else {
+      if (isProduction) {
         throw new Error('Facebook OAuth configuration is missing');
+      }
+
+      clientID = 'mock_facebook_id';
+      clientSecret = 'mock_facebook_secret';
+      callbackURL = 'http://localhost:3001/api/auth/facebook/callback';
+
+      if (process.env.NODE_ENV !== 'test') {
+        Logger.warn(
+          'Facebook OAuth env is missing. Using local mock config for development.',
+          FacebookStrategy.name,
+        );
       }
     }
 

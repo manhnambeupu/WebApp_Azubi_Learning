@@ -41,7 +41,7 @@ export function DonationBanner({ variant = "card" }: DonationBannerProps) {
           </h3>
           <p className="max-w-xl text-sm leading-6 text-muted-foreground">
             Chỉ 2€ thôi sẽ giúp bọn mình có thêm chi phí để soạn bài tập chất lượng và duy trì website, hướng tới
-            mục tiêu thi <strong>Abschlussprüfung ngành ReFa</strong> đạt điểm cao tuyệt đối cho
+            mục tiêu thi <strong>Abschlussprüfung ngành FK</strong> đạt điểm cao tuyệt đối cho
             các bạn! 💪🎯
           </p>
         </div>

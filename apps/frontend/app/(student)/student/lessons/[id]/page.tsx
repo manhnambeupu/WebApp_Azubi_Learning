@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useActivityTracker } from "@/hooks/use-activity-tracker";
+import { useAuthStore } from "@/stores/auth-store";
 import { useToast } from "@/hooks/use-toast";
 import { useGetStudentLessonDetail } from "@/hooks/use-student-lessons";
 import { api } from "@/lib/api";
@@ -85,8 +87,15 @@ export default function StudentLessonDetailPage() {
   const params = useParams<{ id?: string | string[] }>();
   const lessonId = normalizeParam(params.id);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuthStore();
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
   const [submittedResult, setSubmittedResult] = useState<QuizResultData | null>(null);
+
+  useActivityTracker({
+    lessonId: lessonId ?? "",
+    sessionType: "LESSON_VIEW",
+    enabled: isAuthenticated,
+  });
 
   const lessonQuery = useGetStudentLessonDetail(lessonId);
 
