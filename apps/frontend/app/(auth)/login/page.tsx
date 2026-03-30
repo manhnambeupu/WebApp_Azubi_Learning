@@ -3,8 +3,8 @@
 import { AxiosError } from "axios";
 import { BookOpenText, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,26 @@ const getErrorMessage = (error: unknown): string => {
   }
   return "Login failed. Please check your credentials and try again.";
 };
+
+function OAuthErrorToaster() {
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (searchParams.get("error") === "oauth_failed") {
+      toast({
+        title: "Đăng nhập thất bại",
+        description:
+          "Quá trình đăng nhập bằng tài khoản mạng xã hội đã bị hủy hoặc gặp sự cố.",
+        variant: "destructive",
+      });
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams, toast]);
+
+  return null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -101,6 +121,10 @@ export default function LoginPage() {
 
   return (
     <main className="relative z-10 w-full overflow-hidden flex flex-col md:flex-row shadow-2xl rounded-[2rem] bg-white/40 backdrop-blur-[16px] border border-white/30">
+      <Suspense fallback={null}>
+        <OAuthErrorToaster />
+      </Suspense>
+
       {/* BEGIN: Sidebar Section */}
       <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/30 backdrop-blur-[8px] border-r border-white/10 flex flex-col items-center justify-center text-center">
         <div className="relative w-full max-w-[280px] sm:max-w-[300px] md:max-w-[320px] aspect-square animate-in fade-in zoom-in duration-1000">

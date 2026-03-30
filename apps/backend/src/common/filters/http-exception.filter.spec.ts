@@ -1,25 +1,46 @@
 import { ArgumentsHost, BadRequestException, HttpStatus } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { OAuthException } from '../exceptions/oauth.exception';
 import { HttpExceptionFilter } from './http-exception.filter';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
   let status: jest.Mock;
   let json: jest.Mock;
+  let redirect: jest.Mock;
   let host: ArgumentsHost;
 
   beforeEach(() => {
     filter = new HttpExceptionFilter();
     status = jest.fn().mockReturnThis();
     json = jest.fn();
+    redirect = jest.fn();
     host = {
       switchToHttp: () => ({
         getResponse: () => ({
           status,
           json,
+          redirect,
         }),
       }),
     } as unknown as ArgumentsHost;
+  });
+
+  it('redirects OAuth exceptions to frontend login error URL', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const exception = new OAuthException(
+      'http://localhost:3000/login?error=oauth_failed',
+    );
+
+    filter.catch(exception, host);
+
+    expect(redirect).toHaveBeenCalledWith(
+      'http://localhost:3000/login?error=oauth_failed',
+    );
+    expect(status).not.toHaveBeenCalled();
+    expect(json).not.toHaveBeenCalled();
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
   it('formats HttpException payload correctly', () => {

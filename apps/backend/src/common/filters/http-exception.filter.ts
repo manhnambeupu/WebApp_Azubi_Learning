@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Response } from 'express';
+import { OAuthException } from '../exceptions/oauth.exception';
 
 type ExceptionResponsePayload = {
   message?: string | string[];
@@ -18,6 +19,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+
+    if (exception instanceof OAuthException) {
+      response.redirect(exception.redirectUrl);
+      return;
+    }
 
     let statusCode =
       exception instanceof HttpException
