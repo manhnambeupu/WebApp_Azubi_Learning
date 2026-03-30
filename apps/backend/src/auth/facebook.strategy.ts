@@ -7,12 +7,18 @@ type DoneCallback = (error: Error | null, user?: Record<string, string>) => void
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor() {
-    const clientID = process.env.FACEBOOK_APP_ID;
-    const clientSecret = process.env.FACEBOOK_APP_SECRET;
-    const callbackURL = process.env.FACEBOOK_CALLBACK_URL;
+    let clientID = process.env.FACEBOOK_APP_ID;
+    let clientSecret = process.env.FACEBOOK_APP_SECRET;
+    let callbackURL = process.env.FACEBOOK_CALLBACK_URL;
 
     if (!clientID || !clientSecret || !callbackURL) {
-      throw new Error('Facebook OAuth configuration is missing');
+      if (process.env.NODE_ENV === 'test') {
+        clientID = 'mock_facebook_id';
+        clientSecret = 'mock_facebook_secret';
+        callbackURL = 'http://localhost/callback';
+      } else {
+        throw new Error('Facebook OAuth configuration is missing');
+      }
     }
 
     super({
