@@ -205,7 +205,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3">
             <a
               className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-300/50 bg-white/70 text-sm font-medium text-gray-800 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-md"
-              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/google`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/google`}
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -229,7 +229,7 @@ export default function LoginPage() {
             </a>
             <a
               className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-300/50 bg-[#1877F2] text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#166FE5] hover:shadow-md"
-              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/facebook`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/facebook`}
             >
               <svg
                 className="h-5 w-5"

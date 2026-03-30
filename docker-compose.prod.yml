@@ -80,6 +80,8 @@ services:
     build:
       context: ./apps/frontend
       dockerfile: Dockerfile.prod
+      args:
+        NEXT_PUBLIC_API_URL: /api
     restart: unless-stopped
     deploy:
       resources:
