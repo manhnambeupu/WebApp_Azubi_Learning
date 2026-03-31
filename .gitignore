@@ -53,7 +53,6 @@ CLAUDE.md
 .claude/skills/gitnexus/gitnexus-guide/SKILL.md
 .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md
 .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md
-.github/copilot-instructions.md
 docker_production_summary.md
 ui_structure_overview.md
 test.js 
@@ -62,3 +61,4 @@ SECURITY_RULES.md
 .antigravityrules
 .claude/skills/openspace/
 .env.production.example
+.github/copilot-instructions.md

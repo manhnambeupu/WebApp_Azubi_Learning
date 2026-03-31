@@ -35,6 +35,10 @@
 ## 1.2 OpenSpace-first Memory Loop (MANDATORY)
 
 - Trước mọi tác vụ non-doc, Copilot/Gemini/Antigravity/Claude phải gọi OpenSpace trước để tái sử dụng kinh nghiệm:
+  - **AUTO-RUN mỗi lần chạy:** với mỗi user request không phải docs-only, tool call đầu tiên bắt buộc là `search_skills(query: "<task>", source: "all", auto_import: true)`.
+  - Không được bắt đầu sửa code/chạy test trước bước `search_skills`.
+  - Nếu task có nhiều bước hoặc có sửa code, bắt buộc chạy `execute_task(task: "<user request>", search_scope: "all")` ngay sau bước tìm skill phù hợp.
+  - Chỉ được bỏ qua OpenSpace khi task docs-only và phải nêu rõ lý do bỏ qua trong phần trả lời.
   1. `search_skills(query: "<task>", source: "all", auto_import: true)`
   2. Với tác vụ nhiều bước, ưu tiên `execute_task(task: "<user request>", search_scope: "all")`
 - Sau khi thực thi:
