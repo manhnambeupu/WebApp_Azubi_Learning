@@ -146,6 +146,21 @@ export default function LoginPage() {
             Kèm Học 1 - 1
           </div>
 
+          {/* Jason Avatar */}
+          <div className="my-4 flex justify-center">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-emerald-400/60 via-white/30 to-amber-400/60 blur-sm"></div>
+              <Image
+                src="/images/avatar.jpg"
+                alt="Jason - Giảng viên kèm học 1-1"
+                width={80}
+                height={80}
+                className="relative rounded-full object-cover ring-2 ring-white/40 shadow-lg"
+                priority
+              />
+            </div>
+          </div>
+
           <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-sm md:text-xl">
             Nâng cao kiến thức <br /> cùng Jason
           </h3>
