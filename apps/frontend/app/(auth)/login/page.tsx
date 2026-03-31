@@ -161,10 +161,10 @@ export default function LoginPage() {
           </div>
 
           <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-sm md:text-xl">
-            Nâng cao kiến thức <br /> cùng Jason
+            Gia Sư Fachkraft für Gastronomie
           </h3>
           <p className="mb-5 text-sm font-medium leading-snug text-white/80 md:text-[15px]">
-            Nhận kèm học 1 kèm 1 và ôn thi ngành Fachkraft im Gastgewerbe . Đừng ngại liên hệ để biết thêm chi tiết!
+            Khoá học hệ 2 năm Fachkraft für Gastronomie 1-1. Liên hệ Whatsapp hoặc Gmail để biết thêm chi tiết ❤️
           </p>
 
           <div className="flex flex-col gap-3">

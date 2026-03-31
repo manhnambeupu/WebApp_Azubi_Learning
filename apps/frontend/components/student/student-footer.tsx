@@ -25,7 +25,7 @@ export function StudentFooter() {
 
               <div>
                 <h4 className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100">
-                  Bạn Cần Hỗ Trợ 1-Kèm-1?
+                  Bạn Cần Hỗ Trợ Kèm 1-1?
                   <Heart className="h-5 w-5 animate-pulse fill-rose-500/20 text-rose-500" />
                 </h4>
                 <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
@@ -35,9 +35,7 @@ export function StudentFooter() {
             </div>
 
             <p className="max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
-              Mình là Jason. Nhận gia sư học 1 kèm 1 nghành Fachkraft im Gastgewerbe để giúp bạn đạt điểm
-              tuyệt đối bài thi Abschlussprüfung. Hãy liên hệ ngay để
-              bắt đầu!
+              Nhận gia sư dạy học kèm 1-1 nghành Fachkraft für Gastronomie. Hãy liên hệ ngay để bắt đầu! ❤️
             </p>
           </div>
 
