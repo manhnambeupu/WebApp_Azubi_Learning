@@ -165,7 +165,7 @@ export default function LoginPage() {
             Nâng cao kiến thức <br /> cùng Jason
           </h3>
           <p className="mb-5 text-sm font-medium leading-snug text-white/80 md:text-[15px]">
-            Nhận kèm học 1 kèm 1 chuyên sâu. Đừng ngại liên hệ để biết thêm chi tiết!
+            Nhận kèm học 1 kèm 1 và ôn thi ngành Fachkraft im Gastgewerbe . Đừng ngại liên hệ để biết thêm chi tiết!
           </p>
 
           <div className="flex flex-col gap-3">
@@ -208,7 +208,7 @@ export default function LoginPage() {
           <BookOpenText className="h-4 w-4" />
           <span>E-Learning-Plattform</span>
         </div>
-        
+
         {/* Sign In Header */}
         <div className="text-center mb-8 w-full">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Anmeldung</h2>

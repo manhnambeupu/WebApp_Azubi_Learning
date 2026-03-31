@@ -36,8 +36,8 @@ export function StudentFooter() {
             </div>
 
             <p className="max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
-              Mình là Jason. Nhận kèm học 1 kèm 1 chuyên sâu để giúp bạn đạt điểm
-              tuyệt đối bài thi Abschlussprüfung ngành FK. Hãy liên hệ ngay để
+              Mình là Jason. Nhận gia sư học 1 kèm 1 nghành Fachkraft im Gastgewerbe để giúp bạn đạt điểm
+              tuyệt đối bài thi Abschlussprüfung. Hãy liên hệ ngay để
               bắt đầu!
             </p>
           </div>
