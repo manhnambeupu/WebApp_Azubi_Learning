@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClientPagination } from "@/components/ui/client-pagination";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -58,7 +59,9 @@ export default function AdminCategoriesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<"name" | "lessonCount" | "default">("default");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const ITEMS_PER_PAGE = 10;
   const categoriesQuery = useGetCategories();
 
   const deleteMutation = useMutation({
@@ -113,6 +116,11 @@ export default function AdminCategoriesPage() {
     return result;
   }, [categoriesQuery.data, searchQuery, sortKey, sortDirection]);
 
+  const paginatedCategories = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSortedCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredAndSortedCategories, currentPage]);
+
   return (
     <section className="space-y-6 kokonut-fade">
       <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
@@ -139,7 +147,10 @@ export default function AdminCategoriesPage() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="bg-white/50 pl-9 dark:bg-slate-900/50"
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Tìm theo tên danh mục..."
                   value={searchQuery}
                 />
@@ -149,6 +160,7 @@ export default function AdminCategoriesPage() {
               <Select
                 onValueChange={(value) => {
                   const [key, direction] = value.split("-");
+                  setCurrentPage(1);
 
                   if (key === "default") {
                     setSortKey("default");
@@ -194,87 +206,100 @@ export default function AdminCategoriesPage() {
           ) : null}
 
           {categoriesQuery.data ? (
-            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Tên danh mục
-                    </TableHead>
-                    <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Số bài học
-                    </TableHead>
-                    <TableHead className="w-[220px] px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Thao tác
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAndSortedCategories.length === 0 ? (
-                    <TableRow className="border-primary/10 hover:bg-transparent">
-                      <TableCell className="py-10 text-center text-muted-foreground" colSpan={3}>
-                        Chưa có danh mục nào khớp với thẻ lọc.
-                      </TableCell>
+            <>
+              <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
+                      <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Tên danh mục
+                      </TableHead>
+                      <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Số bài học
+                      </TableHead>
+                      <TableHead className="w-[220px] px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Thao tác
+                      </TableHead>
                     </TableRow>
-                  ) : (
-                    filteredAndSortedCategories.map((category, index) => (
-                      <TableRow
-                        className={cn(
-                          "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
-                          index % 2 === 0 ? "bg-white/90 dark:bg-slate-900/90" : "bg-slate-50/45 dark:bg-slate-800/45",
-                        )}
-                        key={category.id}
-                      >
-                        <TableCell className="px-4 py-4 font-medium">{category.name}</TableCell>
-                        <TableCell className="px-4 py-4">{category.lessonCount}</TableCell>
-                        <TableCell className="px-4 py-4 text-right">
-                          <div className="flex justify-end gap-2 opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100">
-                            <CategoryFormDialog
-                              initialData={{ id: category.id, name: category.name }}
-                              triggerClassName="h-8 rounded-full border-primary/25 bg-white/90 px-3 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
-                              triggerLabel="Sửa"
-                              triggerVariant="outline"
-                            />
-
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  className="h-8 rounded-full"
-                                  disabled={deleteMutation.isPending && pendingDeleteId === category.id}
-                                  size="sm"
-                                  variant="destructive"
-                                >
-                                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                                  Xóa
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Xóa danh mục?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Hành động này không thể hoàn tác. Nếu danh mục còn bài học,
-                                    hệ thống sẽ từ chối xóa theo quy tắc nghiệp vụ.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => handleDelete(category.id)}
-                                  >
-                                    Xác nhận xóa
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAndSortedCategories.length === 0 ? (
+                      <TableRow className="border-primary/10 hover:bg-transparent">
+                        <TableCell className="py-10 text-center text-muted-foreground" colSpan={3}>
+                          Chưa có danh mục nào khớp với thẻ lọc.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : (
+                      paginatedCategories.map((category, index) => (
+                        <TableRow
+                          className={cn(
+                            "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
+                            index % 2 === 0
+                              ? "bg-white/90 dark:bg-slate-900/90"
+                              : "bg-slate-50/45 dark:bg-slate-800/45",
+                          )}
+                          key={category.id}
+                        >
+                          <TableCell className="px-4 py-4 font-medium">{category.name}</TableCell>
+                          <TableCell className="px-4 py-4">{category.lessonCount}</TableCell>
+                          <TableCell className="px-4 py-4 text-right">
+                            <div className="flex justify-end gap-2 opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100">
+                              <CategoryFormDialog
+                                initialData={{ id: category.id, name: category.name }}
+                                triggerClassName="h-8 rounded-full border-primary/25 bg-white/90 px-3 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
+                                triggerLabel="Sửa"
+                                triggerVariant="outline"
+                              />
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    className="h-8 rounded-full"
+                                    disabled={deleteMutation.isPending && pendingDeleteId === category.id}
+                                    size="sm"
+                                    variant="destructive"
+                                  >
+                                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                    Xóa
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Xóa danh mục?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Hành động này không thể hoàn tác. Nếu danh mục còn bài học,
+                                      hệ thống sẽ từ chối xóa theo quy tắc nghiệp vụ.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      onClick={() => handleDelete(category.id)}
+                                    >
+                                      Xác nhận xóa
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="py-4">
+                <ClientPagination
+                  currentPage={currentPage}
+                  totalItems={filteredAndSortedCategories.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
           ) : null}
         </CardContent>
       </Card>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClientPagination } from "@/components/ui/client-pagination";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -85,7 +86,9 @@ export default function AdminStudentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<"name" | "email" | "date" | "default">("default");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const ITEMS_PER_PAGE = 10;
 
   const sortedAndFilteredStudents = useMemo(() => {
     if (!studentsQuery.data) return [];
@@ -123,6 +126,11 @@ export default function AdminStudentsPage() {
 
     return result;
   }, [studentsQuery.data, searchQuery, sortKey, sortDirection]);
+
+  const paginatedStudents = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return sortedAndFilteredStudents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [sortedAndFilteredStudents, currentPage]);
 
   const handleDeleteStudent = async (studentId: string) => {
     setPendingDeleteId(studentId);
@@ -167,7 +175,10 @@ export default function AdminStudentsPage() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="bg-white/50 pl-9 dark:bg-slate-900/50"
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Tìm theo tên hoặc email..."
                   value={searchQuery}
                 />
@@ -177,6 +188,7 @@ export default function AdminStudentsPage() {
               <Select
                 onValueChange={(value) => {
                   const [key, direction] = value.split("-");
+                  setCurrentPage(1);
 
                   if (key === "default") {
                     setSortKey("default");
@@ -218,99 +230,114 @@ export default function AdminStudentsPage() {
           ) : null}
 
           {studentsQuery.data ? (
-            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                    <TableHead className="w-[72px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      STT
-                    </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Email
-                    </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Họ tên
-                    </TableHead>
-                    <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Ngày tạo
-                    </TableHead>
-                    <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                      Thao tác
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedAndFilteredStudents.length === 0 ? (
-                    <TableRow className="border-primary/10 hover:bg-transparent">
-                      <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
-                        Chưa có học viên nào.
-                      </TableCell>
+            <>
+              <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
+                      <TableHead className="w-[72px] px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        STT
+                      </TableHead>
+                      <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Email
+                      </TableHead>
+                      <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Họ tên
+                      </TableHead>
+                      <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Ngày tạo
+                      </TableHead>
+                      <TableHead className="px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                        Thao tác
+                      </TableHead>
                     </TableRow>
-                  ) : (
-                    sortedAndFilteredStudents.map((student, index) => (
-                      <TableRow
-                        className={cn(
-                          "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
-                          index % 2 === 0 ? "bg-white/90 dark:bg-slate-900/90" : "bg-slate-50/45 dark:bg-slate-800/45",
-                        )}
-                        key={student.id}
-                      >
-                        <TableCell className="px-4 py-4">{index + 1}</TableCell>
-                        <TableCell className="px-4 py-4 font-medium">{student.email}</TableCell>
-                        <TableCell className="px-4 py-4">{student.fullName}</TableCell>
-                        <TableCell className="px-4 py-4">
-                          {formatCreatedAt(student.createdAt)}
-                        </TableCell>
-                        <TableCell className="px-4 py-4 text-right">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                className="h-8 rounded-full opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100"
-                                disabled={
-                                  deleteStudentMutation.isPending && pendingDeleteId === student.id
-                                }
-                                size="sm"
-                                variant="destructive"
-                              >
-                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                                Xóa
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Xóa học viên?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Xóa học viên sẽ xóa tất cả lịch sử làm bài của họ. Bạn có chắc
-                                  chắn?
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                <AlertDialogAction
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  onClick={() => {
-                                    void handleDeleteStudent(student.id);
-                                  }}
-                                >
-                                  {pendingDeleteId === student.id ? (
-                                    <span className="inline-flex items-center">
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      Đang xóa...
-                                    </span>
-                                  ) : (
-                                    "Xác nhận xóa"
-                                  )}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFilteredStudents.length === 0 ? (
+                      <TableRow className="border-primary/10 hover:bg-transparent">
+                        <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
+                          Chưa có học viên nào.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : (
+                      paginatedStudents.map((student, index) => (
+                        <TableRow
+                          className={cn(
+                            "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
+                            index % 2 === 0
+                              ? "bg-white/90 dark:bg-slate-900/90"
+                              : "bg-slate-50/45 dark:bg-slate-800/45",
+                          )}
+                          key={student.id}
+                        >
+                          <TableCell className="px-4 py-4">
+                            {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                          </TableCell>
+                          <TableCell className="px-4 py-4 font-medium">{student.email}</TableCell>
+                          <TableCell className="px-4 py-4">{student.fullName}</TableCell>
+                          <TableCell className="px-4 py-4">
+                            {formatCreatedAt(student.createdAt)}
+                          </TableCell>
+                          <TableCell className="px-4 py-4 text-right">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  className="h-8 rounded-full opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100"
+                                  disabled={
+                                    deleteStudentMutation.isPending && pendingDeleteId === student.id
+                                  }
+                                  size="sm"
+                                  variant="destructive"
+                                >
+                                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                  Xóa
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Xóa học viên?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Xóa học viên sẽ xóa tất cả lịch sử làm bài của họ. Bạn có chắc
+                                    chắn?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    onClick={() => {
+                                      void handleDeleteStudent(student.id);
+                                    }}
+                                  >
+                                    {pendingDeleteId === student.id ? (
+                                      <span className="inline-flex items-center">
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Đang xóa...
+                                      </span>
+                                    ) : (
+                                      "Xác nhận xóa"
+                                    )}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="py-4">
+                <ClientPagination
+                  currentPage={currentPage}
+                  totalItems={sortedAndFilteredStudents.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
           ) : null}
         </CardContent>
       </Card>

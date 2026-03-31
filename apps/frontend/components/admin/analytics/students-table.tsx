@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClientPagination } from "@/components/ui/client-pagination";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -129,6 +130,8 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
     "default",
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const filteredAndSorted = useMemo(() => {
     if (!studentsQuery.data) return [];
@@ -180,6 +183,11 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
     return result;
   }, [studentsQuery.data, searchQuery, scoreFilter, sortKey, sortDirection]);
 
+  const paginated = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredAndSorted, currentPage]);
+
   return (
     <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
       <CardHeader className="border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10">
@@ -201,7 +209,10 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="h-9 pl-9"
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Lọc email/tên..."
                 value={searchQuery}
               />
@@ -209,7 +220,13 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
           </div>
 
           <div className="sm:w-[160px]">
-            <Select onValueChange={setScoreFilter} value={scoreFilter}>
+            <Select
+              onValueChange={(value) => {
+                setScoreFilter(value);
+                setCurrentPage(1);
+              }}
+              value={scoreFilter}
+            >
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Điểm" />
               </SelectTrigger>
@@ -226,6 +243,7 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             <Select
               onValueChange={(value) => {
                 const [key, direction] = value.split("-");
+                setCurrentPage(1);
 
                 if (key === "default") {
                   setSortKey("default");
@@ -290,7 +308,7 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             ) : null}
 
             {!studentsQuery.isLoading
-              ? filteredAndSorted.map((student, index) => (
+              ? paginated.map((student, index) => (
                   <TableRow
                     className={cn(
                       "group/row cursor-pointer border-primary/10 transition-colors duration-200 hover:bg-primary/[0.05]",
@@ -330,6 +348,15 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
               : null}
           </TableBody>
         </Table>
+
+        <div className="py-4">
+          <ClientPagination
+            currentPage={currentPage}
+            totalItems={filteredAndSorted.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </CardContent>
     </Card>
   );
