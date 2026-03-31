@@ -67,6 +67,16 @@ export function StudentFooter() {
           </div>
         </div>
       </div>
+      <div className="border-t border-slate-200/40 dark:border-slate-800/40">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 px-4 text-xs text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
+          <p>© {new Date().getFullYear()} Azubi Learning Portal. Alle Rechte vorbehalten.</p>
+          <div className="flex items-center gap-4">
+            <a href="/impressum" className="hover:text-slate-800 dark:hover:text-slate-200 hover:underline">Impressum</a>
+            <span aria-hidden="true" className="opacity-40">•</span>
+            <a href="/datenschutz" className="hover:text-slate-800 dark:hover:text-slate-200 hover:underline">Datenschutz</a>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 }

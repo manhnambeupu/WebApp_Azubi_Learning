@@ -138,6 +138,13 @@ export function AdminSidebar({ children }: AdminSidebarProps) {
             )}
           </Button>
         </div>
+        <div className="mt-auto border-t border-slate-200/50 p-4 dark:border-slate-800/50">
+          <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+            <a href="/impressum" className="hover:text-foreground hover:underline">Impressum</a>
+            <a href="/datenschutz" className="hover:text-foreground hover:underline">Datenschutz</a>
+            <p className="mt-1 opacity-60">© Azubi Learning</p>
+          </div>
+        </div>
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col bg-gradient-to-b from-slate-50 via-background to-slate-100/70 dark:from-slate-950 dark:via-background dark:to-slate-900/70">
