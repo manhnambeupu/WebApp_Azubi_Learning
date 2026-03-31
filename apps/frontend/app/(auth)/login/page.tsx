@@ -1,7 +1,7 @@
 "use client";
 
 import { AxiosError } from "axios";
-import { BookOpenText, Loader2 } from "lucide-react";
+import { BookOpenText, Loader2, MessageCircle, Mail } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
@@ -136,11 +136,58 @@ export default function LoginPage() {
             priority
           />
         </div>
+        {/* Support Card (Glassmorphism) */}
+        <div className="mt-8 md:mt-12 w-full max-w-[320px] rounded-2xl bg-white/10 p-5 md:p-6 text-left backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both hover:-translate-y-1 transition-transform">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-100">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            Kèm Học 1 - 1
+          </div>
+
+          <h3 className="mb-1 text-lg font-bold leading-tight text-white drop-shadow-sm md:text-xl">
+            Nâng cao kiến thức <br /> cùng Jason
+          </h3>
+          <p className="mb-5 text-sm font-medium leading-snug text-white/80 md:text-[15px]">
+            Nhận kèm học 1 kèm 1 chuyên sâu. Đừng ngại liên hệ để biết thêm chi tiết!
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <a
+              href="https://wa.me/4915758084635"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3 rounded-xl border border-white/15 bg-black/20 p-3 transition-all duration-300 hover:border-emerald-500/30 hover:bg-emerald-500/20"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 transition-transform group-hover:scale-110">
+                <MessageCircle className="h-4 w-4" />
+              </div>
+              <div className="text-sm">
+                <p className="font-semibold text-white">WhatsApp</p>
+                <p className="text-white/60">+49 15758084635</p>
+              </div>
+            </a>
+
+            <a
+              href="mailto:bonziet@gmail.com"
+              className="group flex items-center gap-3 rounded-xl border border-white/15 bg-black/20 p-3 transition-all duration-300 hover:border-blue-500/30 hover:bg-blue-500/20"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 transition-transform group-hover:scale-110">
+                <Mail className="h-4 w-4" />
+              </div>
+              <div className="text-sm">
+                <p className="font-semibold text-white">Email</p>
+                <p className="text-white/60">bonziet@gmail.com</p>
+              </div>
+            </a>
+          </div>
+        </div>
       </section>
       {/* END: Sidebar Section */}
 
       {/* BEGIN: Form Section */}
-      <section className="w-full md:w-7/12 p-8 md:p-12 flex flex-col items-center">
+      <section className="w-full md:w-7/12 p-8 md:p-12 flex flex-col items-center justify-center">
         {/* Learning Portal Badge */}
         <div className="inline-flex items-center gap-2 bg-white/50 px-4 py-1.5 rounded-full text-sm font-medium text-gray-800 mb-6 backdrop-blur-sm border border-white/40 shadow-sm">
           <BookOpenText className="h-4 w-4" />

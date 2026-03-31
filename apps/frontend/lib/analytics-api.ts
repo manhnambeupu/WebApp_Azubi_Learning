@@ -45,6 +45,7 @@ export type WeakQuestion = {
   questionText: string;
   lessonTitle: string;
   incorrectRate: number;
+  orderIndex: number;
 };
 
 export type ScoreTrendItem = {

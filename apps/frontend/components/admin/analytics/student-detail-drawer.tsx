@@ -198,9 +198,35 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                   <div className="space-y-4">
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer height="100%" width="100%">
-                        <LineChart data={chartData}>
-                          <XAxis dataKey="attemptNumber" />
-                          <YAxis domain={[0, 100]} />
+                        <LineChart
+                          data={chartData}
+                          margin={{ top: 10, right: 30, left: 10, bottom: 20 }}
+                        >
+                          <XAxis
+                            dataKey="attemptNumber"
+                            tickMargin={10}
+                            tick={{ fill: "#64748b", fontSize: 13 }}
+                            label={{
+                              value: "Số lần làm bài",
+                              position: "insideBottom",
+                              offset: -10,
+                              fill: "#64748b",
+                              fontSize: 13,
+                              fontWeight: 500,
+                            }}
+                          />
+                          <YAxis
+                            domain={[0, 100]}
+                            tick={{ fill: "#64748b", fontSize: 13 }}
+                            label={{
+                              value: "Điểm số (%)",
+                              angle: -90,
+                              position: "insideLeft",
+                              fill: "#64748b",
+                              fontSize: 13,
+                              fontWeight: 500,
+                            }}
+                          />
                           <Tooltip
                             formatter={(value, name) => [
                               `${Number(value ?? 0).toFixed(1)}%`,
@@ -256,8 +282,13 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                         className="rounded-xl border border-rose-200/40 bg-rose-50/35 px-4 py-3 dark:border-rose-900/40 dark:bg-rose-950/20"
                         key={question.questionId}
                       >
-                        <p className="line-clamp-1 font-medium">{question.questionText}</p>
-                        <div className="mt-1 flex items-center justify-between gap-3 text-xs">
+                        <p className="whitespace-pre-wrap font-medium leading-normal">
+                          <span className="mr-1.5 font-semibold text-rose-600 dark:text-rose-400">
+                            [Câu số {question.orderIndex + 1}]
+                          </span>
+                          {question.questionText}
+                        </p>
+                        <div className="mt-2 flex items-center justify-between gap-3 text-xs">
                           <span className="text-muted-foreground">{question.lessonTitle}</span>
                           <span className="font-semibold text-rose-600 dark:text-rose-300">
                             {question.incorrectRate.toFixed(0)}% sai

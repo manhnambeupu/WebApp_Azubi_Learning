@@ -40,6 +40,7 @@ type StudentDetailResponse = {
     questionId: string;
     questionText: string;
     lessonTitle: string;
+    orderIndex: number;
     incorrectRate: number;
   }>;
   scoreTrend: Array<{
@@ -276,6 +277,7 @@ export class AnalyticsService {
           question: {
             select: {
               text: true,
+              orderIndex: true,
               lesson: {
                 select: {
                   title: true,
@@ -355,6 +357,7 @@ export class AnalyticsService {
       {
         questionText: string;
         lessonTitle: string;
+        orderIndex: number;
         total: number;
         incorrect: number;
       }
@@ -364,6 +367,7 @@ export class AnalyticsService {
       const current = questionStats.get(submission.questionId) ?? {
         questionText: submission.question.text,
         lessonTitle: submission.question.lesson.title,
+        orderIndex: submission.question.orderIndex,
         total: 0,
         incorrect: 0,
       };
@@ -379,6 +383,7 @@ export class AnalyticsService {
         questionId,
         questionText: stats.questionText,
         lessonTitle: stats.lessonTitle,
+        orderIndex: stats.orderIndex,
         incorrectRate: stats.total === 0 ? 0 : (stats.incorrect / stats.total) * 100,
       }))
       .filter((item) => item.incorrectRate > 50)
