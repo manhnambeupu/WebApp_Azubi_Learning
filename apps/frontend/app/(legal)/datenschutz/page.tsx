@@ -36,11 +36,11 @@ export default function DatenschutzPage() {
             </h2>
             <p>Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber:</p>
             <p className="mt-3 bg-slate-50 dark:bg-slate-950/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
-              <strong>[Tên đầy đủ của bạn: Nguyễn Lương Sơn]</strong>
+              <strong>Nguyễn Lương Sơn</strong>
               <br />
-              [Tên đường và số nhà: An der Glinder Au 67]
+              An der Glinder Au 67
               <br />
-              [Mã bưu điện PLZ: 22115] [Tên Thành Phố: Hamburg]
+              22115 Hamburg
               <br />
               Deutschland
               <br />

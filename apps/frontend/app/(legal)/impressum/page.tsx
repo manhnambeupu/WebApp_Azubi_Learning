@@ -23,11 +23,11 @@ export default function ImpressumPage() {
             </p>
 
             <p className="mt-2">
-              <strong>[Tên đầy đủ của bạn : Nguyễn Lương Sơn ]</strong>
+              <strong>Nguyễn Lương Sơn</strong>
               <br />
-              [Tên đường và số nhà: An der Glinder Au 67]
+              An der Glinder Au 67
               <br />
-              [Mã bưu điện PLZ: 22115] [Tên Thành Phố : Hamburg]
+              22115 Hamburg
               <br />
               Deutschland
             </p>
