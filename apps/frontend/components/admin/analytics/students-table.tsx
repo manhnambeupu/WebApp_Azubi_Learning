@@ -1,7 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -113,6 +123,62 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
     queryFn: fetchStudentsSummary,
     staleTime: 2 * 60 * 1000,
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [scoreFilter, setScoreFilter] = useState("all");
+  const [sortKey, setSortKey] = useState<"score" | "duration" | "activity" | "default">(
+    "default",
+  );
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const filteredAndSorted = useMemo(() => {
+    if (!studentsQuery.data) return [];
+
+    let result = [...studentsQuery.data];
+    if (searchQuery.trim() !== "") {
+      const lower = searchQuery.toLowerCase();
+      result = result.filter(
+        (student) =>
+          student.fullName.toLowerCase().includes(lower) ||
+          student.email.toLowerCase().includes(lower),
+      );
+    }
+
+    if (scoreFilter !== "all") {
+      result = result.filter((student) => {
+        if (scoreFilter === "weak") return student.avgScore < 50;
+        if (scoreFilter === "avg") return student.avgScore >= 50 && student.avgScore < 80;
+        if (scoreFilter === "good") return student.avgScore >= 80;
+        return true;
+      });
+    }
+
+    if (sortKey !== "default") {
+      result.sort((a, b) => {
+        const valA =
+          sortKey === "score"
+            ? a.avgScore
+            : sortKey === "duration"
+              ? a.avgActiveTimeSeconds
+              : a.lastActiveAt
+                ? new Date(a.lastActiveAt).getTime()
+                : 0;
+        const valB =
+          sortKey === "score"
+            ? b.avgScore
+            : sortKey === "duration"
+              ? b.avgActiveTimeSeconds
+              : b.lastActiveAt
+                ? new Date(b.lastActiveAt).getTime()
+                : 0;
+
+        if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+        if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [studentsQuery.data, searchQuery, scoreFilter, sortKey, sortDirection]);
 
   return (
     <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
@@ -128,6 +194,68 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             </p>
           </div>
         ) : null}
+
+        <div className="flex flex-col gap-4 border-b border-primary/10 p-4 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-9 pl-9"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Lọc email/tên..."
+                value={searchQuery}
+              />
+            </div>
+          </div>
+
+          <div className="sm:w-[160px]">
+            <Select onValueChange={setScoreFilter} value={scoreFilter}>
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Điểm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả điểm</SelectItem>
+                <SelectItem value="good">Tốt (≥ 80)</SelectItem>
+                <SelectItem value="avg">Vừa (50-79)</SelectItem>
+                <SelectItem value="weak">Yếu (&lt; 50)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="sm:w-[180px]">
+            <Select
+              onValueChange={(value) => {
+                const [key, direction] = value.split("-");
+
+                if (key === "default") {
+                  setSortKey("default");
+                  setSortDirection("desc");
+                  return;
+                }
+
+                if (
+                  (key === "score" || key === "duration" || key === "activity") &&
+                  (direction === "asc" || direction === "desc")
+                ) {
+                  setSortKey(key);
+                  setSortDirection(direction);
+                }
+              }}
+              value={`${sortKey}-${sortDirection}`}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Sắp xếp" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default-desc">Mặc định</SelectItem>
+                <SelectItem value="score-desc">Điểm (Cao-Thấp)</SelectItem>
+                <SelectItem value="score-asc">Điểm (Thấp-Cao)</SelectItem>
+                <SelectItem value="duration-desc">TG nhiều nhất</SelectItem>
+                <SelectItem value="activity-desc">Mới hoạt động</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <Table className="min-w-[760px]">
           <TableHeader>
@@ -153,7 +281,7 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
           <TableBody>
             {studentsQuery.isLoading ? <StudentsTableSkeletonRows /> : null}
 
-            {!studentsQuery.isLoading && studentsQuery.data?.length === 0 ? (
+            {!studentsQuery.isLoading && filteredAndSorted.length === 0 ? (
               <TableRow className="border-primary/10 hover:bg-transparent">
                 <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
                   Chưa có dữ liệu phân tích.
@@ -162,7 +290,7 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             ) : null}
 
             {!studentsQuery.isLoading
-              ? studentsQuery.data?.map((student, index) => (
+              ? filteredAndSorted.map((student, index) => (
                   <TableRow
                     className={cn(
                       "group/row cursor-pointer border-primary/10 transition-colors duration-200 hover:bg-primary/[0.05]",

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Loader2, Sparkles, Trash2 } from "lucide-react";
+import { Loader2, Search, Sparkles, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   AlertDialog,
@@ -16,6 +16,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -74,9 +82,47 @@ export default function AdminStudentsPage() {
   const { toast } = useToast();
   const studentsQuery = useGetStudents();
   const deleteStudentMutation = useDeleteStudent();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<"name" | "email" | "date" | "default">("default");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const students = useMemo(() => studentsQuery.data ?? [], [studentsQuery.data]);
+  const sortedAndFilteredStudents = useMemo(() => {
+    if (!studentsQuery.data) return [];
+
+    let result = [...studentsQuery.data];
+    if (searchQuery.trim() !== "") {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (student) =>
+          student.fullName.toLowerCase().includes(lowerQuery) ||
+          student.email.toLowerCase().includes(lowerQuery),
+      );
+    }
+
+    if (sortKey !== "default") {
+      result.sort((a, b) => {
+        const valA: string | number =
+          sortKey === "name"
+            ? a.fullName.toLowerCase()
+            : sortKey === "email"
+              ? a.email.toLowerCase()
+              : new Date(a.createdAt).getTime();
+        const valB: string | number =
+          sortKey === "name"
+            ? b.fullName.toLowerCase()
+            : sortKey === "email"
+              ? b.email.toLowerCase()
+              : new Date(b.createdAt).getTime();
+
+        if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+        if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [studentsQuery.data, searchQuery, sortKey, sortDirection]);
 
   const handleDeleteStudent = async (studentId: string) => {
     setPendingDeleteId(studentId);
@@ -115,6 +161,54 @@ export default function AdminStudentsPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 p-6">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="bg-white/50 pl-9 dark:bg-slate-900/50"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm theo tên hoặc email..."
+                  value={searchQuery}
+                />
+              </div>
+            </div>
+            <div className="w-full sm:w-[220px]">
+              <Select
+                onValueChange={(value) => {
+                  const [key, direction] = value.split("-");
+
+                  if (key === "default") {
+                    setSortKey("default");
+                    setSortDirection("desc");
+                    return;
+                  }
+
+                  if (
+                    (key === "name" || key === "email" || key === "date") &&
+                    (direction === "asc" || direction === "desc")
+                  ) {
+                    setSortKey(key);
+                    setSortDirection(direction);
+                  }
+                }}
+                value={`${sortKey}-${sortDirection}`}
+              >
+                <SelectTrigger className="bg-white/50 dark:bg-slate-900/50">
+                  <SelectValue placeholder="Sắp xếp" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default-desc">Mặc định</SelectItem>
+                  <SelectItem value="name-asc">Tên (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Tên (Z-A)</SelectItem>
+                  <SelectItem value="email-asc">Email (A-Z)</SelectItem>
+                  <SelectItem value="date-desc">Mới nhất trước</SelectItem>
+                  <SelectItem value="date-asc">Cũ nhất trước</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {studentsQuery.isLoading ? <StudentsTableSkeleton /> : null}
 
           {studentsQuery.isError ? (
@@ -146,14 +240,14 @@ export default function AdminStudentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.length === 0 ? (
+                  {sortedAndFilteredStudents.length === 0 ? (
                     <TableRow className="border-primary/10 hover:bg-transparent">
                       <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
                         Chưa có học viên nào.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    students.map((student, index) => (
+                    sortedAndFilteredStudents.map((student, index) => (
                       <TableRow
                         className={cn(
                           "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",

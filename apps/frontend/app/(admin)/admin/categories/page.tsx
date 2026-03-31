@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Loader2, Sparkles, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Search, Sparkles, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
@@ -17,6 +17,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -47,6 +55,9 @@ const CategoryFormDialog = dynamic(
 export default function AdminCategoriesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<"name" | "lessonCount" | "default">("default");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const categoriesQuery = useGetCategories();
 
@@ -79,6 +90,29 @@ export default function AdminCategoriesPage() {
     deleteMutation.mutate(categoryId);
   };
 
+  const filteredAndSortedCategories = useMemo(() => {
+    if (!categoriesQuery.data) return [];
+
+    let result = [...categoriesQuery.data];
+    if (searchQuery.trim() !== "") {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((category) => category.name.toLowerCase().includes(lowerQuery));
+    }
+
+    if (sortKey !== "default") {
+      result.sort((a, b) => {
+        let valA: string | number = sortKey === "name" ? a.name.toLowerCase() : a.lessonCount;
+        let valB: string | number = sortKey === "name" ? b.name.toLowerCase() : b.lessonCount;
+
+        if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+        if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [categoriesQuery.data, searchQuery, sortKey, sortDirection]);
+
   return (
     <section className="space-y-6 kokonut-fade">
       <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
@@ -99,6 +133,53 @@ export default function AdminCategoriesPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="bg-white/50 pl-9 dark:bg-slate-900/50"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm theo tên danh mục..."
+                  value={searchQuery}
+                />
+              </div>
+            </div>
+            <div className="w-full sm:w-[200px]">
+              <Select
+                onValueChange={(value) => {
+                  const [key, direction] = value.split("-");
+
+                  if (key === "default") {
+                    setSortKey("default");
+                    setSortDirection("asc");
+                    return;
+                  }
+
+                  if (
+                    (key === "name" || key === "lessonCount") &&
+                    (direction === "asc" || direction === "desc")
+                  ) {
+                    setSortKey(key);
+                    setSortDirection(direction);
+                  }
+                }}
+                value={`${sortKey}-${sortDirection}`}
+              >
+                <SelectTrigger className="bg-white/50 dark:bg-slate-900/50">
+                  <SelectValue placeholder="Sắp xếp" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default-asc">Mặc định</SelectItem>
+                  <SelectItem value="name-asc">Tên (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Tên (Z-A)</SelectItem>
+                  <SelectItem value="lessonCount-desc">Số bài học (nhiều nhất)</SelectItem>
+                  <SelectItem value="lessonCount-asc">Số bài học (ít nhất)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {categoriesQuery.isLoading ? (
             <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -129,14 +210,14 @@ export default function AdminCategoriesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {categoriesQuery.data.length === 0 ? (
+                  {filteredAndSortedCategories.length === 0 ? (
                     <TableRow className="border-primary/10 hover:bg-transparent">
                       <TableCell className="py-10 text-center text-muted-foreground" colSpan={3}>
-                        Chưa có danh mục nào.
+                        Chưa có danh mục nào khớp với thẻ lọc.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    categoriesQuery.data.map((category, index) => (
+                    filteredAndSortedCategories.map((category, index) => (
                       <TableRow
                         className={cn(
                           "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { LessonsTableSkeleton } from "@/components/ui/lessons-list-skeleton";
 import {
   Select,
@@ -42,6 +43,9 @@ const ALL_CATEGORIES_VALUE = "all";
 export function AdminLessonsTableFetcher() {
   const { toast } = useToast();
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES_VALUE);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<"title" | "questions" | "default">("default");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const categoryId = useMemo(
@@ -71,28 +75,118 @@ export function AdminLessonsTableFetcher() {
     }
   };
 
+  const filteredAndSortedLessons = useMemo(() => {
+    if (!lessonsQuery.data) return [];
+
+    let result = [...lessonsQuery.data];
+    if (searchQuery.trim() !== "") {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (lesson) =>
+          lesson.title.toLowerCase().includes(lowerQuery) ||
+          (lesson.summary && lesson.summary.toLowerCase().includes(lowerQuery)),
+      );
+    }
+
+    if (sortKey !== "default") {
+      result.sort((a, b) => {
+        let valueA: string | number = "";
+        let valueB: string | number = "";
+
+        if (sortKey === "title") {
+          valueA = a.title.toLowerCase();
+          valueB = b.title.toLowerCase();
+        } else if (sortKey === "questions") {
+          valueA = a._count?.questions ?? 0;
+          valueB = b._count?.questions ?? 0;
+        }
+
+        if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [lessonsQuery.data, searchQuery, sortKey, sortDirection]);
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 rounded-2xl border border-primary/15 bg-white/65 p-4 dark:bg-slate-900/65 md:max-w-sm">
-        <label className="text-sm font-medium" htmlFor="lesson-category-filter">
-          Lọc theo danh mục
-        </label>
-        <Select onValueChange={setCategoryFilter} value={categoryFilter}>
-          <SelectTrigger
-            className="border-primary/20 bg-white/80 dark:bg-slate-900/80"
-            id="lesson-category-filter"
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end">
+        <div className="flex-1 space-y-2">
+          <label className="text-sm font-medium" htmlFor="lesson-search">
+            Tìm kiếm
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-10 border-primary/20 bg-white/80 pl-9 dark:bg-slate-900/80"
+              id="lesson-search"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Nhập tên hoặc mô tả bài học..."
+              value={searchQuery}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2 md:w-[220px]">
+          <label className="text-sm font-medium" htmlFor="lesson-category-filter">
+            Lọc theo danh mục
+          </label>
+          <Select onValueChange={setCategoryFilter} value={categoryFilter}>
+            <SelectTrigger
+              className="border-primary/20 bg-white/80 dark:bg-slate-900/80"
+              id="lesson-category-filter"
+            >
+              <SelectValue placeholder="Chọn danh mục" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_CATEGORIES_VALUE}>Tất cả danh mục</SelectItem>
+              {(categoriesQuery.data ?? []).map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2 md:w-[200px]">
+          <label className="text-sm font-medium" htmlFor="lesson-sort">
+            Sắp xếp
+          </label>
+          <Select
+            onValueChange={(value) => {
+              const [key, direction] = value.split("-");
+
+              if (key === "default") {
+                setSortKey("default");
+                setSortDirection("asc");
+                return;
+              }
+
+              if (
+                (key === "title" || key === "questions") &&
+                (direction === "asc" || direction === "desc")
+              ) {
+                setSortKey(key);
+                setSortDirection(direction);
+              }
+            }}
+            value={`${sortKey}-${sortDirection}`}
           >
-            <SelectValue placeholder="Chọn danh mục" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_CATEGORIES_VALUE}>Tất cả danh mục</SelectItem>
-            {(categoriesQuery.data ?? []).map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            <SelectTrigger className="border-primary/20 bg-white/80 dark:bg-slate-900/80" id="lesson-sort">
+              <SelectValue placeholder="Sắp xếp theo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default-asc">Mặc định</SelectItem>
+              <SelectItem value="title-asc">Tên (A-Z)</SelectItem>
+              <SelectItem value="title-desc">Tên (Z-A)</SelectItem>
+              <SelectItem value="questions-asc">Số câu hỏi (↑)</SelectItem>
+              <SelectItem value="questions-desc">Số câu hỏi (↓)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {lessonsQuery.isLoading ? <LessonsTableSkeleton /> : null}
@@ -126,14 +220,14 @@ export function AdminLessonsTableFetcher() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {lessonsQuery.data.length === 0 ? (
+              {filteredAndSortedLessons.length === 0 ? (
                 <TableRow className="border-primary/10 hover:bg-transparent">
                   <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
-                    Chưa có bài học nào trong danh mục này.
+                    Chưa có bài học nào khớp với bộ lọc.
                   </TableCell>
                 </TableRow>
               ) : (
-                lessonsQuery.data.map((lesson) => (
+                filteredAndSortedLessons.map((lesson) => (
                   <TableRow
                     className="border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]"
                     key={lesson.id}
