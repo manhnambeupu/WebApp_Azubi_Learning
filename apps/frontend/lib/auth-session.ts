@@ -55,13 +55,19 @@ export function consumeSessionConflictToast(): string | null {
     return null;
   }
 
-  const message = window.sessionStorage.getItem(SESSION_CONFLICT_TOAST_KEY);
-  if (!message) {
+  try {
+    const message = window.sessionStorage.getItem(SESSION_CONFLICT_TOAST_KEY);
+    if (!message) {
+      return null;
+    }
+
+    window.sessionStorage.removeItem(SESSION_CONFLICT_TOAST_KEY);
+    return message;
+  } catch (error) {
+    // Safari có thể throw SecurityError nếu bị chặn Cookie (Private browsing mode)
+    // Nếu throw mà không catch, nó sẽ làm crash React (Hydration / App Error)
     return null;
   }
-
-  window.sessionStorage.removeItem(SESSION_CONFLICT_TOAST_KEY);
-  return message;
 }
 
 export function handleSessionRoleConflict(): void {
@@ -79,10 +85,14 @@ export function handleSessionRoleConflict(): void {
     return;
   }
 
-  window.sessionStorage.setItem(
-    SESSION_CONFLICT_TOAST_KEY,
-    SESSION_CONFLICT_TOAST_MESSAGE,
-  );
+  try {
+    window.sessionStorage.setItem(
+      SESSION_CONFLICT_TOAST_KEY,
+      SESSION_CONFLICT_TOAST_MESSAGE,
+    );
+  } catch (error) {
+    // Bỏ qua lỗi Safari Strict Mode
+  }
   window.location.replace("/login");
 }
 

@@ -140,7 +140,6 @@ export default function LoginPage() {
         <div className="mt-8 md:mt-12 w-full max-w-[320px] rounded-2xl bg-white/10 p-5 md:p-6 text-left backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-100">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             Kèm Học 1 - 1

@@ -20,7 +20,6 @@ export function StudentFooter() {
                 />
                 {/* Online Status Dot */}
                 <span className="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-900">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                 </span>
               </div>
 
