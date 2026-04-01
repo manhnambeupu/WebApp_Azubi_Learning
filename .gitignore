@@ -60,5 +60,6 @@ SECURITY_RULES.md
 .env.production.example
 .antigravityrules
 .claude/skills/openspace/
+.claude/skills/third-party/
 .env.production.example
 .github/copilot-instructions.md
