@@ -338,19 +338,26 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           );
 
           return (
-            <div
+            <article
+              aria-labelledby={`question-title-${question.id}`}
               className={cn(
                 "space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300 dark:bg-slate-900/80",
                 questionAnswered
                   ? "shadow-glow-soft ring-1 ring-accent/20"
                   : "hover:border-primary/35 hover:shadow-glow-soft",
               )}
+              data-ai-question-index={questionIndex + 1}
+              data-ai-question-text={question.text}
+              data-ai-question-type={question.type}
               key={question.id}
             >
-              <div className="space-y-1">
-                <p className="font-medium leading-7 whitespace-pre-wrap">
+              <header className="space-y-1">
+                <h3
+                  className="font-medium leading-7 whitespace-pre-wrap"
+                  id={`question-title-${question.id}`}
+                >
                   Câu {questionIndex + 1}: {question.text}
-                </p>
+                </h3>
                 {question.imageUrl ? (
                   <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
                     <Image
@@ -367,7 +374,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                 <p className="text-xs text-muted-foreground">
                   {getQuestionInstruction(question)}
                 </p>
-              </div>
+              </header>
 
               {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
                 <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
@@ -388,9 +395,12 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                   />
                 </div>
               ) : question.type === "ORDERING" ? (
-                <div className="space-y-2">
+                <ol className="space-y-2" data-ai-question-options="ordering">
                   {orderedAnswers.map((answer, answerIndex) => (
-                    <div
+                    <li
+                      data-ai-answer-index={answerIndex + 1}
+                      data-ai-answer-text={answer.text}
+                      data-ai-answer-type="ordering-item"
                       className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft dark:bg-slate-900/85"
                       key={answer.id}
                     >
@@ -424,13 +434,15 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </div>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ol>
               ) : question.type === "MATCHING" ? (
-                <div className="space-y-3">
+                <div className="space-y-3" data-ai-question-options="matching">
                   {question.answers.map((answer) => (
                     <div
+                      data-ai-answer-text={answer.text}
+                      data-ai-answer-type="matching-left"
                       className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr] dark:bg-slate-900/85"
                       key={answer.id}
                     >
@@ -472,14 +484,18 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                   ))}
                 </div>
               ) : question.type === "MULTIPLE_CHOICE" ? (
-                <div className="space-y-3">
+                <ol className="space-y-3" data-ai-question-options="multiple-choice">
                   {question.answers.map((answer, answerIndex) => {
                     const answerLabel = String.fromCharCode(65 + answerIndex);
                     const checkboxId = `${question.id}-${answer.id}`;
                     const isSelected = selectedAnswerIds.includes(answer.id);
 
                     return (
-                      <Label
+                      <li key={answer.id}>
+                        <Label
+                          data-ai-answer-index={answerIndex + 1}
+                          data-ai-answer-text={answer.text}
+                          data-ai-answer-type="multiple-choice"
                         className={cn(
                           "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
                           isSelected
@@ -487,7 +503,6 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                             : "",
                         )}
                         htmlFor={checkboxId}
-                        key={answer.id}
                       >
                         <Checkbox
                           checked={isSelected}
@@ -509,52 +524,61 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                             {answer.text}
                           </p>
                         </div>
-                      </Label>
+                        </Label>
+                      </li>
                     );
                   })}
-                </div>
+                </ol>
               ) : (
                 <RadioGroup
+                  aria-label={`Danh sach dap an cho cau ${questionIndex + 1}`}
+                  data-ai-question-options="single-choice"
                   onValueChange={(answerId) =>
                     handleSingleChoiceChange(question.id, answerId)
                   }
                   value={selectedAnswerIds[0] ?? ""}
                 >
-                  {question.answers.map((answer, answerIndex) => {
-                    const answerLabel = String.fromCharCode(65 + answerIndex);
-                    const radioId = `${question.id}-${answer.id}`;
-                    const isSelected = selectedAnswerIds[0] === answer.id;
+                  <ol className="space-y-3">
+                    {question.answers.map((answer, answerIndex) => {
+                      const answerLabel = String.fromCharCode(65 + answerIndex);
+                      const radioId = `${question.id}-${answer.id}`;
+                      const isSelected = selectedAnswerIds[0] === answer.id;
 
-                    return (
-                      <Label
-                        className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
-                          isSelected
-                            ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
-                            : "",
-                        )}
-                        htmlFor={radioId}
-                        key={answer.id}
-                      >
-                        <RadioGroupItem
-                          className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
-                          id={radioId}
-                          value={answer.id}
-                        />
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-muted-foreground">
-                            Đáp án {answerLabel}
-                          </p>
-                          <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
-                            {answer.text}
-                          </p>
-                        </div>
-                      </Label>
-                    );
-                  })}
+                      return (
+                        <li key={answer.id}>
+                          <Label
+                            data-ai-answer-index={answerIndex + 1}
+                            data-ai-answer-text={answer.text}
+                            data-ai-answer-type="single-choice"
+                            className={cn(
+                              "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
+                              isSelected
+                                ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
+                                : "",
+                            )}
+                            htmlFor={radioId}
+                          >
+                            <RadioGroupItem
+                              className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
+                              id={radioId}
+                              value={answer.id}
+                            />
+                            <div className="space-y-1">
+                              <p className="text-xs font-semibold text-muted-foreground">
+                                Đáp án {answerLabel}
+                              </p>
+                              <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                                {answer.text}
+                              </p>
+                            </div>
+                          </Label>
+                        </li>
+                      );
+                    })}
+                  </ol>
                 </RadioGroup>
               )}
-            </div>
+            </article>
           );
         })}
       </div>

@@ -142,7 +142,7 @@ export default function LoginPage() {
             <span className="relative flex h-2 w-2">
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            Kèm Học 1 - 1
+            Online 24/7
           </div>
 
           {/* Jason Avatar */}

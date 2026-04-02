@@ -22,7 +22,7 @@ export function DonationBanner({ variant = "card" }: DonationBannerProps) {
           rel="noopener noreferrer"
           target="_blank"
         >
-          Ủng hộ 2€ ☕
+          Ủng hộ ab 2€ ☕
           <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </div>
@@ -40,9 +40,8 @@ export function DonationBanner({ variant = "card" }: DonationBannerProps) {
             Nếu thấy các bài tập do bọn mình soạn hữu ích thì Ủng hộ bọn mình nhé! ☕
           </h3>
           <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-            Chỉ 2€ thôi sẽ giúp bọn mình có thêm chi phí để soạn bài tập chất lượng và duy trì website, hướng tới
-            mục tiêu thi <strong>Abschlussprüfung ngành FK</strong> đạt điểm cao tuyệt đối cho
-            các bạn! 💪🎯
+            Chỉ ab 2€ thôi sẽ giúp bọn mình có thêm chi phí để soạn bài tập chất lượng và duy trì website, hướng tới
+            mục tiêu thi <strong>Abschlussprüfung ngành Fachkraft für Gastronomie</strong> đạt điểm cao cho các bạn! 💪🎯
           </p>
         </div>
         <div className="shrink-0">
@@ -52,7 +51,7 @@ export function DonationBanner({ variant = "card" }: DonationBannerProps) {
             rel="noopener noreferrer"
             target="_blank"
           >
-            ỦNG HỘ 2€ QUA PAYPAL ☕
+            ỦNG HỘ ab 2€ QUA PAYPAL ☕
             <ExternalLink className="h-4 w-4" />
           </a>
         </div>

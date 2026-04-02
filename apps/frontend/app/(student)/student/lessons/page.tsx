@@ -6,9 +6,41 @@ import { StudentLessonsListFetcher } from "@/components/student/student-lessons-
 import { LessonsGridSkeleton } from "@/components/ui/lessons-list-skeleton";
 
 export default function StudentLessonsPage() {
+  const frontendUrl = process.env.FRONTEND_URL;
+  const siteUrl =
+    frontendUrl && frontendUrl.startsWith("http")
+      ? frontendUrl
+      : "http://localhost:3000";
+  const normalizedSiteUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+
+  const lessonsCollectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: "Danh sach bai hoc Ausbildung cho nguoi Viet",
+    description:
+      "Bo bai hoc he thong hoa kien thuc Ausbildung tai Duc, huong den hoc tap ben vung va minh bach thong tin cho nguoi Viet.",
+    provider: {
+      "@type": "Organization",
+      name: "AzubiVN",
+      url: normalizedSiteUrl,
+    },
+    inLanguage: "vi-VN",
+    educationalLevel: "Vocational education",
+    audience: {
+      "@type": "EducationalAudience",
+      educationalRole: "student",
+    },
+    url: `${normalizedSiteUrl}/student/lessons`,
+    about: [
+      "Ausbildung tai Duc",
+      "Lo trinh hoc nghe cho nguoi Viet",
+      "Thong tin minh bach ve hoc tap",
+    ],
+  } as const;
+
   return (
-    <section className="space-y-8">
-      <section className="kokonut-glass-card kokonut-glow-border relative overflow-hidden border-primary/20 bg-white/60 px-6 py-7 shadow-glow-soft dark:bg-slate-950/50 sm:px-8">
+    <article className="space-y-8">
+      <header className="kokonut-glass-card kokonut-glow-border relative overflow-hidden border-primary/20 bg-white/60 px-6 py-7 shadow-glow-soft dark:bg-slate-950/50 sm:px-8">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent/30 blur-3xl"
@@ -27,16 +59,28 @@ export default function StudentLessonsPage() {
               thức dựa trên các bài học liên quan mật thiết với
               Abschlussprüfung, tự tin chinh phục từng mục tiêu🎯🏆
             </p>
+            <blockquote className="max-w-3xl border-l-4 border-primary/35 pl-4 text-sm leading-7 text-muted-foreground">
+              &ldquo;Chìa khóa lớn nhất để bứt phá trong hành trình Ausbildung không chỉ nằm ở những gì bạn được dạy, mà ở sự chủ động tự học và biết cách chắt lọc thông tin.&rdquo;
+            </blockquote>
+            <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground">
+              <li>Hệ thống lại kiến thức trọng tâm, bám sát cấu trúc đề thi giữa và cuối kỳ.</li>
+              <li>Dễ dàng tìm lại các kiến thức quan trọng được phân loại rõ ràng.</li>
+              <li>Chuẩn bị bài tập và các bài kiểm tra (Klassenarbeit) nhanh chóng theo đúng lộ trình.</li>
+            </ul>
           </div>
           <StudentLessonCounterBadge />
         </div>
-      </section>
+      </header>
 
       <Suspense fallback={<LessonsGridSkeleton />}>
-        <StudentLessonsListFetcher />
+        <section aria-label="Danh sach bai hoc hien co">
+          <StudentLessonsListFetcher />
+        </section>
       </Suspense>
 
-      <DonationBanner />
-    </section>
+      <section aria-label="Dong hanh va dong gop">
+        <DonationBanner />
+      </section>
+    </article>
   );
 }

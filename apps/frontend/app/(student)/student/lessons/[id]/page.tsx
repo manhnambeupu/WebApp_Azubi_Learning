@@ -1,6 +1,11 @@
 "use client";
 
-import { BookOpenText, ChevronRight, Download, Loader2, Sparkles } from "lucide-react";
+import {
+  BookOpenText,
+  ChevronRight,
+  Download,
+  Loader2,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -152,7 +157,7 @@ export default function StudentLessonDetailPage() {
   const lesson = lessonQuery.data;
 
   return (
-    <section className="mx-auto max-w-5xl space-y-8">
+    <article className="mx-auto max-w-5xl space-y-8">
       <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur-sm dark:bg-slate-900/70">
         <Link className="hover:text-foreground" href="/student/lessons">
           Bài học
@@ -162,7 +167,7 @@ export default function StudentLessonDetailPage() {
       </div>
 
       <article className="kokonut-glass-card kokonut-glow-border space-y-8 border-primary/15 bg-white/70 p-6 shadow-glass sm:p-8 dark:bg-slate-900/70">
-        <div className="space-y-3">
+        <header className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full border border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
               {lesson.category.name}
@@ -180,14 +185,10 @@ export default function StudentLessonDetailPage() {
           </div>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{lesson.title}</h1>
           <p className="max-w-4xl text-lg leading-8 text-muted-foreground">{lesson.summary}</p>
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium text-foreground shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
-            <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
-            Tipps: Hãy đọc 🤓 kỹ phần tóm tắt kiến thức dưới đây trước khi làm bài tập nhé, rất hữu ích 💪 đấy !!!
-          </div>
-        </div>
+        </header>
 
         {lesson.imageUrl ? (
-          <div className="overflow-hidden rounded-2xl border border-primary/15 shadow-glow-soft">
+          <section className="overflow-hidden rounded-2xl border border-primary/15 shadow-glow-soft">
             <Image
               alt={`Ảnh minh hoạ cho bài học: ${lesson.title}`}
               className="h-auto w-full object-cover"
@@ -197,10 +198,10 @@ export default function StudentLessonDetailPage() {
               unoptimized
               width={1280}
             />
-          </div>
+          </section>
         ) : null}
 
-        <div className="student-markdown rounded-2xl border border-primary/15 bg-white/80 p-6 text-[1.04rem] leading-8 shadow-glass sm:p-8 sm:text-[1.08rem] dark:bg-slate-900/80">
+        <section className="student-markdown rounded-2xl border border-primary/15 bg-white/80 p-6 text-[1.04rem] leading-8 shadow-glass sm:p-8 sm:text-[1.08rem] dark:bg-slate-900/80">
           <ReactMarkdown
             components={{
               table: ({ children, ...props }) => (
@@ -214,9 +215,9 @@ export default function StudentLessonDetailPage() {
           >
             {lesson.contentMd}
           </ReactMarkdown>
-        </div>
+        </section>
 
-        <div className="space-y-4 rounded-2xl border border-primary/15 bg-slate-50/55 p-5 dark:bg-slate-800/55">
+        <section className="space-y-4 rounded-2xl border border-primary/15 bg-slate-50/55 p-5 dark:bg-slate-800/55">
           <h2 className="inline-flex items-center gap-2 font-semibold">
             <BookOpenText className="h-4 w-4 text-primary" />
             Tài liệu đính kèm
@@ -257,10 +258,13 @@ export default function StudentLessonDetailPage() {
               ))}
             </div>
           )}
-        </div>
+        </section>
       </article>
 
-      <section className="kokonut-glass-card kokonut-glow-border rounded-2xl border-primary/20 bg-white/70 p-6 shadow-glass sm:p-8 dark:bg-slate-900/70">
+      <section
+        className="kokonut-glass-card kokonut-glow-border rounded-2xl border-primary/20 bg-white/70 p-6 shadow-glass sm:p-8 dark:bg-slate-900/70"
+        id="quiz"
+      >
         <h2 className="text-xl font-semibold">🖋Phần làm bài tập</h2>
         <Separator className="my-4" />
         {lesson.questions.length === 0 ? (
@@ -286,6 +290,6 @@ export default function StudentLessonDetailPage() {
       </section>
 
       <AttemptHistory lessonId={lessonId} />
-    </section>
+    </article>
   );
 }
