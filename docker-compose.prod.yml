@@ -34,9 +34,7 @@ services:
       - minio_data:/data
 
   backend:
-    build:
-      context: ./apps/backend
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/namtm/azubi_webapp-backend:latest
     restart: unless-stopped
     deploy:
       resources:
@@ -77,11 +75,7 @@ services:
         condition: service_started
 
   frontend:
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.prod
-      args:
-        NEXT_PUBLIC_API_URL: /api
+    image: ghcr.io/namtm/azubi_webapp-frontend:latest
     restart: unless-stopped
     deploy:
       resources:

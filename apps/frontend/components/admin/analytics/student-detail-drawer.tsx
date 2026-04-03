@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import { fetchStudentDetail } from "@/lib/analytics-api";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { cn } from "@/lib/utils";
 
 type Props = {
   studentId: string | null;
@@ -114,8 +115,8 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
 
   return (
     <Dialog onOpenChange={(open) => (!open ? onClose() : undefined)} open={studentId !== null}>
-      <DialogContent className="left-auto right-0 top-0 h-screen w-full max-w-[920px] translate-x-0 translate-y-0 overflow-y-auto rounded-none border-l border-primary/15 p-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-[920px]">
-        <div className="space-y-6 p-6 sm:p-8">
+      <DialogContent className="left-0 z-[100] h-full w-full max-w-[920px] overflow-y-auto border-l border-primary/15 bg-background p-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:left-auto sm:right-0 sm:h-screen sm:rounded-none">
+        <div className="space-y-4 p-3.5 sm:space-y-6 sm:p-8">
           <DialogHeader className="space-y-2 text-left">
             <DialogTitle>Chi tiết phân tích học viên</DialogTitle>
             <DialogDescription>
@@ -140,7 +141,7 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                     {detailQuery.data.student.fullName} - {detailQuery.data.student.email}
                   </p>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="hidden md:block overflow-x-auto">
                   <Table className="min-w-[720px]">
                     <TableHeader>
                       <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
@@ -186,6 +187,68 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Mobile Card View (Dưới MD) */}
+                <div className="block space-y-4 p-4 md:hidden">
+                  {detailQuery.data.lessons.map((lesson) => (
+                    <div
+                      key={lesson.lessonId}
+                      className="space-y-3 rounded-xl border border-primary/10 bg-primary/5 p-4"
+                    >
+                      <div className="flex items-center justify-between border-b border-primary/10 pb-2">
+                        <h4 className="mr-2 line-clamp-1 flex-1 font-bold text-slate-900 dark:text-slate-100">
+                          {lesson.lessonTitle}
+                        </h4>
+                        <Badge
+                          variant="outline"
+                          className="bg-white/50 dark:bg-slate-800/50"
+                        >
+                          Lần làm: {lesson.totalAttempts}
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                            Điểm cao nhất
+                          </p>
+                          <p className="font-semibold">{lesson.bestScore.toFixed(1)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                            Thời gian
+                          </p>
+                          <p className="font-semibold">
+                            {formatDuration(lesson.totalActiveSeconds)}
+                          </p>
+                        </div>
+                        <div className="col-span-2 pt-1">
+                          <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">
+                            Tiến bộ
+                          </p>
+                          <div className="flex items-center gap-1.5">
+                            {lesson.improvementDelta >= 0 ? (
+                              <TrendingUp className="h-4 w-4 text-emerald-500" />
+                            ) : (
+                              <TrendingDown className="h-4 w-4 text-rose-500" />
+                            )}
+                            <span
+                              className={cn(
+                                "font-bold",
+                                lesson.improvementDelta >= 0
+                                  ? "text-emerald-600"
+                                  : "text-rose-600",
+                              )}
+                            >
+                              {lesson.improvementDelta >= 0 ? "+" : ""}
+                              {lesson.improvementDelta.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </section>
 
               <section className="rounded-2xl border border-primary/15 bg-white/70 p-5 shadow-glass dark:bg-slate-900/70">
@@ -205,25 +268,25 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                           <XAxis
                             dataKey="attemptNumber"
                             tickMargin={10}
-                            tick={{ fill: "#64748b", fontSize: 13 }}
+                            tick={{ fill: "#64748b", fontSize: 11 }}
                             label={{
                               value: "Số lần làm bài",
                               position: "insideBottom",
                               offset: -10,
                               fill: "#64748b",
-                              fontSize: 13,
+                              fontSize: 11,
                               fontWeight: 500,
                             }}
                           />
                           <YAxis
                             domain={[0, 100]}
-                            tick={{ fill: "#64748b", fontSize: 13 }}
+                            tick={{ fill: "#64748b", fontSize: 11 }}
                             label={{
                               value: "Điểm số (%)",
                               angle: -90,
                               position: "insideLeft",
                               fill: "#64748b",
-                              fontSize: 13,
+                              fontSize: 11,
                               fontWeight: 500,
                             }}
                           />
@@ -283,7 +346,7 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                         key={question.questionId}
                       >
                         <p className="whitespace-pre-wrap font-medium leading-normal">
-                          <span className="mr-1.5 font-semibold text-rose-600 dark:text-rose-400">
+                          <span className="mb-1 block w-fit rounded-md bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 sm:mb-0">
                             [Câu số {question.orderIndex + 1}]
                           </span>
                           {question.questionText}

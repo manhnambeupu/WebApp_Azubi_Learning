@@ -1,0 +1,62 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  # Ép toàn bộ tên repo về chữ thường (Vì Docker không cho phép chữ in Hoa)
+  IMAGE_NAME: ${{ github.repository_owner }}/azubi_webapp
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Trích xuất string viết thường để làm Tag Image
+      - name: Lowercase image name
+        id: string
+        run: |
+          echo "repo=${IMAGE_NAME,,}" >> $GITHUB_OUTPUT
+
+      # Phân Xưởng BACKEND
+      - name: Build and push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/backend
+          file: ./apps/backend/Dockerfile.prod
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ steps.string.outputs.repo }}-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Phân Xưởng FRONTEND
+      - name: Build and push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/frontend
+          file: ./apps/frontend/Dockerfile.prod
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ steps.string.outputs.repo }}-frontend:latest
+          build-args: |
+            NEXT_PUBLIC_API_URL=/api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
