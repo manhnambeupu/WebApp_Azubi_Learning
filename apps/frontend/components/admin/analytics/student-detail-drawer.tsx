@@ -115,7 +115,7 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
 
   return (
     <Dialog onOpenChange={(open) => (!open ? onClose() : undefined)} open={studentId !== null}>
-      <DialogContent className="left-0 z-[100] h-full w-full max-w-[920px] overflow-y-auto border-l border-primary/15 bg-background p-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:left-auto sm:right-0 sm:h-screen sm:rounded-none">
+      <DialogContent className="left-[50%] top-[50%] z-[100] h-[95vh] w-[95vw] max-w-[920px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-primary/15 bg-background p-0 sm:left-auto sm:right-0 sm:top-0 sm:h-screen sm:w-full sm:max-w-[920px] sm:translate-x-0 sm:translate-y-0 sm:rounded-none sm:border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
         <div className="space-y-4 p-3.5 sm:space-y-6 sm:p-8">
           <DialogHeader className="space-y-2 text-left">
             <DialogTitle>Chi tiết phân tích học viên</DialogTitle>
