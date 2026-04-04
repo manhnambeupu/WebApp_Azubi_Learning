@@ -36,7 +36,7 @@ export function StudentNav() {
                 className="h-20 w-auto"
                 height={80}
                 priority
-                src="/images/logo.png"
+                src="/images/Logo_Book.png"
                 width={320}
               />
             </Link>

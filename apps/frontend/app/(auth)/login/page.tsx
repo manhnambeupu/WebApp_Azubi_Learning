@@ -120,13 +120,13 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative z-10 w-full overflow-hidden flex flex-col md:flex-row shadow-2xl rounded-[2rem] bg-white/40 backdrop-blur-[16px] border border-white/30">
+    <main className="relative z-10 w-full overflow-hidden flex flex-col md:flex-row shadow-[0_8px_32px_0_rgba(16,185,129,0.37)] rounded-[2rem] bg-white/10 backdrop-blur-md border border-white/20">
       <Suspense fallback={null}>
         <OAuthErrorToaster />
       </Suspense>
 
       {/* BEGIN: Sidebar Section */}
-      <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/30 backdrop-blur-[8px] border-r border-white/10 flex flex-col items-center justify-center text-center">
+      <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col items-center justify-center text-center">
         <div className="relative w-full max-w-[280px] sm:max-w-[300px] md:max-w-[320px] aspect-square animate-in fade-in zoom-in duration-1000">
           <Image
             src="/images/Logo_Book.png"
@@ -210,15 +210,15 @@ export default function LoginPage() {
 
         {/* Sign In Header */}
         <div className="text-center mb-8 w-full">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Anmeldung</h2>
-          <p className="text-gray-700 text-sm">Zugang zum Lernportal für Auszubildende</p>
+          <h2 className="text-3xl font-bold text-white mb-2">Anmeldung</h2>
+          <p className="text-white/80 text-sm">Zugang zum Lernportal für Auszubildende</p>
         </div>
 
         {/* Login Form */}
         <form className="w-full max-w-sm space-y-5" onSubmit={handleSubmit}>
           {/* Email Input */}
           <div className="space-y-1">
-            <Label className="block text-sm font-medium text-gray-800" htmlFor="email">
+            <Label className="block text-sm font-medium text-white" htmlFor="email">
               Email
             </Label>
             <Input
@@ -228,14 +228,14 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
+              className="w-full px-4 py-3 h-12 rounded-lg bg-white/40 backdrop-blur-sm border border-white/40 text-gray-900 placeholder:text-gray-600 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
               required
             />
           </div>
 
           {/* Password Input */}
           <div className="space-y-1">
-            <Label className="block text-sm font-medium text-gray-800" htmlFor="password">
+            <Label className="block text-sm font-medium text-white" htmlFor="password">
               Passwort
             </Label>
             <Input
@@ -245,7 +245,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full px-4 py-3 h-12 rounded-lg bg-[#FDF6E3] border border-gray-300/50 text-gray-900 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
+              className="w-full px-4 py-3 h-12 rounded-lg bg-white/40 backdrop-blur-sm border border-white/40 text-gray-900 placeholder:text-gray-600 focus:ring-2 focus:ring-primary shadow-sm transition-all duration-200"
               required
             />
           </div>
@@ -277,10 +277,10 @@ export default function LoginPage() {
           {/* Social Login Divider */}
           <div className="relative py-2">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300/50" />
+              <div className="w-full border-t border-white/30" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white/60 px-3 text-gray-500 backdrop-blur-sm">
+              <span className="px-3 text-white/80">
                 oder weiter mit
               </span>
             </div>
