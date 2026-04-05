@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { JsonLd } from "@/components/seo/json-ld";
+import { LingoThemeToggle } from "@/components/ui/lingo-theme-toggle";
 import "./landing.css";
 
 export const metadata: Metadata = {
@@ -161,6 +162,9 @@ export default function Home() {
   return (
     <>
       <JsonLd data={schemas} faq={faqItems} />
+      <div className="absolute top-6 right-6 z-50">
+        <LingoThemeToggle />
+      </div>
       <section className="lingo-hero relative min-h-[90vh] flex flex-col items-center justify-center px-6 py-16 text-center">
         <Image src="/images/bg-login.jpg" alt="" fill priority className="object-cover" />
         <div className="lingo-hero-overlay" />

@@ -16,6 +16,14 @@
   --lingo-bg-alt: #f7f7f7;
 }
 
+.dark {
+  --lingo-surface: #131f24;
+  --lingo-text: #ffffff;
+  --lingo-text-secondary: #afafaf;
+  --lingo-border: #2b3940;
+  --lingo-bg-alt: #111b21;
+}
+
 *:focus-visible {
   outline: 3px solid var(--lingo-primary);
   outline-offset: 2px;
