@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono, Nunito } from "next/font/google";
 import { JsonLd } from "@/components/seo/json-ld";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -30,10 +31,13 @@ const websiteId = `${normalizedSiteUrl}/#website`;
 const brandEntitySchemas = [
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "EducationalOrganization",
     "@id": organizationId,
     name: "AzubiVN",
     url: normalizedSiteUrl,
+    logo: "https://azubivn.de/images/Logo_Book.png",
+    areaServed: { "@type": "Country", name: "Germany" },
+    foundingDate: "2026",
     description:
       "Nền tảng phi lợi nhuận hỗ trợ người Việt học và chuẩn bị Ausbildung tại Đức.",
     knowsAbout: [...azubivnKnowsAbout],
@@ -54,6 +58,20 @@ const brandEntitySchemas = [
   },
 ];
 
+const nunito = Nunito({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-nunito",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-mono",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(normalizedSiteUrl),
   title: {
@@ -65,6 +83,9 @@ export const metadata: Metadata = {
   applicationName: "AzubiVN",
   alternates: {
     canonical: "/",
+    languages: {
+      "vi-DE": "/",
+    },
   },
   openGraph: {
     title: "AzubiVN - Nền tảng học tập Azubi",
@@ -99,7 +120,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html
+      lang="vi"
+      suppressHydrationWarning
+      className={`${nunito.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="min-h-screen bg-background text-foreground antialiased">
         <JsonLd data={brandEntitySchemas} />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
