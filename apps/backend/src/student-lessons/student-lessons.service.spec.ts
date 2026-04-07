@@ -11,6 +11,7 @@ describe('StudentLessonsService', () => {
     lesson: {
       findMany: jest.Mock;
       findUnique: jest.Mock;
+      findFirst: jest.Mock;
     };
     lessonAttempt: {
       findFirst: jest.Mock;
@@ -28,6 +29,7 @@ describe('StudentLessonsService', () => {
       lesson: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
       },
       lessonAttempt: {
         findFirst: jest.fn(),
@@ -121,6 +123,9 @@ describe('StudentLessonsService', () => {
 
     expect(prisma.lesson.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        where: {
+          OR: [{ isPrivate: false }, { studentAccesses: { some: { userId: 'student-1' } } }],
+        },
         select: expect.objectContaining({
           lessonAttempts: expect.objectContaining({
             where: {
@@ -135,7 +140,7 @@ describe('StudentLessonsService', () => {
   });
 
   it('findDetail trả question type, imageUrl và vẫn ẩn đáp án essay/image essay + metadata chấm điểm', async () => {
-    prisma.lesson.findUnique.mockResolvedValue({
+    prisma.lesson.findFirst.mockResolvedValue({
       id: 'lesson-1',
       title: 'Buồng phòng cơ bản',
       summary: 'Tổng quan quy trình dọn phòng',
@@ -149,12 +154,14 @@ describe('StudentLessonsService', () => {
           uploadedAt: new Date('2026-01-01T00:00:00.000Z'),
         },
       ],
+      studentAccesses: [{ id: 'access-1' }],
       questions: [
         {
           id: 'question-1',
           type: QuestionType.SINGLE_CHOICE,
           text: 'Bước đầu tiên khi vào phòng là gì?',
           imageUrl: 'https://example.com/question-1.png',
+          isPrivate: false,
           orderIndex: 1,
           explanation: 'Không nên lộ cho student trước khi nộp bài',
           answers: [
@@ -172,6 +179,7 @@ describe('StudentLessonsService', () => {
           type: QuestionType.ESSAY,
           text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
           imageUrl: null,
+          isPrivate: false,
           orderIndex: 2,
           answers: [
             {
@@ -188,6 +196,7 @@ describe('StudentLessonsService', () => {
           type: QuestionType.MATCHING,
           text: 'Ghép khái niệm với định nghĩa phù hợp.',
           imageUrl: null,
+          isPrivate: false,
           orderIndex: 3,
           answers: [
             {
@@ -211,6 +220,7 @@ describe('StudentLessonsService', () => {
           type: QuestionType.IMAGE_ESSAY,
           text: 'Quan sát ảnh và mô tả quy trình an toàn thông tin.',
           imageUrl: 'https://example.com/question-4.png',
+          isPrivate: false,
           orderIndex: 4,
           answers: [
             {
@@ -228,6 +238,19 @@ describe('StudentLessonsService', () => {
 
     const result = await service.findDetailForStudent('lesson-1', 'student-1');
 
+    expect(prisma.lesson.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: 'lesson-1',
+          OR: [{ isPrivate: false }, { studentAccesses: { some: { userId: 'student-1' } } }],
+        },
+        select: expect.objectContaining({
+          studentAccesses: expect.objectContaining({
+            where: { userId: 'student-1' },
+          }),
+        }),
+      }),
+    );
     expect(result.isCompleted).toBe(true);
     expect(result.questions).toEqual([
       {
@@ -236,6 +259,7 @@ describe('StudentLessonsService', () => {
         text: 'Bước đầu tiên khi vào phòng là gì?',
         imageUrl: 'https://example.com/question-1.png',
         orderIndex: 1,
+        isLocked: false,
         answers: [
           {
             id: 'answer-1',
@@ -249,6 +273,7 @@ describe('StudentLessonsService', () => {
         text: 'Mô tả quy trình xử lý khi khách báo thiếu khăn tắm.',
         imageUrl: null,
         orderIndex: 2,
+        isLocked: false,
         answers: [],
       },
       {
@@ -257,6 +282,7 @@ describe('StudentLessonsService', () => {
         text: 'Ghép khái niệm với định nghĩa phù hợp.',
         imageUrl: null,
         orderIndex: 3,
+        isLocked: false,
         answers: [
           {
             id: 'answer-3-left-1',
@@ -275,11 +301,86 @@ describe('StudentLessonsService', () => {
         text: 'Quan sát ảnh và mô tả quy trình an toàn thông tin.',
         imageUrl: 'https://example.com/question-4.png',
         orderIndex: 4,
+        isLocked: false,
         answers: [],
       },
     ]);
     expect('explanation' in result.questions[0]).toBe(false);
     expect('isCorrect' in result.questions[0].answers[0]).toBe(false);
+  });
+
+  it('findDetail khóa dữ liệu câu hỏi VIP khi student chưa có quyền truy cập', async () => {
+    prisma.lesson.findFirst.mockResolvedValue({
+      id: 'lesson-1',
+      title: 'Buồng phòng cơ bản',
+      summary: 'Tổng quan quy trình dọn phòng',
+      contentMd: '# Nội dung',
+      imageUrl: null,
+      category: { id: 'cat-1', name: 'Buồng phòng' },
+      files: [],
+      studentAccesses: [],
+      questions: [
+        {
+          id: 'question-public',
+          type: QuestionType.SINGLE_CHOICE,
+          text: 'Câu public',
+          imageUrl: 'https://example.com/public.png',
+          isPrivate: false,
+          orderIndex: 1,
+          answers: [
+            {
+              id: 'answer-public',
+              text: 'Đáp án public',
+              matchText: null,
+            },
+          ],
+        },
+        {
+          id: 'question-private',
+          type: QuestionType.SINGLE_CHOICE,
+          text: 'Câu VIP',
+          imageUrl: 'https://example.com/private.png',
+          isPrivate: true,
+          orderIndex: 2,
+          answers: [
+            {
+              id: 'answer-private',
+              text: 'Đáp án VIP',
+              matchText: null,
+            },
+          ],
+        },
+      ],
+    } as unknown);
+    prisma.lessonAttempt.findFirst.mockResolvedValue(null);
+
+    const result = await service.findDetailForStudent('lesson-1', 'student-1');
+
+    expect(result.questions).toEqual([
+      {
+        id: 'question-public',
+        type: QuestionType.SINGLE_CHOICE,
+        text: 'Câu public',
+        imageUrl: 'https://example.com/public.png',
+        orderIndex: 1,
+        isLocked: false,
+        answers: [
+          {
+            id: 'answer-public',
+            text: 'Đáp án public',
+          },
+        ],
+      },
+      {
+        id: 'question-private',
+        type: QuestionType.SINGLE_CHOICE,
+        text: 'Câu VIP',
+        imageUrl: null,
+        orderIndex: 2,
+        isLocked: true,
+        answers: [],
+      },
+    ]);
   });
 
   it('getFileDownloadUrl trả signed url khi lesson và file tồn tại', async () => {

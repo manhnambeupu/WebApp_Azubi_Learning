@@ -182,6 +182,11 @@ export function QuestionList({ lessonId }: QuestionListProps) {
                         <Badge className="bg-amber-100/80 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100" variant="secondary">
                           {question.answers.length} đáp án
                         </Badge>
+                        {question.isPrivate ? (
+                          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200">
+                            [🔒 VIP]
+                          </Badge>
+                        ) : null}
                       </div>
                       <p className="line-clamp-2 text-left text-sm font-medium text-slate-800 dark:text-slate-100">
                         {question.text}

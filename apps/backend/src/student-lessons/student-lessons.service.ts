@@ -14,6 +14,9 @@ export class StudentLessonsService {
 
   async findAllForStudent(userId: string) {
     const lessons = await this.prisma.lesson.findMany({
+      where: {
+        OR: [{ isPrivate: false }, { studentAccesses: { some: { userId } } }],
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -54,8 +57,11 @@ export class StudentLessonsService {
 
   async findDetailForStudent(lessonId: string, userId: string) {
     const [lesson, firstAttempt] = await Promise.all([
-      this.prisma.lesson.findUnique({
-        where: { id: lessonId },
+      this.prisma.lesson.findFirst({
+        where: {
+          id: lessonId,
+          OR: [{ isPrivate: false }, { studentAccesses: { some: { userId } } }],
+        },
         select: {
           id: true,
           title: true,
@@ -80,6 +86,13 @@ export class StudentLessonsService {
               uploadedAt: 'desc',
             },
           },
+          studentAccesses: {
+            where: { userId },
+            select: {
+              id: true,
+            },
+            take: 1,
+          },
           questions: {
             orderBy: {
               orderIndex: 'asc',
@@ -89,6 +102,7 @@ export class StudentLessonsService {
               type: true,
               text: true,
               imageUrl: true,
+              isPrivate: true,
               orderIndex: true,
               answers: {
                 select: {
@@ -100,7 +114,7 @@ export class StudentLessonsService {
             },
           },
         },
-        }),
+      }),
       this.prisma.lessonAttempt.findFirst({
         where: {
           lessonId,
@@ -117,37 +131,47 @@ export class StudentLessonsService {
       throw new NotFoundException('Lesson not found');
     }
 
+    const { studentAccesses, ...lessonData } = lesson;
+    const hasAccess = studentAccesses.length > 0;
+
     return {
-      ...lesson,
-      questions: lesson.questions.map((question) => ({
-        id: question.id,
-        type: question.type,
-        text: question.text,
-        imageUrl: question.imageUrl,
-        orderIndex: question.orderIndex,
-        answers:
-          question.type === QuestionType.ESSAY ||
-          question.type === QuestionType.IMAGE_ESSAY
-            ? []
-            : question.answers.map((answer) => ({
-                id: answer.id,
-                text: answer.text,
-              })),
-        ...(question.type === QuestionType.MATCHING
-          ? {
-              matchingOptions: [
-                ...new Set(
-                  question.answers
-                    .map((answer) => answer.matchText)
-                    .filter(
-                      (matchText): matchText is string =>
-                        matchText !== null && matchText.trim().length > 0,
-                    ),
-                ),
-              ],
-            }
-          : {}),
-      })),
+      ...lessonData,
+      questions: lesson.questions.map((question) => {
+        const isLocked = question.isPrivate && !hasAccess;
+        return {
+          id: question.id,
+          type: question.type,
+          text: question.text,
+          imageUrl: isLocked ? null : question.imageUrl,
+          orderIndex: question.orderIndex,
+          isLocked,
+          answers:
+            isLocked ||
+            question.type === QuestionType.ESSAY ||
+            question.type === QuestionType.IMAGE_ESSAY
+              ? []
+              : question.answers.map((answer) => ({
+                  id: answer.id,
+                  text: answer.text,
+                })),
+          ...(question.type === QuestionType.MATCHING
+            ? {
+                matchingOptions: isLocked
+                  ? []
+                  : [
+                      ...new Set(
+                        question.answers
+                          .map((answer) => answer.matchText)
+                          .filter(
+                            (matchText): matchText is string =>
+                              matchText !== null && matchText.trim().length > 0,
+                          ),
+                      ),
+                    ],
+              }
+            : {}),
+        };
+      }),
       isCompleted: Boolean(firstAttempt),
     };
   }

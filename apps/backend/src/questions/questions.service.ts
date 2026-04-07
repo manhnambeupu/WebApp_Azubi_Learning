@@ -104,6 +104,7 @@ export class QuestionsService {
           ? { explanation: dto.explanation }
           : {}),
         ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),
+        ...(dto.isPrivate !== undefined ? { isPrivate: dto.isPrivate } : {}),
         type: questionType,
         orderIndex: nextOrderIndex,
         answers: {
@@ -143,6 +144,7 @@ export class QuestionsService {
             ? { explanation: dto.explanation }
             : {}),
           ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),
+          ...(dto.isPrivate !== undefined ? { isPrivate: dto.isPrivate } : {}),
           ...(dto.type !== undefined ? { type: dto.type } : {}),
           ...(dto.orderIndex !== undefined
             ? { orderIndex: dto.orderIndex }

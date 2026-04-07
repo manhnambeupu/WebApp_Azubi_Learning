@@ -2,19 +2,22 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { LessonDetail, LessonFile, LessonListItem } from "@/types";
+import type { LessonAccessEntry, LessonDetail, LessonFile, LessonListItem } from "@/types";
 
 export const ADMIN_LESSONS_QUERY_KEY = ["admin-lessons"] as const;
 export const adminLessonsByCategoryQueryKey = (categoryId?: string) =>
   [...ADMIN_LESSONS_QUERY_KEY, categoryId ?? "all"] as const;
 export const adminLessonDetailQueryKey = (lessonId: string) =>
   ["admin-lesson", lessonId] as const;
+export const adminLessonAccessQueryKey = (lessonId: string) =>
+  ["admin-lesson-access", lessonId] as const;
 
 export type LessonMutationPayload = {
   title: string;
   summary: string;
   contentMd: string;
   categoryId: string;
+  isPrivate: boolean;
   imageFile?: File | null;
 };
 
@@ -29,6 +32,7 @@ const buildLessonFormData = (payload: LessonMutationPayload): FormData => {
   formData.append("summary", payload.summary);
   formData.append("contentMd", payload.contentMd);
   formData.append("categoryId", payload.categoryId);
+  formData.append("isPrivate", String(payload.isPrivate));
   if (payload.imageFile) {
     formData.append("image", payload.imageFile);
   }
@@ -172,6 +176,56 @@ export function useGetLessonFileDownloadUrl(lessonId: string) {
         `/admin/lessons/${lessonId}/files/${fileId}/download`,
       );
       return response.data;
+    },
+  });
+}
+
+export function useGetLessonAccessList(lessonId?: string) {
+  return useQuery({
+    queryKey: adminLessonAccessQueryKey(lessonId ?? ""),
+    enabled: Boolean(lessonId),
+    queryFn: async () => {
+      const response = await api.get<LessonAccessEntry[]>(
+        `/admin/lessons/${lessonId}/access`,
+      );
+      return response.data;
+    },
+  });
+}
+
+export function useGrantLessonAccess(lessonId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const response = await api.post<{ success: boolean }>(
+        `/admin/lessons/${lessonId}/access`,
+        { email },
+      );
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: adminLessonAccessQueryKey(lessonId),
+      });
+    },
+  });
+}
+
+export function useRevokeLessonAccess(lessonId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await api.delete<{ success: boolean }>(
+        `/admin/lessons/${lessonId}/access/${userId}`,
+      );
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: adminLessonAccessQueryKey(lessonId),
+      });
     },
   });
 }

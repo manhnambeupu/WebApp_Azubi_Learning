@@ -31,6 +31,7 @@ export type LessonListItem = {
   summary: string;
   contentMd: string;
   imageUrl: string | null;
+  isPrivate: boolean;
   categoryId: string;
   createdAt: string;
   updatedAt: string;
@@ -55,6 +56,7 @@ export type QuestionDetail = {
   text: string;
   explanation: string | null;
   imageUrl?: string | null;
+  isPrivate: boolean;
   orderIndex: number;
   answers: AnswerDetail[];
 };
@@ -72,6 +74,7 @@ export type CreateQuestionPayload = {
   type: QuestionType;
   explanation?: string;
   imageUrl?: string;
+  isPrivate?: boolean;
   answers: QuestionAnswerPayload[];
 };
 
@@ -80,6 +83,7 @@ export type UpdateQuestionPayload = {
   type?: QuestionType;
   explanation?: string;
   imageUrl?: string;
+  isPrivate?: boolean;
   orderIndex?: number;
   answers?: QuestionAnswerPayload[];
 };
@@ -101,12 +105,21 @@ export type LessonDetail = {
   summary: string;
   contentMd: string;
   imageUrl: string | null;
+  isPrivate: boolean;
   categoryId: string;
   createdAt: string;
   updatedAt: string;
   category: Pick<Category, "id" | "name">;
   files: LessonFile[];
   questions: LessonQuestion[];
+};
+
+export type LessonAccessEntry = {
+  id: string;
+  userId: string;
+  lessonId: string;
+  grantedAt: string;
+  user: Pick<User, "id" | "email" | "fullName">;
 };
 
 export type Student = {
@@ -139,6 +152,7 @@ export type StudentQuestion = {
   text: string;
   imageUrl?: string | null;
   orderIndex: number;
+  isLocked: boolean;
   answers: StudentAnswer[];
   matchingOptions?: string[];
 };

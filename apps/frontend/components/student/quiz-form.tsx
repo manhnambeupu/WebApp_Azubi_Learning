@@ -79,6 +79,10 @@ const isQuestionAnswered = (
   orderingAnswerIds: string[] | undefined,
   matchingSelectionsByAnswerId: Record<string, string> | undefined,
 ): boolean => {
+  if (question.isLocked) {
+    return true;
+  }
+
   if (question.type === "ESSAY" || question.type === "IMAGE_ESSAY") {
     return true;
   }
@@ -138,10 +142,14 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     setMatchingOptionsByQuestion(nextMatchingOptionsByQuestion);
   }, [questions]);
 
-  const totalQuestions = questions.length;
+  const gradableQuestions = useMemo(
+    () => questions.filter((question) => !question.isLocked),
+    [questions],
+  );
+  const totalQuestions = gradableQuestions.length;
   const answeredCount = useMemo(
     () =>
-      questions.filter((question) =>
+      gradableQuestions.filter((question) =>
         isQuestionAnswered(
           question,
           selectedAnswers[question.id],
@@ -149,7 +157,12 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           matchingSelectionsByQuestion[question.id],
         ),
       ).length,
-    [matchingSelectionsByQuestion, orderingAnswerIdsByQuestion, questions, selectedAnswers],
+    [
+      gradableQuestions,
+      matchingSelectionsByQuestion,
+      orderingAnswerIdsByQuestion,
+      selectedAnswers,
+    ],
   );
   const isFullyAnswered = answeredCount === totalQuestions && totalQuestions > 0;
 
@@ -235,7 +248,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
 
     try {
       const payload: SubmitQuizPayload = {
-        answers: questions.map((question) => {
+        answers: gradableQuestions.map((question) => {
           if (question.type === "ORDERING") {
             return {
               questionId: question.id,
@@ -336,12 +349,13 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
             orderingAnswerIds,
             matchingSelections,
           );
+          const isLocked = question.isLocked === true;
 
           return (
             <article
               aria-labelledby={`question-title-${question.id}`}
               className={cn(
-                "space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300 dark:bg-slate-900/80",
+                "relative overflow-hidden space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300 dark:bg-slate-900/80",
                 questionAnswered
                   ? "shadow-glow-soft ring-1 ring-accent/20"
                   : "hover:border-primary/35 hover:shadow-glow-soft",
@@ -351,217 +365,177 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               data-ai-question-type={question.type}
               key={question.id}
             >
-              <header className="space-y-1">
-                <h3
-                  className="font-medium leading-7 whitespace-pre-wrap"
-                  id={`question-title-${question.id}`}
-                >
-                  Câu {questionIndex + 1}: {question.text}
-                </h3>
-                {question.imageUrl ? (
-                  <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
-                    <Image
-                      alt={`Hình ảnh đi kèm câu hỏi ${questionIndex + 1}`}
-                      className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
-                      height={720}
-                      sizes="(max-width: 768px) 100vw, 768px"
-                      src={question.imageUrl}
-                      unoptimized
-                      width={1280}
+              <div
+                className={cn(
+                  isLocked
+                    ? "pointer-events-none select-none opacity-30 blur-[4px]"
+                    : "",
+                )}
+              >
+                <header className="space-y-1">
+                  <h3
+                    className="font-medium leading-7 whitespace-pre-wrap"
+                    id={`question-title-${question.id}`}
+                  >
+                    Câu {questionIndex + 1}: {question.text}
+                  </h3>
+                  {question.imageUrl ? (
+                    <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+                      <Image
+                        alt={`Hình ảnh đi kèm câu hỏi ${questionIndex + 1}`}
+                        className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
+                        height={720}
+                        sizes="(max-width: 768px) 100vw, 768px"
+                        src={question.imageUrl}
+                        unoptimized
+                        width={1280}
+                      />
+                    </div>
+                  ) : null}
+                  <p className="text-xs text-muted-foreground">
+                    {getQuestionInstruction(question)}
+                  </p>
+                </header>
+
+                {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
+                  <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
+                    <Textarea
+                      className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70 dark:bg-slate-950/85"
+                      onChange={(event) =>
+                        setEssayInputs((prev) => ({
+                          ...prev,
+                          [question.id]: event.target.value,
+                        }))
+                      }
+                      placeholder={
+                        question.type === "IMAGE_ESSAY"
+                          ? "Mời bạn nhập câu trả lời / suy luận của mình vào đây..."
+                          : "Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
+                      }
+                      value={essayInputs[question.id] ?? ""}
                     />
                   </div>
-                ) : null}
-                <p className="text-xs text-muted-foreground">
-                  {getQuestionInstruction(question)}
-                </p>
-              </header>
-
-              {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
-                <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
-                  <Textarea
-                    className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70 dark:bg-slate-950/85"
-                    onChange={(event) =>
-                      setEssayInputs((prev) => ({
-                        ...prev,
-                        [question.id]: event.target.value,
-                      }))
-                    }
-                    placeholder={
-                      question.type === "IMAGE_ESSAY"
-                        ? "Mời bạn nhập câu trả lời / suy luận của mình vào đây..."
-                        : "Hãy tự suy nghĩ đáp án trong đầu. Sau khi nộp bài bạn sẽ xem được đáp án mẫu."
-                    }
-                    value={essayInputs[question.id] ?? ""}
-                  />
-                </div>
-              ) : question.type === "ORDERING" ? (
-                <ol className="space-y-2" data-ai-question-options="ordering">
-                  {orderedAnswers.map((answer, answerIndex) => (
-                    <li
-                      data-ai-answer-index={answerIndex + 1}
-                      data-ai-answer-text={answer.text}
-                      data-ai-answer-type="ordering-item"
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft dark:bg-slate-900/85"
-                      key={answer.id}
-                    >
-                      <div className="flex flex-1 items-center gap-3">
-                        <Badge variant="secondary">#{answerIndex + 1}</Badge>
-                        <p className="text-sm">{answer.text}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          className="h-8 w-8 rounded-full border-primary/20"
-                          disabled={answerIndex === 0}
-                          onClick={() =>
-                            moveAnswer(question.id, answerIndex, answerIndex - 1)
-                          }
-                          size="icon"
-                          type="button"
-                          variant="outline"
-                        >
-                          <ChevronUp className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          className="h-8 w-8 rounded-full border-primary/20"
-                          disabled={answerIndex === orderedAnswers.length - 1}
-                          onClick={() =>
-                            moveAnswer(question.id, answerIndex, answerIndex + 1)
-                          }
-                          size="icon"
-                          type="button"
-                          variant="outline"
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              ) : question.type === "MATCHING" ? (
-                <div className="space-y-3" data-ai-question-options="matching">
-                  {question.answers.map((answer) => (
-                    <div
-                      data-ai-answer-text={answer.text}
-                      data-ai-answer-type="matching-left"
-                      className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr] dark:bg-slate-900/85"
-                      key={answer.id}
-                    >
-                      <div className="space-y-1 rounded-md border border-primary/10 bg-primary/5 px-3 py-2">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          Vế trái
-                        </p>
-                        <p className="text-sm">{answer.text}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          Vế phải
-                        </p>
-                        <Select
-                          onValueChange={(matchText) =>
-                            handleMatchingSelect(question.id, answer.id, matchText)
-                          }
-                          value={matchingSelections[answer.id]}
-                        >
-                          <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate dark:bg-slate-950/80">
-                            <SelectValue placeholder="Chọn vế phải phù hợp" />
-                          </SelectTrigger>
-                          <SelectContent className="max-w-[calc(100vw-2rem)]">
-                            {matchingOptions.map((option, optionIndex) => (
-                              <SelectItem
-                                className="max-w-[calc(100vw-2rem)] shrink-0"
-                                key={`${question.id}-${answer.id}-${optionIndex}`}
-                                value={option}
-                              >
-                                <span className="break-words whitespace-normal text-left">
-                                  {option}
-                                </span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : question.type === "MULTIPLE_CHOICE" ? (
-                <ol className="space-y-3" data-ai-question-options="multiple-choice">
-                  {question.answers.map((answer, answerIndex) => {
-                    const answerLabel = String.fromCharCode(65 + answerIndex);
-                    const checkboxId = `${question.id}-${answer.id}`;
-                    const isSelected = selectedAnswerIds.includes(answer.id);
-
-                    return (
-                      <li key={answer.id}>
-                        <Label
-                          data-ai-answer-index={answerIndex + 1}
-                          data-ai-answer-text={answer.text}
-                          data-ai-answer-type="multiple-choice"
-                        className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
-                          isSelected
-                            ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
-                            : "",
-                        )}
-                        htmlFor={checkboxId}
+                ) : question.type === "ORDERING" ? (
+                  <ol className="space-y-2" data-ai-question-options="ordering">
+                    {orderedAnswers.map((answer, answerIndex) => (
+                      <li
+                        data-ai-answer-index={answerIndex + 1}
+                        data-ai-answer-text={answer.text}
+                        data-ai-answer-type="ordering-item"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft dark:bg-slate-900/85"
+                        key={answer.id}
                       >
-                        <Checkbox
-                          checked={isSelected}
-                          className="mt-0.5 border-primary/40 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
-                          id={checkboxId}
-                          onCheckedChange={(checked) =>
-                            handleMultipleChoiceChange(
-                              question.id,
-                              answer.id,
-                              checked === true,
-                            )
-                          }
-                        />
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-muted-foreground">
-                            Đáp án {answerLabel}
-                          </p>
-                          <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
-                            {answer.text}
-                          </p>
+                        <div className="flex flex-1 items-center gap-3">
+                          <Badge variant="secondary">#{answerIndex + 1}</Badge>
+                          <p className="text-sm">{answer.text}</p>
                         </div>
-                        </Label>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            className="h-8 w-8 rounded-full border-primary/20"
+                            disabled={answerIndex === 0}
+                            onClick={() =>
+                              moveAnswer(question.id, answerIndex, answerIndex - 1)
+                            }
+                            size="icon"
+                            type="button"
+                            variant="outline"
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            className="h-8 w-8 rounded-full border-primary/20"
+                            disabled={answerIndex === orderedAnswers.length - 1}
+                            onClick={() =>
+                              moveAnswer(question.id, answerIndex, answerIndex + 1)
+                            }
+                            size="icon"
+                            type="button"
+                            variant="outline"
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </li>
-                    );
-                  })}
-                </ol>
-              ) : (
-                <RadioGroup
-                  aria-label={`Danh sach dap an cho cau ${questionIndex + 1}`}
-                  data-ai-question-options="single-choice"
-                  onValueChange={(answerId) =>
-                    handleSingleChoiceChange(question.id, answerId)
-                  }
-                  value={selectedAnswerIds[0] ?? ""}
-                >
-                  <ol className="space-y-3">
+                    ))}
+                  </ol>
+                ) : question.type === "MATCHING" ? (
+                  <div className="space-y-3" data-ai-question-options="matching">
+                    {question.answers.map((answer) => (
+                      <div
+                        data-ai-answer-text={answer.text}
+                        data-ai-answer-type="matching-left"
+                        className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr] dark:bg-slate-900/85"
+                        key={answer.id}
+                      >
+                        <div className="space-y-1 rounded-md border border-primary/10 bg-primary/5 px-3 py-2">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Vế trái
+                          </p>
+                          <p className="text-sm">{answer.text}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Vế phải
+                          </p>
+                          <Select
+                            onValueChange={(matchText) =>
+                              handleMatchingSelect(question.id, answer.id, matchText)
+                            }
+                            value={matchingSelections[answer.id]}
+                          >
+                            <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate dark:bg-slate-950/80">
+                              <SelectValue placeholder="Chọn vế phải phù hợp" />
+                            </SelectTrigger>
+                            <SelectContent className="max-w-[calc(100vw-2rem)]">
+                              {matchingOptions.map((option, optionIndex) => (
+                                <SelectItem
+                                  className="max-w-[calc(100vw-2rem)] shrink-0"
+                                  key={`${question.id}-${answer.id}-${optionIndex}`}
+                                  value={option}
+                                >
+                                  <span className="break-words whitespace-normal text-left">
+                                    {option}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : question.type === "MULTIPLE_CHOICE" ? (
+                  <ol className="space-y-3" data-ai-question-options="multiple-choice">
                     {question.answers.map((answer, answerIndex) => {
                       const answerLabel = String.fromCharCode(65 + answerIndex);
-                      const radioId = `${question.id}-${answer.id}`;
-                      const isSelected = selectedAnswerIds[0] === answer.id;
+                      const checkboxId = `${question.id}-${answer.id}`;
+                      const isSelected = selectedAnswerIds.includes(answer.id);
 
                       return (
                         <li key={answer.id}>
                           <Label
                             data-ai-answer-index={answerIndex + 1}
                             data-ai-answer-text={answer.text}
-                            data-ai-answer-type="single-choice"
+                            data-ai-answer-type="multiple-choice"
                             className={cn(
                               "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
                               isSelected
                                 ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
                                 : "",
                             )}
-                            htmlFor={radioId}
+                            htmlFor={checkboxId}
                           >
-                            <RadioGroupItem
-                              className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
-                              id={radioId}
-                              value={answer.id}
+                            <Checkbox
+                              checked={isSelected}
+                              className="mt-0.5 border-primary/40 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
+                              id={checkboxId}
+                              onCheckedChange={(checked) =>
+                                handleMultipleChoiceChange(
+                                  question.id,
+                                  answer.id,
+                                  checked === true,
+                                )
+                              }
                             />
                             <div className="space-y-1">
                               <p className="text-xs font-semibold text-muted-foreground">
@@ -576,8 +550,66 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                       );
                     })}
                   </ol>
-                </RadioGroup>
-              )}
+                ) : (
+                  <RadioGroup
+                    aria-label={`Danh sach dap an cho cau ${questionIndex + 1}`}
+                    data-ai-question-options="single-choice"
+                    onValueChange={(answerId) =>
+                      handleSingleChoiceChange(question.id, answerId)
+                    }
+                    value={selectedAnswerIds[0] ?? ""}
+                  >
+                    <ol className="space-y-3">
+                      {question.answers.map((answer, answerIndex) => {
+                        const answerLabel = String.fromCharCode(65 + answerIndex);
+                        const radioId = `${question.id}-${answer.id}`;
+                        const isSelected = selectedAnswerIds[0] === answer.id;
+
+                        return (
+                          <li key={answer.id}>
+                            <Label
+                              data-ai-answer-index={answerIndex + 1}
+                              data-ai-answer-text={answer.text}
+                              data-ai-answer-type="single-choice"
+                              className={cn(
+                                "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
+                                isSelected
+                                  ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
+                                  : "",
+                              )}
+                              htmlFor={radioId}
+                            >
+                              <RadioGroupItem
+                                className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
+                                id={radioId}
+                                value={answer.id}
+                              />
+                              <div className="space-y-1">
+                                <p className="text-xs font-semibold text-muted-foreground">
+                                  Đáp án {answerLabel}
+                                </p>
+                                <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                                  {answer.text}
+                                </p>
+                              </div>
+                            </Label>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </RadioGroup>
+                )}
+              </div>
+              {isLocked ? (
+                <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                  <div className="max-w-md rounded-2xl border border-white/35 bg-white/80 px-5 py-4 text-center shadow-glass backdrop-blur-md dark:border-slate-200/20 dark:bg-slate-900/75">
+                    <p className="text-2xl">🔒</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">
+                      Câu hỏi dành cho học viên tham gia khóa học kèm 1-1. Liên hệ với Jason để mở khóa toàn bộ bài tập!
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </article>
           );
         })}

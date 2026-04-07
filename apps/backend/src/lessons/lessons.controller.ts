@@ -29,6 +29,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { GrantLessonAccessDto } from './dto/grant-lesson-access.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { LessonsService } from './lessons.service';
 
@@ -79,6 +80,7 @@ export class LessonsController {
         summary: { type: 'string' },
         contentMd: { type: 'string' },
         categoryId: { type: 'string', format: 'uuid' },
+        isPrivate: { type: 'boolean' },
         image: { type: 'string', format: 'binary' },
       },
       required: ['title', 'summary', 'contentMd', 'categoryId'],
@@ -118,6 +120,7 @@ export class LessonsController {
         summary: { type: 'string' },
         contentMd: { type: 'string' },
         categoryId: { type: 'string', format: 'uuid' },
+        isPrivate: { type: 'boolean' },
         image: { type: 'string', format: 'binary' },
       },
     },
@@ -151,6 +154,49 @@ export class LessonsController {
   @ApiResponse({ status: 404, description: 'Không tìm thấy bài học.' })
   delete(@Param('id') id: string) {
     return this.lessonsService.delete(id);
+  }
+
+  @Get(':id/access')
+  @ApiOperation({ summary: 'Lấy danh sách học viên được cấp quyền truy cập bài học' })
+  @ApiParam({ name: 'id', description: 'Lesson ID (UUID)' })
+  @ApiResponse({ status: 200, description: 'Lấy danh sách quyền truy cập thành công.' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bài học.' })
+  getAccessList(@Param('id') lessonId: string) {
+    return this.lessonsService.getAccessList(lessonId);
+  }
+
+  @Post(':id/access')
+  @ApiOperation({ summary: 'Cấp quyền truy cập bài học theo email học viên' })
+  @ApiParam({ name: 'id', description: 'Lesson ID (UUID)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email' },
+      },
+      required: ['email'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Cấp quyền truy cập thành công.' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bài học hoặc học viên.' })
+  grantAccessByEmail(
+    @Param('id') lessonId: string,
+    @Body() dto: GrantLessonAccessDto,
+  ) {
+    return this.lessonsService.grantAccessByEmail(lessonId, dto.email);
+  }
+
+  @Delete(':id/access/:userId')
+  @ApiOperation({ summary: 'Thu hồi quyền truy cập bài học của học viên' })
+  @ApiParam({ name: 'id', description: 'Lesson ID (UUID)' })
+  @ApiParam({ name: 'userId', description: 'Student user ID (UUID)' })
+  @ApiResponse({ status: 200, description: 'Thu hồi quyền truy cập thành công.' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bài học.' })
+  revokeAccess(
+    @Param('id') lessonId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.lessonsService.revokeAccess(lessonId, userId);
   }
 
   @Post(':id/files')

@@ -9,6 +9,8 @@ type LessonQuestionFixture = {
   id: string;
   type: QuestionType;
   text: string;
+  imageUrl: string | null;
+  isPrivate: boolean;
   explanation: string | null;
   orderIndex: number;
   answers: {
@@ -29,6 +31,8 @@ const createSingleChoiceQuestion = (
   id: `q-${index}`,
   type: QuestionType.SINGLE_CHOICE,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [
@@ -55,6 +59,8 @@ const createMultipleChoiceQuestion = (index: number): LessonQuestionFixture => (
   id: `q-${index}`,
   type: QuestionType.MULTIPLE_CHOICE,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [
@@ -89,6 +95,8 @@ const createEssayQuestion = (index: number): LessonQuestionFixture => ({
   id: `q-${index}`,
   type: QuestionType.ESSAY,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [],
@@ -98,6 +106,8 @@ const createImageEssayQuestion = (index: number): LessonQuestionFixture => ({
   id: `q-${index}`,
   type: QuestionType.IMAGE_ESSAY,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [],
@@ -107,6 +117,8 @@ const createOrderingQuestion = (index: number): LessonQuestionFixture => ({
   id: `q-${index}`,
   type: QuestionType.ORDERING,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [
@@ -141,6 +153,8 @@ const createMatchingQuestion = (index: number): LessonQuestionFixture => ({
   id: `q-${index}`,
   type: QuestionType.MATCHING,
   text: `Question ${index}`,
+  imageUrl: null,
+  isPrivate: false,
   explanation: `Explanation ${index}`,
   orderIndex: index,
   answers: [
@@ -169,6 +183,9 @@ describe('SubmissionsService', () => {
     lesson: {
       findUnique: jest.Mock;
     };
+    studentLessonAccess: {
+      findFirst: jest.Mock;
+    };
     lessonAttempt: {
       findMany: jest.Mock;
       findFirst: jest.Mock;
@@ -186,6 +203,9 @@ describe('SubmissionsService', () => {
     prisma = {
       lesson: {
         findUnique: jest.fn(),
+      },
+      studentLessonAccess: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       lessonAttempt: {
         findMany: jest.fn(),
@@ -390,6 +410,45 @@ describe('SubmissionsService', () => {
 
     await expect(submitPromise).rejects.toBeInstanceOf(UnprocessableEntityException);
     await expect(submitPromise).rejects.toThrow('Vui lòng trả lời tất cả câu hỏi.');
+  });
+
+  it('Freemium: student free vẫn nộp được khi lesson có câu VIP bị khóa', async () => {
+    const privateQuestion = createSingleChoiceQuestion(
+      2,
+      'a-2-correct',
+      'a-2-wrong',
+    );
+    privateQuestion.isPrivate = true;
+    privateQuestion.imageUrl = 'https://example.com/private-question.png';
+
+    prisma.lesson.findUnique.mockResolvedValue({
+      id: lessonId,
+      questions: [createSingleChoiceQuestion(1, 'a-1-correct', 'a-1-wrong'), privateQuestion],
+    });
+    prisma.studentLessonAccess.findFirst.mockResolvedValue(null);
+    const tx = setupTransactionMocks();
+
+    const result = await service.submitQuiz(userId, lessonId, {
+      answers: [{ questionId: 'q-1', answerIds: ['a-1-correct'] }],
+    });
+
+    expect(tx.submission.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          attemptId: 'attempt-1',
+          questionId: 'q-1',
+          answerId: 'a-1-correct',
+          orderIndex: null,
+          matchText: null,
+          isCorrect: true,
+        },
+      ],
+    });
+    expect(result.totalQuestions).toBe(1);
+    expect(result.correctCount).toBe(1);
+    expect(result.score).toBe(100);
+    expect(result.questions).toHaveLength(1);
+    expect(result.questions[0].id).toBe('q-1');
   });
 
   it('Nộp answerId không thuộc question -> 422', async () => {

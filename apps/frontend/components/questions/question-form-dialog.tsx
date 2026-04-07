@@ -197,6 +197,7 @@ export function QuestionFormDialog({
   const [questionExplanation, setQuestionExplanation] = useState(
     initialData?.explanation ?? "",
   );
+  const [isPrivate, setIsPrivate] = useState(initialData?.isPrivate ?? false);
   const [answers, setAnswers] = useState<AnswerFormItem[]>(() =>
     buildInitialAnswers(initialData),
   );
@@ -235,6 +236,7 @@ export function QuestionFormDialog({
     setQuestionText(initialData?.text ?? "");
     setQuestionType(initialData?.type ?? DEFAULT_QUESTION_TYPE);
     setQuestionExplanation(initialData?.explanation ?? "");
+    setIsPrivate(initialData?.isPrivate ?? false);
     setAnswers(buildInitialAnswers(initialData));
     setEssaySampleAnswer(buildInitialEssaySampleAnswer(initialData));
     setQuestionImageUrl(initialData?.imageUrl ?? "");
@@ -455,6 +457,7 @@ export function QuestionFormDialog({
       const basePayload = {
         text: normalizedQuestionText,
         type: questionType,
+        isPrivate,
         ...(questionExplanation.trim()
           ? { explanation: questionExplanation.trim() }
           : {}),
@@ -521,6 +524,7 @@ export function QuestionFormDialog({
     const basePayload = {
       text: normalizedQuestionText,
       type: questionType,
+      isPrivate,
       ...(questionExplanation.trim()
         ? { explanation: questionExplanation.trim() }
         : {}),
@@ -635,6 +639,27 @@ export function QuestionFormDialog({
                   ?.description
               }
             </p>
+          </div>
+
+          <div className={panelClassName}>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={isPrivate}
+                id="question-is-private"
+                onCheckedChange={(checked) => setIsPrivate(checked === true)}
+              />
+              <div className="space-y-1">
+                <Label
+                  className="cursor-pointer text-sm font-semibold text-slate-800 dark:text-slate-100"
+                  htmlFor="question-is-private"
+                >
+                  Câu hỏi VIP ẩn
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Chỉ học viên được cấp quyền vào bài học mới nhìn thấy câu hỏi này.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className={panelClassName}>

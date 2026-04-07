@@ -34,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AccessManagementDialog } from "@/components/lessons/AccessManagementDialog";
 import { useGetCategories } from "@/hooks/use-categories";
 import { useDeleteLesson, useGetLessons } from "@/hooks/use-lessons";
 import { useToast } from "@/hooks/use-toast";
@@ -253,7 +254,14 @@ export function AdminLessonsTableFetcher() {
                     >
                       <TableCell className="max-w-[360px] px-4 py-4 align-top">
                         <div className="space-y-1">
-                          <p className="font-medium leading-6">{lesson.title}</p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium leading-6">{lesson.title}</p>
+                            {lesson.isPrivate ? (
+                              <Badge className="rounded-full border border-rose-300/60 bg-rose-100 text-rose-700 hover:bg-rose-100">
+                                🔒 Private
+                              </Badge>
+                            ) : null}
+                          </div>
                           <p className="line-clamp-2 text-sm text-muted-foreground">
                             {lesson.summary}
                           </p>
@@ -279,6 +287,8 @@ export function AdminLessonsTableFetcher() {
                       </TableCell>
                       <TableCell className="px-4 py-4 text-right">
                         <div className="flex justify-end gap-2">
+                          <AccessManagementDialog lessonId={lesson.id} />
+
                           <Button
                             asChild
                             className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"

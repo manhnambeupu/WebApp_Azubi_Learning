@@ -1,8 +1,9 @@
 import { QuestionType } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   IsOptional,
@@ -26,6 +27,14 @@ export class UpdateQuestionDto {
   @IsOptional()
   @IsString()
   imageUrl?: string;
+
+  @ApiPropertyOptional({ default: false })
+  @Transform(
+    ({ value }) => value === 'true' || value === true || value === 1 || value === '1',
+  )
+  @IsBoolean()
+  @IsOptional()
+  isPrivate?: boolean;
 
   @ApiPropertyOptional({ enum: QuestionType, enumName: 'QuestionType' })
   @IsOptional()

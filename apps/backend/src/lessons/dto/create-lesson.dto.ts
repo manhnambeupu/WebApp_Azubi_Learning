@@ -1,5 +1,6 @@
-import { IsString, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateLessonDto {
   @ApiProperty({ example: 'Quy trình dọn buồng tiêu chuẩn' })
@@ -19,4 +20,10 @@ export class CreateLessonDto {
   @ApiProperty({ format: 'uuid' })
   @IsUUID()
   categoryId!: string;
+
+  @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
+  @IsBoolean()
+  @IsOptional()
+  isPrivate?: boolean;
 }

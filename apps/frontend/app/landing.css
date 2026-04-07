@@ -1,5 +1,3 @@
-@tailwind components;
-
 :root {
   --lingo-primary: #58cc02;
   --lingo-primary-dark: #46a302;
@@ -29,7 +27,6 @@
   outline-offset: 2px;
 }
 
-@layer components {
   .lingo-hero {
     position: relative;
     overflow: hidden;
@@ -265,8 +262,6 @@
   .lingo-icon-circle--warning {
     background: #fef9e7;
   }
-}
-
 @media (prefers-reduced-motion: reduce) {
 
   .lingo-btn,

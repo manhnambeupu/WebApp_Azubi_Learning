@@ -113,6 +113,7 @@ export class LessonsService {
         summary: dto.summary,
         contentMd: dto.contentMd,
         categoryId: dto.categoryId,
+        isPrivate: dto.isPrivate ?? false,
         ...(imageUrl ? { imageUrl } : {}),
       },
       include: {
@@ -180,6 +181,7 @@ export class LessonsService {
         ...(dto.summary !== undefined ? { summary: dto.summary } : {}),
         ...(dto.contentMd !== undefined ? { contentMd: dto.contentMd } : {}),
         ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
+        ...(dto.isPrivate !== undefined ? { isPrivate: dto.isPrivate } : {}),
         ...(imageUrl ? { imageUrl } : {}),
       },
       include: {
@@ -197,6 +199,59 @@ export class LessonsService {
         },
       },
     });
+  }
+
+  async getAccessList(lessonId: string) {
+    await this.ensureLessonExists(lessonId);
+
+    return this.prisma.studentLessonAccess.findMany({
+      where: { lessonId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+      },
+      orderBy: { grantedAt: 'desc' },
+    });
+  }
+
+  async grantAccessByEmail(lessonId: string, email: string) {
+    await this.ensureLessonExists(lessonId);
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new NotFoundException('Học viên không tồn tại theo email này');
+    }
+
+    await this.prisma.studentLessonAccess.upsert({
+      where: {
+        userId_lessonId: {
+          userId: user.id,
+          lessonId,
+        },
+      },
+      create: { lessonId, userId: user.id },
+      update: {},
+    });
+
+    return { success: true };
+  }
+
+  async revokeAccess(lessonId: string, userId: string) {
+    await this.ensureLessonExists(lessonId);
+
+    await this.prisma.studentLessonAccess.deleteMany({
+      where: { lessonId, userId },
+    });
+
+    return { success: true };
   }
 
   async delete(id: string): Promise<{ deleted: true; id: string }> {
@@ -378,6 +433,17 @@ export class LessonsService {
 
   private buildWebpObjectName(originalName: string): string {
     return `${this.buildObjectName(originalName).replace(/\.[^/.]+$/, '')}.webp`;
+  }
+
+  private async ensureLessonExists(lessonId: string): Promise<void> {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { id: true },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
   }
 
   private extractObjectNameFromUrl(bucketName: string, fileUrl: string): string {

@@ -50,6 +50,7 @@ type LessonQuestionSnapshot = {
   type: QuestionType;
   text: string;
   imageUrl: string | null;
+  isPrivate: boolean;
   explanation: string | null;
   orderIndex: number;
   answers: {
@@ -88,21 +89,25 @@ export class SubmissionsService {
     dto: SubmitQuizDto,
   ): Promise<AttemptDetailResponse> {
     const lessonQuestions = await this.getLessonQuestions(lessonId);
+    const hasAccess = await this.hasLessonAccess(userId, lessonId);
+    const gradableQuestions = lessonQuestions.filter(
+      (question) => !question.isPrivate || hasAccess,
+    );
     const submittedAnswersByQuestion = this.validateSubmittedAnswers(
-      lessonQuestions,
+      gradableQuestions,
       dto.answers,
     );
     const evaluationsByQuestion = this.evaluateQuestions(
-      lessonQuestions,
+      gradableQuestions,
       submittedAnswersByQuestion,
     );
 
     const questionsResult = this.buildQuestionsResult(
-      lessonQuestions,
+      gradableQuestions,
       submittedAnswersByQuestion,
       evaluationsByQuestion,
     );
-    const totalQuestions = this.countGradableQuestions(lessonQuestions);
+    const totalQuestions = this.countGradableQuestions(gradableQuestions);
     const correctCount = this.calculateCorrectCount(evaluationsByQuestion);
     const score = this.calculateScore(correctCount, totalQuestions);
 
@@ -248,19 +253,23 @@ export class SubmissionsService {
     }
 
     const lessonQuestions = await this.getLessonQuestions(lessonId);
+    const hasAccess = await this.hasLessonAccess(userId, lessonId);
+    const gradableQuestions = lessonQuestions.filter(
+      (question) => !question.isPrivate || hasAccess,
+    );
     const submittedAnswersByQuestion = this.groupSubmittedAnswersByQuestion(
       attempt.submissions,
     );
     const evaluationsByQuestion = this.evaluateQuestions(
-      lessonQuestions,
+      gradableQuestions,
       submittedAnswersByQuestion,
     );
     const questions = this.buildQuestionsResult(
-      lessonQuestions,
+      gradableQuestions,
       submittedAnswersByQuestion,
       evaluationsByQuestion,
     );
-    const totalQuestions = this.countGradableQuestions(lessonQuestions);
+    const totalQuestions = this.countGradableQuestions(gradableQuestions);
     const correctCount =
       attempt.correctCount ?? this.calculateCorrectCount(evaluationsByQuestion);
     const score = attempt.score ?? this.calculateScore(correctCount, totalQuestions);
@@ -310,6 +319,7 @@ export class SubmissionsService {
             type: true,
             text: true,
             imageUrl: true,
+            isPrivate: true,
             explanation: true,
             orderIndex: true,
             answers: {
@@ -333,6 +343,20 @@ export class SubmissionsService {
     }
 
     return lesson.questions;
+  }
+
+  private async hasLessonAccess(userId: string, lessonId: string): Promise<boolean> {
+    const access = await this.prisma.studentLessonAccess.findFirst({
+      where: {
+        userId,
+        lessonId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Boolean(access);
   }
 
   private validateSubmittedAnswers(

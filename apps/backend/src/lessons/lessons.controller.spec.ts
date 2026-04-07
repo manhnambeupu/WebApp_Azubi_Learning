@@ -10,6 +10,9 @@ describe('LessonsController', () => {
     create: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
+    getAccessList: jest.Mock;
+    grantAccessByEmail: jest.Mock;
+    revokeAccess: jest.Mock;
     uploadLessonFile: jest.Mock;
     deleteLessonFile: jest.Mock;
     getLessonFileDownloadUrl: jest.Mock;
@@ -22,6 +25,9 @@ describe('LessonsController', () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      getAccessList: jest.fn(),
+      grantAccessByEmail: jest.fn(),
+      revokeAccess: jest.fn(),
       uploadLessonFile: jest.fn(),
       deleteLessonFile: jest.fn(),
       getLessonFileDownloadUrl: jest.fn(),
@@ -84,6 +90,38 @@ describe('LessonsController', () => {
 
     expect(lessonsService.delete).toHaveBeenCalledWith('lesson-1');
     expect(result).toEqual({ deleted: true, id: 'lesson-1' });
+  });
+
+  it('getAccessList delegates to service', async () => {
+    lessonsService.getAccessList.mockResolvedValue([{ id: 'access-1' }]);
+
+    const result = await controller.getAccessList('lesson-1');
+
+    expect(lessonsService.getAccessList).toHaveBeenCalledWith('lesson-1');
+    expect(result).toEqual([{ id: 'access-1' }]);
+  });
+
+  it('grantAccessByEmail delegates to service', async () => {
+    lessonsService.grantAccessByEmail.mockResolvedValue({ success: true });
+
+    const result = await controller.grantAccessByEmail('lesson-1', {
+      email: 'student@example.com',
+    });
+
+    expect(lessonsService.grantAccessByEmail).toHaveBeenCalledWith(
+      'lesson-1',
+      'student@example.com',
+    );
+    expect(result).toEqual({ success: true });
+  });
+
+  it('revokeAccess delegates to service', async () => {
+    lessonsService.revokeAccess.mockResolvedValue({ success: true });
+
+    const result = await controller.revokeAccess('lesson-1', 'student-1');
+
+    expect(lessonsService.revokeAccess).toHaveBeenCalledWith('lesson-1', 'student-1');
+    expect(result).toEqual({ success: true });
   });
 
   it('uploadLessonFile delegates to service', async () => {

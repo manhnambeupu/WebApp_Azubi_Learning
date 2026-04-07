@@ -124,6 +124,34 @@ describe('QuestionsService', () => {
     expect(result.id).toBe('question-1');
   });
 
+  it('Tạo question lưu cờ isPrivate khi được truyền từ DTO', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.question.findFirst.mockResolvedValue({ orderIndex: 0 });
+    prisma.question.create.mockResolvedValue({
+      id: 'question-private-1',
+      lessonId: 'lesson-1',
+      text: createDto.text,
+      explanation: createDto.explanation,
+      isPrivate: true,
+      type: QuestionType.SINGLE_CHOICE,
+      orderIndex: 1,
+      answers: [],
+    });
+
+    await service.create('lesson-1', {
+      ...createDto,
+      isPrivate: true,
+    });
+
+    expect(prisma.question.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          isPrivate: true,
+        }),
+      }),
+    );
+  });
+
   it('Tạo question ORDERING lưu orderIndex cho từng đáp án', async () => {
     prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
     prisma.question.findFirst.mockResolvedValue({ orderIndex: 0 });
@@ -305,6 +333,7 @@ describe('QuestionsService', () => {
     const result = await service.update('question-1', {
       text: 'New text',
       explanation: 'Giải thích mới',
+      isPrivate: true,
       answers: [
         { text: 'A', isCorrect: true },
         { text: 'B', isCorrect: false },
@@ -319,6 +348,7 @@ describe('QuestionsService', () => {
       data: {
         text: 'New text',
         explanation: 'Giải thích mới',
+        isPrivate: true,
         answers: {
           create: [
             { text: 'A', isCorrect: true },

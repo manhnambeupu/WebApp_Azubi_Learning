@@ -6,6 +6,7 @@ import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useRef, useState
 import { ImageIcon, Loader2, UploadCloud, X } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -73,6 +74,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   const [summary, setSummary] = useState(lesson?.summary ?? "");
   const [contentMd, setContentMd] = useState(lesson?.contentMd ?? "");
   const [categoryId, setCategoryId] = useState(lesson?.categoryId ?? "");
+  const [isPrivate, setIsPrivate] = useState(lesson?.isPrivate ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [localImagePreview, setLocalImagePreview] = useState<string | null>(null);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
@@ -95,6 +97,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
     setSummary(lesson.summary);
     setContentMd(lesson.contentMd);
     setCategoryId(lesson.categoryId);
+    setIsPrivate(lesson.isPrivate);
     setImageFile(null);
     setLocalImagePreview(null);
   }, [lesson]);
@@ -229,6 +232,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
       summary: normalizedSummary,
       contentMd: normalizedContent,
       categoryId,
+      isPrivate,
       imageFile: imageFile ?? undefined,
     };
 
@@ -329,6 +333,28 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
                   {getApiErrorMessage(categoriesQuery.error)}
                 </p>
               ) : null}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-300/80 bg-white/80 p-4 dark:border-slate-700/80 dark:bg-slate-950/55">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={isPrivate}
+                className="mt-0.5 h-5 w-5"
+                id="lesson-private-mode"
+                onCheckedChange={(checked) => setIsPrivate(checked === true)}
+              />
+              <div className="space-y-1">
+                <Label
+                  className="cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200"
+                  htmlFor="lesson-private-mode"
+                >
+                  Chế độ Riêng tư (Kèm 1-1, ẩn với học sinh thường)
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Bật tùy chọn này để bài học chỉ hiển thị với học viên đã được cấp quyền truy cập.
+                </p>
+              </div>
             </div>
           </div>
 

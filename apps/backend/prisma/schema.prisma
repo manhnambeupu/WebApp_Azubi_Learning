@@ -27,18 +27,19 @@ enum SessionType {
 }
 
 model User {
-  id               String          @id @default(uuid()) @db.Uuid
-  email            String          @unique
+  id               String                @id @default(uuid()) @db.Uuid
+  email            String                @unique
   password         String?
-  fullName         String          @map("full_name")
+  fullName         String                @map("full_name")
   role             Role
-  authProvider     String?         @map("auth_provider")
-  providerId       String?         @map("provider_id")
-  refreshTokenHash String?         @map("refresh_token_hash")
-  failedLoginCount Int             @default(0) @map("failed_login_count")
-  lockedUntil      DateTime?       @map("locked_until")
-  createdAt        DateTime        @default(now()) @map("created_at")
+  authProvider     String?               @map("auth_provider")
+  providerId       String?               @map("provider_id")
+  refreshTokenHash String?               @map("refresh_token_hash")
+  failedLoginCount Int                   @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?             @map("locked_until")
+  createdAt        DateTime              @default(now()) @map("created_at")
   lessonAttempts   LessonAttempt[]
+  lessonAccesses   StudentLessonAccess[]
   activitySessions ActivitySession[]
 
   @@unique([authProvider, providerId])
@@ -54,18 +55,20 @@ model Category {
 }
 
 model Lesson {
-  id             String          @id @default(uuid()) @db.Uuid
-  title          String
-  summary        String
-  contentMd      String          @map("content_md")
-  imageUrl       String?         @map("image_url")
-  categoryId     String          @map("category_id") @db.Uuid
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  category       Category        @relation(fields: [categoryId], references: [id])
-  files          LessonFile[]
-  questions      Question[]
-  lessonAttempts LessonAttempt[]
+  id               String                @id @default(uuid()) @db.Uuid
+  title            String
+  summary          String
+  contentMd        String                @map("content_md")
+  imageUrl         String?               @map("image_url")
+  isPrivate        Boolean               @default(false) @map("is_private")
+  categoryId       String                @map("category_id") @db.Uuid
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  category         Category              @relation(fields: [categoryId], references: [id])
+  files            LessonFile[]
+  questions        Question[]
+  lessonAttempts   LessonAttempt[]
+  studentAccesses  StudentLessonAccess[]
   activitySessions ActivitySession[]
 
   @@map("lessons")
@@ -88,6 +91,7 @@ model Question {
   text        String
   explanation String?
   imageUrl    String?      @map("image_url")
+  isPrivate   Boolean      @default(false) @map("is_private")
   type        QuestionType @default(SINGLE_CHOICE)
   orderIndex  Int          @map("order_index")
   lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
@@ -123,8 +127,8 @@ model LessonAttempt {
   lesson        Lesson       @relation(fields: [lessonId], references: [id])
   submissions   Submission[]
 
-  @@index([userId, lessonId, attemptNumber])
   @@unique([userId, lessonId, attemptNumber])
+  @@index([userId, lessonId, attemptNumber])
   @@map("lesson_attempts")
 }
 
@@ -159,4 +163,17 @@ model ActivitySession {
   @@index([userId, lessonId])
   @@index([lastHeartbeatAt])
   @@map("activity_sessions")
+}
+
+model StudentLessonAccess {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  grantedAt DateTime @default(now()) @map("granted_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("student_lesson_access")
 }

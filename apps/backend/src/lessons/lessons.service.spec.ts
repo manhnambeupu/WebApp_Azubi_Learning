@@ -20,6 +20,14 @@ describe('LessonsService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
+    user: {
+      findUnique: jest.Mock;
+    };
+    studentLessonAccess: {
+      findMany: jest.Mock;
+      upsert: jest.Mock;
+      deleteMany: jest.Mock;
+    };
     lessonFile: {
       create: jest.Mock;
       findFirst: jest.Mock;
@@ -61,6 +69,14 @@ describe('LessonsService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+      },
+      user: {
+        findUnique: jest.fn(),
+      },
+      studentLessonAccess: {
+        findMany: jest.fn(),
+        upsert: jest.fn(),
+        deleteMany: jest.fn(),
       },
       lessonFile: {
         create: jest.fn(),
@@ -131,6 +147,7 @@ describe('LessonsService', () => {
         summary: baseDto.summary,
         contentMd: baseDto.contentMd,
         categoryId: baseDto.categoryId,
+        isPrivate: false,
       },
       include: {
         category: {
@@ -325,6 +342,92 @@ describe('LessonsService', () => {
         }),
       }),
     );
+  });
+
+  it('getAccessList trả danh sách học viên được cấp quyền', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.studentLessonAccess.findMany.mockResolvedValue([
+      {
+        id: 'access-1',
+        userId: 'student-1',
+        lessonId: 'lesson-1',
+        grantedAt: new Date(),
+        user: {
+          id: 'student-1',
+          email: 'student@example.com',
+          fullName: 'Student One',
+        },
+      },
+    ]);
+
+    const result = await service.getAccessList('lesson-1');
+
+    expect(prisma.studentLessonAccess.findMany).toHaveBeenCalledWith({
+      where: { lessonId: 'lesson-1' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+      },
+      orderBy: { grantedAt: 'desc' },
+    });
+    expect(result).toHaveLength(1);
+  });
+
+  it('grantAccessByEmail user không tồn tại -> NotFoundException', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await expect(
+      service.grantAccessByEmail('lesson-1', 'missing@example.com'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.studentLessonAccess.upsert).not.toHaveBeenCalled();
+  });
+
+  it('grantAccessByEmail thành công -> upsert quyền truy cập', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.user.findUnique.mockResolvedValue({ id: 'student-1' });
+    prisma.studentLessonAccess.upsert.mockResolvedValue({
+      id: 'access-1',
+      lessonId: 'lesson-1',
+      userId: 'student-1',
+    });
+
+    const result = await service.grantAccessByEmail('lesson-1', 'student@example.com');
+
+    expect(prisma.studentLessonAccess.upsert).toHaveBeenCalledWith({
+      where: {
+        userId_lessonId: {
+          userId: 'student-1',
+          lessonId: 'lesson-1',
+        },
+      },
+      create: {
+        lessonId: 'lesson-1',
+        userId: 'student-1',
+      },
+      update: {},
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it('revokeAccess xóa quyền truy cập theo lessonId + userId', async () => {
+    prisma.lesson.findUnique.mockResolvedValue({ id: 'lesson-1' });
+    prisma.studentLessonAccess.deleteMany.mockResolvedValue({ count: 1 });
+
+    const result = await service.revokeAccess('lesson-1', 'student-1');
+
+    expect(prisma.studentLessonAccess.deleteMany).toHaveBeenCalledWith({
+      where: {
+        lessonId: 'lesson-1',
+        userId: 'student-1',
+      },
+    });
+    expect(result).toEqual({ success: true });
   });
 
   it('uploadLessonFile quá 20MB -> reject', async () => {
