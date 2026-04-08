@@ -2,7 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { LessonAccessEntry, LessonDetail, LessonFile, LessonListItem } from "@/types";
+import type {
+  LessonAccessEntry,
+  LessonDetail,
+  LessonFile,
+  LessonListItem,
+  MarkdownImageUploadResponse,
+} from "@/types";
 
 export const ADMIN_LESSONS_QUERY_KEY = ["admin-lessons"] as const;
 export const adminLessonsByCategoryQueryKey = (categoryId?: string) =>
@@ -144,6 +150,20 @@ export function useUploadLessonFile(lessonId: string) {
       await queryClient.invalidateQueries({
         queryKey: ADMIN_LESSONS_QUERY_KEY,
       });
+    },
+  });
+}
+
+export function useUploadLessonMarkdownImage() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      const response = await api.post<MarkdownImageUploadResponse>(
+        "/admin/lessons/upload-markdown-image",
+        formData,
+      );
+      return response.data;
     },
   });
 }

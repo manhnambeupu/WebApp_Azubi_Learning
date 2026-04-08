@@ -14,11 +14,14 @@ const IMAGE_BUCKET = 'lesson-images';
 const LESSON_FILES_BUCKET = 'lesson-files';
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_LESSON_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+const WEBP_MIME_TYPE = 'image/webp';
 const IMAGE_MIME_TYPES = new Set([
   'image/jpeg',
   'image/jpg',
   'image/png',
   'image/webp',
+  'image/avif',
+  'image/gif',
 ]);
 const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const PDF_MIME_TYPE = 'application/pdf';
@@ -26,6 +29,16 @@ const LESSON_FILE_MIME_TYPES = new Set([
   DOCX_MIME_TYPE,
   PDF_MIME_TYPE,
 ]);
+
+export type MarkdownImageUploadResponse = {
+  imageUrl: string;
+  originalWidth: number;
+  originalHeight: number;
+  optimizedWidth: number;
+  optimizedHeight: number;
+  originalBytes: number;
+  optimizedBytes: number;
+};
 
 @Injectable()
 export class LessonsService {
@@ -94,16 +107,12 @@ export class LessonsService {
     let imageUrl: string | undefined;
     if (imageFile) {
       this.validateImageFile(imageFile);
-      const safeBuffer = await sharp(imageFile.buffer)
-        .rotate()
-        .resize({ width: 1280, withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toBuffer();
+      const safeBuffer = await this.toOptimizedWebpBuffer(imageFile);
       imageUrl = await this.minioService.uploadFile(
         IMAGE_BUCKET,
         this.buildWebpObjectName(imageFile.originalname),
         safeBuffer,
-        'image/webp',
+        WEBP_MIME_TYPE,
       );
     }
 
@@ -153,11 +162,7 @@ export class LessonsService {
     let imageUrl: string | undefined;
     if (imageFile) {
       this.validateImageFile(imageFile);
-      const safeBuffer = await sharp(imageFile.buffer)
-        .rotate()
-        .resize({ width: 1280, withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toBuffer();
+      const safeBuffer = await this.toOptimizedWebpBuffer(imageFile);
 
       if (existingLesson.imageUrl) {
         await this.minioService.deleteFile(
@@ -170,7 +175,7 @@ export class LessonsService {
         IMAGE_BUCKET,
         this.buildWebpObjectName(imageFile.originalname),
         safeBuffer,
-        'image/webp',
+        WEBP_MIME_TYPE,
       );
     }
 
@@ -349,6 +354,41 @@ export class LessonsService {
     });
   }
 
+  async uploadMarkdownImage(
+    imageFile: Express.Multer.File,
+  ): Promise<MarkdownImageUploadResponse> {
+    this.validateImageFile(imageFile);
+
+    const originalMetadata = await sharp(imageFile.buffer).metadata();
+    const safeBuffer = await this.toOptimizedWebpBuffer(imageFile);
+    const optimizedMetadata = await sharp(safeBuffer).metadata();
+    const imageUrl = await this.minioService.uploadFile(
+      IMAGE_BUCKET,
+      this.buildWebpObjectName(imageFile.originalname, 'markdown'),
+      safeBuffer,
+      WEBP_MIME_TYPE,
+    );
+
+    return {
+      imageUrl,
+      originalWidth: this.requireImageDimension(originalMetadata.width, 'original width'),
+      originalHeight: this.requireImageDimension(
+        originalMetadata.height,
+        'original height',
+      ),
+      optimizedWidth: this.requireImageDimension(
+        optimizedMetadata.width,
+        'optimized width',
+      ),
+      optimizedHeight: this.requireImageDimension(
+        optimizedMetadata.height,
+        'optimized height',
+      ),
+      originalBytes: imageFile.buffer.byteLength,
+      optimizedBytes: safeBuffer.byteLength,
+    };
+  }
+
   async deleteLessonFile(
     lessonId: string,
     fileId: string,
@@ -402,7 +442,7 @@ export class LessonsService {
   private validateImageFile(file: Express.Multer.File): void {
     if (!IMAGE_MIME_TYPES.has(file.mimetype)) {
       throw new BadRequestException(
-        'Image must be a .jpg, .jpeg, .png, or .webp file. Supported file types: .jpg, .jpeg, .png, .webp',
+        'Image must be a .jpg, .jpeg, .png, .webp, .avif, or .gif file. Supported file types: .jpg, .jpeg, .png, .webp, .avif, .gif',
       );
     }
 
@@ -431,8 +471,30 @@ export class LessonsService {
     return `${randomUUID()}-${originalName.replace(/\s+/g, '-')}`;
   }
 
-  private buildWebpObjectName(originalName: string): string {
-    return `${this.buildObjectName(originalName).replace(/\.[^/.]+$/, '')}.webp`;
+  private buildWebpObjectName(originalName: string, prefix?: string): string {
+    const fileName = `${this.buildObjectName(originalName).replace(/\.[^/.]+$/, '')}.webp`;
+    return prefix ? `${prefix}/${fileName}` : fileName;
+  }
+
+  private async toOptimizedWebpBuffer(imageFile: Express.Multer.File): Promise<Buffer> {
+    return sharp(imageFile.buffer)
+      .rotate()
+      .resize({ width: 1280, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+  }
+
+  private requireImageDimension(
+    value: number | undefined,
+    dimensionLabel: string,
+  ): number {
+    if (!value || value <= 0) {
+      throw new BadRequestException(
+        `Unable to determine ${dimensionLabel} for uploaded image.`,
+      );
+    }
+
+    return value;
   }
 
   private async ensureLessonExists(lessonId: string): Promise<void> {

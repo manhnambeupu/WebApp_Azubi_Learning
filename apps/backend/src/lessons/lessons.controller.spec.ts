@@ -14,6 +14,7 @@ describe('LessonsController', () => {
     grantAccessByEmail: jest.Mock;
     revokeAccess: jest.Mock;
     uploadLessonFile: jest.Mock;
+    uploadMarkdownImage: jest.Mock;
     deleteLessonFile: jest.Mock;
     getLessonFileDownloadUrl: jest.Mock;
   };
@@ -29,6 +30,7 @@ describe('LessonsController', () => {
       grantAccessByEmail: jest.fn(),
       revokeAccess: jest.fn(),
       uploadLessonFile: jest.fn(),
+      uploadMarkdownImage: jest.fn(),
       deleteLessonFile: jest.fn(),
       getLessonFileDownloadUrl: jest.fn(),
     };
@@ -132,6 +134,32 @@ describe('LessonsController', () => {
 
     expect(lessonsService.uploadLessonFile).toHaveBeenCalledWith('lesson-1', file);
     expect(result).toEqual({ id: 'file-1' });
+  });
+
+  it('uploadMarkdownImage delegates to service', async () => {
+    const imageFile = { originalname: 'inline.png' } as Express.Multer.File;
+    lessonsService.uploadMarkdownImage.mockResolvedValue({
+      imageUrl: 'http://localhost:9000/lesson-images/markdown/inline.webp',
+      originalWidth: 138,
+      originalHeight: 133,
+      optimizedWidth: 138,
+      optimizedHeight: 133,
+      originalBytes: 22456,
+      optimizedBytes: 14122,
+    });
+
+    const result = await controller.uploadMarkdownImage(imageFile);
+
+    expect(lessonsService.uploadMarkdownImage).toHaveBeenCalledWith(imageFile);
+    expect(result).toEqual({
+      imageUrl: 'http://localhost:9000/lesson-images/markdown/inline.webp',
+      originalWidth: 138,
+      originalHeight: 133,
+      optimizedWidth: 138,
+      optimizedHeight: 133,
+      originalBytes: 22456,
+      optimizedBytes: 14122,
+    });
   });
 
   it('deleteLessonFile delegates to service', async () => {

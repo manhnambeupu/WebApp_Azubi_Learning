@@ -9,6 +9,16 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const imgSrcAllowlist = ["'self'", 'data:', 'blob:'];
+  const minioPublicUrl = process.env.MINIO_PUBLIC_URL;
+  if (minioPublicUrl) {
+    try {
+      imgSrcAllowlist.push(new URL(minioPublicUrl).origin);
+    } catch {
+      // MINIO_PUBLIC_URL may be relative (e.g. /minio) and is already covered by 'self'
+    }
+  }
+
   app.use(cookieParser());
   app.use(
     helmet({
@@ -17,13 +27,7 @@ async function bootstrap() {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: [
-            "'self'",
-            'data:',
-            'blob:',
-            'https://drive.google.com',
-            'https://*.googleusercontent.com',
-          ],
+          imgSrc: imgSrcAllowlist,
           fontSrc: ["'self'"],
           connectSrc: ["'self'"],
           objectSrc: ["'none'"],

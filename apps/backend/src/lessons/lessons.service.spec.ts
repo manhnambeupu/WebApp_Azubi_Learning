@@ -206,6 +206,36 @@ describe('LessonsService', () => {
     );
   });
 
+  it('uploadMarkdownImage thành công -> resize + webp + upload image/webp', async () => {
+    const imageFile = {
+      originalname: 'inline-image.png',
+      mimetype: 'image/png',
+      size: ONE_PIXEL_PNG_BUFFER.length,
+      buffer: ONE_PIXEL_PNG_BUFFER,
+    } as Express.Multer.File;
+    minioService.uploadFile.mockResolvedValue(
+      'http://localhost:9000/lesson-images/markdown/inline-image.webp',
+    );
+
+    const result = await service.uploadMarkdownImage(imageFile);
+
+    expect(minioService.uploadFile).toHaveBeenCalledWith(
+      'lesson-images',
+      expect.stringMatching(/^markdown\/.+inline-image\.webp$/),
+      expect.any(Buffer),
+      'image/webp',
+    );
+    expect(result).toMatchObject({
+      imageUrl: 'http://localhost:9000/lesson-images/markdown/inline-image.webp',
+      originalWidth: 1,
+      originalHeight: 1,
+      optimizedWidth: 1,
+      optimizedHeight: 1,
+      originalBytes: ONE_PIXEL_PNG_BUFFER.length,
+    });
+    expect(result.optimizedBytes).toBeGreaterThan(0);
+  });
+
   it('Xóa lesson cascade hoạt động', async () => {
     prisma.lesson.findUnique.mockResolvedValue({
       id: 'lesson-1',
@@ -291,8 +321,8 @@ describe('LessonsService', () => {
 
   it('Upload ảnh sai định dạng mime -> reject', async () => {
     const invalidImage = {
-      originalname: 'wrong.gif',
-      mimetype: 'image/gif',
+      originalname: 'wrong.txt',
+      mimetype: 'text/plain',
       size: 1_024,
       buffer: Buffer.alloc(10),
     } as Express.Multer.File;
@@ -300,6 +330,20 @@ describe('LessonsService', () => {
     await expect(service.create(baseDto, invalidImage)).rejects.toBeInstanceOf(
       BadRequestException,
     );
+  });
+
+  it('uploadMarkdownImage sai định dạng mime -> reject', async () => {
+    const invalidImage = {
+      originalname: 'wrong.txt',
+      mimetype: 'text/plain',
+      size: 1_024,
+      buffer: Buffer.alloc(10),
+    } as Express.Multer.File;
+
+    await expect(service.uploadMarkdownImage(invalidImage)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(minioService.uploadFile).not.toHaveBeenCalled();
   });
 
   it('update lesson không tồn tại -> NotFoundException', async () => {

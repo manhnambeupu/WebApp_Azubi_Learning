@@ -4,6 +4,7 @@ import {
   Delete,
   FileTypeValidator,
   Get,
+  HttpStatus,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
@@ -31,7 +32,10 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { GrantLessonAccessDto } from './dto/grant-lesson-access.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { LessonsService } from './lessons.service';
+import {
+  LessonsService,
+  type MarkdownImageUploadResponse,
+} from './lessons.service';
 
 const IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const LESSON_FILE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
@@ -229,6 +233,60 @@ export class LessonsController {
     file: Express.Multer.File,
   ) {
     return this.lessonsService.uploadLessonFile(lessonId, file);
+  }
+
+  @Post('upload-markdown-image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({ summary: 'Upload ảnh dùng trong nội dung Markdown bài học' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+      required: ['image'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Upload ảnh markdown thành công.',
+    schema: {
+      type: 'object',
+      properties: {
+        imageUrl: { type: 'string' },
+        originalWidth: { type: 'number' },
+        originalHeight: { type: 'number' },
+        optimizedWidth: { type: 'number' },
+        optimizedHeight: { type: 'number' },
+        originalBytes: { type: 'number' },
+        optimizedBytes: { type: 'number' },
+      },
+      required: [
+        'imageUrl',
+        'originalWidth',
+        'originalHeight',
+        'optimizedWidth',
+        'optimizedHeight',
+        'originalBytes',
+        'optimizedBytes',
+      ],
+    },
+  })
+  @ApiResponse({ status: 422, description: 'File ảnh không hợp lệ.' })
+  uploadMarkdownImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: IMAGE_MAX_SIZE_BYTES }),
+          new FileTypeValidator({ fileType: IMAGE_MIME_TYPE }),
+        ],
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      }),
+    )
+    imageFile: Express.Multer.File,
+  ): Promise<MarkdownImageUploadResponse> {
+    return this.lessonsService.uploadMarkdownImage(imageFile);
   }
 
   @Delete(':id/files/:fileId')

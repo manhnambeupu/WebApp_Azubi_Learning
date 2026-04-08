@@ -39,6 +39,66 @@ type DownloadResponse = {
   downloadUrl: string;
 };
 
+type MarkdownImageDimensions = {
+  width?: number;
+  height?: number;
+};
+
+const isValidMarkdownImageSrc = (src: string | undefined): src is string => {
+  if (!src) {
+    return false;
+  }
+
+  const normalizedSrc = src.trim();
+  if (!normalizedSrc || normalizedSrc === "#") {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(normalizedSrc, "https://azubivn.de");
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const parsePositiveInt = (value?: string): number | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return parsed;
+};
+
+const parseMarkdownImageDimensions = (
+  title: string | null | undefined,
+): MarkdownImageDimensions => {
+  if (!title) {
+    return {};
+  }
+
+  const pairs = title.match(/[a-zA-Z]+=\d+/g) ?? [];
+  const metadata = new Map<string, string>();
+
+  for (const pair of pairs) {
+    const [key, rawValue] = pair.split("=");
+    if (!key || !rawValue) {
+      continue;
+    }
+    metadata.set(key, rawValue);
+  }
+
+  return {
+    width: parsePositiveInt(metadata.get("w") ?? metadata.get("optimizedWidth")),
+    height: parsePositiveInt(metadata.get("h") ?? metadata.get("optimizedHeight")),
+  };
+};
+
 const QuizForm = dynamic(
   () => import("@/components/student/quiz-form").then((mod) => mod.QuizForm),
   {
@@ -209,6 +269,33 @@ export default function StudentLessonDetailPage() {
                   <table {...props}>{children}</table>
                 </div>
               ),
+              img: ({ src, alt, title }) => {
+                if (!isValidMarkdownImageSrc(src)) {
+                  return null;
+                }
+
+                const dimensions = parseMarkdownImageDimensions(title);
+                const hasDimensions = Boolean(dimensions.width && dimensions.height);
+
+                return (
+                  <span className="inline-block max-w-full align-top overflow-hidden rounded-xl border border-primary/15">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      alt={alt?.trim() || "Ảnh minh hoạ trong bài học"}
+                      className="block h-auto max-w-full object-contain"
+                      decoding="async"
+                      loading="lazy"
+                      src={src}
+                      {...(hasDimensions
+                        ? {
+                            width: dimensions.width,
+                            height: dimensions.height,
+                          }
+                        : {})}
+                    />
+                  </span>
+                );
+              },
             }}
             rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }], rehypeSanitize]}
             remarkPlugins={[remarkGfm]}

@@ -21,11 +21,12 @@ import { useGetCategories } from "@/hooks/use-categories";
 import {
   type LessonMutationPayload,
   useCreateLesson,
+  useUploadLessonMarkdownImage,
   useUpdateLesson,
 } from "@/hooks/use-lessons";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { LessonDetail } from "@/types";
+import type { LessonDetail, MarkdownImageUploadResponse } from "@/types";
 
 const MarkdownEditor = dynamic(
   () => import("@/components/lessons/markdown-editor").then((mod) => mod.MarkdownEditor),
@@ -68,6 +69,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
   const categoriesQuery = useGetCategories();
   const createLessonMutation = useCreateLesson();
+  const uploadLessonMarkdownImageMutation = useUploadLessonMarkdownImage();
   const updateLessonMutation = useUpdateLesson();
 
   const [title, setTitle] = useState(lesson?.title ?? "");
@@ -267,6 +269,12 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
     }
   };
 
+  const handleMarkdownImageUpload = async (
+    file: File,
+  ): Promise<MarkdownImageUploadResponse> => {
+    return uploadLessonMarkdownImageMutation.mutateAsync(file);
+  };
+
   return (
     <section className="kokonut-glass-card space-y-6 rounded-2xl p-6">
       <div className="space-y-2">
@@ -389,7 +397,12 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
             </p>
           </div>
           <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 dark:border-slate-800/80 dark:bg-slate-950/70">
-            <MarkdownEditor value={contentMd} onChange={setContentMd} />
+            <MarkdownEditor
+              value={contentMd}
+              onChange={setContentMd}
+              onUploadImage={handleMarkdownImageUpload}
+              disabled={isSaving}
+            />
           </div>
         </div>
 

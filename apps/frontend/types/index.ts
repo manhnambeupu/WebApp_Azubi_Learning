@@ -99,6 +99,16 @@ export type LessonFile = {
   uploadedAt: string;
 };
 
+export type MarkdownImageUploadResponse = {
+  imageUrl: string;
+  originalWidth: number;
+  originalHeight: number;
+  optimizedWidth: number;
+  optimizedHeight: number;
+  originalBytes: number;
+  optimizedBytes: number;
+};
+
 export type LessonDetail = {
   id: string;
   title: string;
