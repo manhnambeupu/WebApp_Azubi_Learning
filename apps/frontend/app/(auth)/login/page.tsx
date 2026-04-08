@@ -134,6 +134,7 @@ export default function LoginPage() {
             fill
             className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
             priority
+            unoptimized
           />
         </div>
         {/* Support Card (Glassmorphism) */}

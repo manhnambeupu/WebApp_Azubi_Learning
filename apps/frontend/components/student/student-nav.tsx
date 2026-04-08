@@ -38,6 +38,7 @@ export function StudentNav() {
                 priority
                 src="/images/Logo_Book.png"
                 width={320}
+                unoptimized
               />
             </Link>
           </div>
