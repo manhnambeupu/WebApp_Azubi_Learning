@@ -289,7 +289,7 @@ export default function Home() {
                 </div>
               </a>
               <a
-                href="mailto:bonziet@gmail.com"
+                href="mailto:jasonluong@azubivn.de"
                 className="lingo-card flex items-center gap-3 p-4 !border-b-4 hover:!border-b-[#ce82ff]"
               >
                 <div className="lingo-icon-circle lingo-icon-circle--secondary !w-10 !h-10 !text-xl">
@@ -300,7 +300,7 @@ export default function Home() {
                     Email
                   </p>
                   <p className="text-sm" style={{ color: "var(--lingo-text-secondary)" }}>
-                    bonziet@gmail.com
+                    jasonluong@azubivn.de
                   </p>
                 </div>
               </a>
@@ -416,10 +416,10 @@ export default function Home() {
                 WhatsApp: +49 157 58084635
               </a>
               <a
-                href="mailto:bonziet@gmail.com"
+                href="mailto:jasonluong@azubivn.de"
                 className="block text-white/70 hover:text-white transition-colors mb-2 text-sm"
               >
-                Email: bonziet@gmail.com
+                Email: jasonluong@azubivn.de
               </a>
             </div>
           </div>

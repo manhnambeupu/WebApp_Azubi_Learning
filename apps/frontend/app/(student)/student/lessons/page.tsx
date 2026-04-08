@@ -65,7 +65,7 @@ export default function StudentLessonsPage() {
             <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground">
               <li>Hệ thống lại kiến thức trọng tâm, bám sát cấu trúc đề thi giữa và cuối kỳ.</li>
               <li>Dễ dàng tìm lại các kiến thức quan trọng được phân loại rõ ràng.</li>
-              <li>Chuẩn bị bài tập và các bài kiểm tra (Klassenarbeit) nhanh chóng theo đúng lộ trình.</li>
+              <li>Chuẩn bị bài tập và các bài kiểm tra nhanh chóng theo đúng lộ trình.</li>
             </ul>
           </div>
           <StudentLessonCounterBadge />

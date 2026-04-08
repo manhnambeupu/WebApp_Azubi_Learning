@@ -184,7 +184,7 @@ export default function LoginPage() {
             </a>
 
             <a
-              href="mailto:bonziet@gmail.com"
+              href="mailto:jasonluong@azubivn.de"
               className="group flex items-center gap-3 rounded-xl border border-white/15 bg-black/20 p-3 transition-all duration-300 hover:border-blue-500/30 hover:bg-blue-500/20"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 transition-transform group-hover:scale-110">
@@ -192,7 +192,7 @@ export default function LoginPage() {
               </div>
               <div className="text-sm">
                 <p className="font-semibold text-white">Email</p>
-                <p className="text-white/60">bonziet@gmail.com</p>
+                <p className="text-white/60">jasonluong@azubivn.de</p>
               </div>
             </a>
           </div>
