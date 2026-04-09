@@ -648,6 +648,11 @@ docker compose -f docker-compose.prod.yml up -d
 
 Dự án được xây dựng qua **5 Phases**, tổng cộng **19 implementation prompts**:
 
+### Checklist cleanup trước khi mở PR
+- Không commit generated artifacts (`dist/`, `coverage/`, `.next/`, `node_modules/`, `apps/backend/dist_root_*/`).
+- Không commit script debug tạm (`apps/backend/test-*.js`).
+- Chạy `git status --short` và `git diff --name-only` để xác nhận phạm vi thay đổi chỉ nằm trong mục tiêu.
+
 ### Phase 1 — Infrastructure & Authentication
 | Prompt | Nội dung |
 |---|---|

@@ -8,6 +8,7 @@ dist/
 build/
 .next/
 out/
+apps/backend/dist_root_*/
 
 # Environment
 .env
@@ -41,6 +42,7 @@ yarn-error.log*
 
 # Testing
 coverage/
+apps/backend/test-*.js
 
 # Misc
 *.tsbuildinfo
