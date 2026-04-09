@@ -3,6 +3,7 @@
 import { AxiosError } from "axios";
 import { BookOpenText, Loader2, MessageCircle, Mail } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -127,7 +128,11 @@ export default function LoginPage() {
 
       {/* BEGIN: Sidebar Section */}
       <section className="w-full md:w-5/12 p-8 md:p-12 text-white bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col items-center justify-center text-center">
-        <div className="relative w-full max-w-[280px] sm:max-w-[300px] md:max-w-[320px] aspect-square animate-in fade-in zoom-in duration-1000">
+        <Link
+          href="/"
+          aria-label="Quay về trang chủ"
+          className="relative block w-full max-w-[280px] sm:max-w-[300px] md:max-w-[320px] aspect-square animate-in fade-in zoom-in duration-1000"
+        >
           <Image
             src="/images/Logo_Book.png"
             alt="Azubi Learning Logo"
@@ -136,7 +141,7 @@ export default function LoginPage() {
             priority
             unoptimized
           />
-        </div>
+        </Link>
         {/* Support Card (Glassmorphism) */}
         <div className="mt-8 md:mt-12 w-full max-w-[320px] rounded-2xl bg-white/10 p-5 md:p-6 text-left backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-100">
