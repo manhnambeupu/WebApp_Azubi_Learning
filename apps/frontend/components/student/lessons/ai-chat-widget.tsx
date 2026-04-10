@@ -65,9 +65,9 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
       prev.map((entry) =>
         entry.id === messageId
           ? {
-              ...entry,
-              content: `${entry.content}${chunk}`,
-            }
+            ...entry,
+            content: `${entry.content}${chunk}`,
+          }
           : entry,
       ),
     );
@@ -182,10 +182,10 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
         prev.map((entry) =>
           entry.id === aiMessageId && entry.content.trim().length === 0
             ? {
-                ...entry,
-                content:
-                  "Mình chưa thể phản hồi lúc này. Bạn thử gửi lại câu hỏi sau ít phút nhé.",
-              }
+              ...entry,
+              content:
+                "Mình chưa thể phản hồi lúc này. Bạn thử gửi lại câu hỏi sau ít phút nhé.",
+            }
             : entry,
         ),
       );
@@ -244,7 +244,10 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                   {message.role === "AI" ? (
                     <div className="prose prose-sm max-w-none dark:prose-invert">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {message.content || (isStreaming ? "Đang phân tích..." : "")}
+                        {message.content ||
+                          (isStreaming
+                            ? "Google Deep Mind đang phân tích dữ liệu, bạn chờ một chút nhé... ⏳"
+                            : "")}
                       </ReactMarkdown>
                     </div>
                   ) : (
