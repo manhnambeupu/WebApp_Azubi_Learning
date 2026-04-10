@@ -113,7 +113,6 @@ type StudentAiChatHistoryItem = {
 @Injectable()
 export class AiTutorService {
   private readonly logger = new Logger(AiTutorService.name);
-  private modelRotationIndex = 0;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -202,33 +201,36 @@ export class AiTutorService {
       parts: [createPartFromText(entry.content)],
     }));
 
-    const aiConfig = {
-      systemInstruction: this.buildSystemInstruction(lesson),
-      thinkingConfig: {
-        thinkingLevel: ThinkingLevel.HIGH,
-      },
-      tools: [{ googleSearch: {} }],
-    };
-
     let responseStream: Awaited<
       ReturnType<typeof genAI.models.generateContentStream>
     > | null = null;
 
-    for (const modelId of this.getModelPriorityOrder()) {
+    for (const modelId of MODEL_PRIORITY) {
       try {
+        const isThinkingSupported = modelId.includes('31b') || modelId.includes('26b');
+
         responseStream = await genAI.models.generateContentStream({
           model: modelId,
           contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
-          config: aiConfig,
+          config: {
+            systemInstruction: this.buildSystemInstruction(lesson),
+            ...(isThinkingSupported
+              ? {
+                  thinkingConfig: {
+                    thinkingLevel: ThinkingLevel.HIGH,
+                  },
+                }
+              : {}),
+          },
         });
 
-        this.logger.log(`[AI Tutor] Using model: ${modelId}`);
+        this.logger.log(`[AI Tutor] Đang sử dụng model gốc: ${modelId}`);
         break;
       } catch (error: unknown) {
-        if (this.isRetryableModelError(error)) {
-          const statusCode = this.extractStatusCode(error);
+        const statusCode = this.extractStatusCode(error);
+        if (statusCode === 429 || statusCode === 400 || (statusCode !== null && statusCode >= 500)) {
           this.logger.warn(
-            `[AI Tutor] Model ${modelId} failed with status ${statusCode ?? 'unknown'}, trying fallback model.`,
+            `[AI Tutor] Model ${modelId} gặp sự cố (mã: ${statusCode}). Đang fallback...`,
           );
           continue;
         }
@@ -238,7 +240,7 @@ export class AiTutorService {
 
     if (!responseStream) {
       throw new ServiceUnavailableException(
-        'Tất cả hệ thống AI (Gemma 4/3 & Gemini Flash) đều đang bận. Vui lòng thử lại sau 10 giây.',
+        'Hệ thống AI hiện đang bảo trì toàn phần. Vui lòng thử lại sau 10 giây.',
       );
     }
 
@@ -351,32 +353,6 @@ export class AiTutorService {
     }
 
     return instruction;
-  }
-
-  private getModelPriorityOrder(): string[] {
-    const startIndex = this.modelRotationIndex % MODEL_PRIORITY.length;
-    this.modelRotationIndex = (this.modelRotationIndex + 1) % MODEL_PRIORITY.length;
-
-    return [
-      ...MODEL_PRIORITY.slice(startIndex),
-      ...MODEL_PRIORITY.slice(0, startIndex),
-    ];
-  }
-
-  private isRetryableModelError(error: unknown): boolean {
-    const statusCode = this.extractStatusCode(error);
-    if (statusCode === 429 || (statusCode !== null && statusCode >= 500)) {
-      return true;
-    }
-
-    if (typeof error === 'object' && error !== null) {
-      const message = (error as { message?: unknown }).message;
-      if (typeof message === 'string' && /\b(?:429|5\d{2})\b/.test(message)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   private extractStatusCode(error: unknown): number | null {

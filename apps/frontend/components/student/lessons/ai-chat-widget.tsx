@@ -70,7 +70,15 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
 
   useEffect(() => {
     if (isOpen && historyData && !isStreaming) {
-      setMessages(historyData);
+      setMessages((prev) => {
+        if (prev.length === 0) {
+          return historyData;
+        }
+        if (prev.length >= historyData.length) {
+          return prev;
+        }
+        return historyData;
+      });
     }
   }, [historyData, isOpen, isStreaming]);
 
