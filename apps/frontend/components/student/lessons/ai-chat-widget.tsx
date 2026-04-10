@@ -1,10 +1,16 @@
 "use client";
 
-import { BotMessageSquare, Loader2, SendHorizontal, Sparkles, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { BotMessageSquare, Loader2, SendHorizontal, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { createStudentAiChatMessage } from "@/hooks/use-ai-tutor";
+import {
+  clearStudentAiHistory,
+  createStudentAiChatMessage,
+  studentAiHistoryQueryKey,
+  useStudentAiHistory,
+} from "@/hooks/use-ai-tutor";
 import { useToast } from "@/hooks/use-toast";
 import { forceRefreshToken } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -42,11 +48,13 @@ const createMessageId = (): string => {
 };
 
 export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const { data: historyData, isLoading: isLoadingHistory } = useStudentAiHistory(lessonId, isOpen);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const hasMessages = useMemo(() => messages.length > 0, [messages.length]);
@@ -59,6 +67,12 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
     setMessages([]);
     setDraft("");
   }, [lessonId]);
+
+  useEffect(() => {
+    if (isOpen && historyData && !isStreaming) {
+      setMessages(historyData);
+    }
+  }, [historyData, isOpen, isStreaming]);
 
   const updateAiMessageChunk = (messageId: string, chunk: string) => {
     setMessages((prev) =>
@@ -199,6 +213,28 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
     }
   };
 
+  const handleClearHistory = async () => {
+    if (isStreaming) {
+      return;
+    }
+
+    try {
+      await clearStudentAiHistory(lessonId);
+      setMessages([]);
+      setDraft("");
+      queryClient.setQueryData(studentAiHistoryQueryKey(lessonId), []);
+      toast({
+        title: "Đã dọn dẹp lịch sử, bạn có thể bắt đầu lại!",
+      });
+    } catch (error) {
+      toast({
+        title: "Không thể xóa lịch sử trò chuyện",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Button
@@ -222,11 +258,31 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                 Hướng dẫn theo phương pháp Socratic
               </p>
             </div>
-            {isStreaming ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : null}
+            <div className="flex items-center gap-1">
+              <Button
+                className="h-8 w-8"
+                disabled={isStreaming}
+                onClick={() => {
+                  void handleClearHistory();
+                }}
+                size="icon"
+                title="Xóa dòng chat để bắt đầu lại"
+                type="button"
+                variant="ghost"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Xóa dòng chat để bắt đầu lại</span>
+              </Button>
+              {isStreaming ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : null}
+            </div>
           </header>
 
           <div className="max-h-[52vh] space-y-3 overflow-y-auto px-4 py-4">
-            {!hasMessages ? (
+            {isLoadingHistory ? (
+              <div className="flex items-center justify-center py-8 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            ) : !hasMessages ? (
               <p className="rounded-xl border border-dashed border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
                 Hãy đặt câu hỏi về bài học, mình sẽ gợi ý từng bước để bạn tự tìm ra đáp án.
               </p>

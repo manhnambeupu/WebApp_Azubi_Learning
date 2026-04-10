@@ -21,15 +21,25 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Observable, endWith, from, map } from 'rxjs';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { UserThrottlerGuard } from '../common/guards/user-throttler.guard';
 import { AiTutorService } from './ai-tutor.service';
 import { AiChatHistoryQueryDto } from './dto/ai-chat-history-query.dto';
 import { CreateAiChatDto } from './dto/create-ai-chat.dto';
 import { StreamAiChatQueryDto } from './dto/stream-ai-chat-query.dto';
+
+const STUDENT_AI_THROTTLE = {
+  default: {
+    limit: 5,
+    ttl: 60000,
+    getTracker: (req: Record<string, any>) => UserThrottlerGuard.resolveTracker(req),
+  },
+};
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('AI Tutor')
@@ -38,6 +48,7 @@ import { StreamAiChatQueryDto } from './dto/stream-ai-chat-query.dto';
 export class AiTutorController {
   constructor(private readonly aiTutorService: AiTutorService) {}
 
+  @Throttle(STUDENT_AI_THROTTLE)
   @Post('chat')
   @Roles('STUDENT')
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -64,6 +75,41 @@ export class AiTutorController {
     return this.aiTutorService.createStudentMessage(studentId, dto.lessonId, dto.message);
   }
 
+  @Get('history/student/:lessonId')
+  @Roles('STUDENT')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
+  @ApiOperation({ summary: 'Lấy lịch sử chat cá nhân trong 1 bài học' })
+  @ApiParam({ name: 'lessonId', description: 'Lesson ID (UUID)' })
+  @ApiResponse({ status: 200, description: 'Lấy lịch sử chat thành công.' })
+  @ApiResponse({ status: 401, description: 'Chưa đăng nhập hoặc token không hợp lệ.' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bài học.' })
+  getStudentHistory(
+    @CurrentUser() currentUser: Record<string, unknown> | undefined,
+    @Param('lessonId') lessonId: string,
+  ) {
+    const studentId = this.extractUserId(currentUser);
+    return this.aiTutorService.getStudentLessonHistory(studentId, lessonId);
+  }
+
+  @Delete('history/student/:lessonId')
+  @Roles('STUDENT')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
+  @ApiOperation({ summary: 'Học sinh tự xóa chat để làm lại' })
+  @ApiParam({ name: 'lessonId', description: 'Lesson ID (UUID)' })
+  @ApiResponse({ status: 200, description: 'Xóa lịch sử chat thành công.' })
+  @ApiResponse({ status: 401, description: 'Chưa đăng nhập hoặc token không hợp lệ.' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bài học.' })
+  clearStudentHistory(
+    @CurrentUser() currentUser: Record<string, unknown> | undefined,
+    @Param('lessonId') lessonId: string,
+  ) {
+    const studentId = this.extractUserId(currentUser);
+    return this.aiTutorService.clearStudentLessonHistory(studentId, lessonId);
+  }
+
+  @Throttle(STUDENT_AI_THROTTLE)
   @Sse('stream/:lessonId')
   @Roles('STUDENT')
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate')

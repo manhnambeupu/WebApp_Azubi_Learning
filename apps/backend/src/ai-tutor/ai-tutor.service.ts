@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -16,8 +17,26 @@ import { ChatRole, type Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AiChatHistoryQueryDto } from './dto/ai-chat-history-query.dto';
 
-const AI_MODEL = 'gemma-4-31b-it';
+const MODEL_PRIORITY = [
+  // === TIER 1: Gemma 4 - Thông minh nhất & TPM Vô hạn ===
+  'gemma-4-31b-it',
+  'gemma-4-26b-it',
+
+  // === TIER 2: Gemma 3 Series - RPM cao (30), RPD cực lớn (14.4K) ===
+  'gemma-3-27b-it',
+  'gemma-3-12b-it',
+  'gemma-3-4b-it',
+  'gemma-3-2b-it',
+  'gemma-3-1b-it',
+
+  // === TIER 3: Gemini Flash Series - Tốc độ cao, Vision tốt ===
+  'gemini-3.1-flash-lite',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-3-flash',
+] as const;
 const CHAT_HISTORY_LIMIT = 20;
+const STUDENT_HISTORY_LIMIT = 50;
 const DEFAULT_HISTORY_LIMIT = 100;
 const MAX_HISTORY_LIMIT = 200;
 
@@ -85,8 +104,17 @@ type AdminAiChatHistoryItem = {
   };
 };
 
+type StudentAiChatHistoryItem = {
+  id: string;
+  role: ChatRole;
+  content: string;
+};
+
 @Injectable()
 export class AiTutorService {
+  private readonly logger = new Logger(AiTutorService.name);
+  private modelRotationIndex = 0;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async createStudentMessage(studentId: string, lessonId: string, message: string) {
@@ -115,6 +143,33 @@ export class AiTutorService {
     });
 
     return chatEntry;
+  }
+
+  async getStudentLessonHistory(
+    studentId: string,
+    lessonId: string,
+  ): Promise<StudentAiChatHistoryItem[]> {
+    await this.getStudentLessonContextOrThrow(studentId, lessonId);
+
+    return this.prisma.aiChatHistory.findMany({
+      where: { studentId, lessonId },
+      orderBy: { createdAt: 'asc' },
+      take: STUDENT_HISTORY_LIMIT,
+      select: { id: true, role: true, content: true },
+    });
+  }
+
+  async clearStudentLessonHistory(
+    studentId: string,
+    lessonId: string,
+  ): Promise<{ success: true; message: string }> {
+    await this.getStudentLessonContextOrThrow(studentId, lessonId);
+
+    await this.prisma.aiChatHistory.deleteMany({
+      where: { studentId, lessonId },
+    });
+
+    return { success: true, message: 'Đã xóa lịch sử trò chuyện.' };
   }
 
   async *streamLessonResponse(
@@ -147,17 +202,45 @@ export class AiTutorService {
       parts: [createPartFromText(entry.content)],
     }));
 
-    const responseStream = await genAI.models.generateContentStream({
-      model: AI_MODEL,
-      contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
-      config: {
-        systemInstruction: this.buildSystemInstruction(lesson),
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.HIGH,
-        },
-        tools: [{ googleSearch: {} }],
+    const aiConfig = {
+      systemInstruction: this.buildSystemInstruction(lesson),
+      thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH,
       },
-    });
+      tools: [{ googleSearch: {} }],
+    };
+
+    let responseStream: Awaited<
+      ReturnType<typeof genAI.models.generateContentStream>
+    > | null = null;
+
+    for (const modelId of this.getModelPriorityOrder()) {
+      try {
+        responseStream = await genAI.models.generateContentStream({
+          model: modelId,
+          contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
+          config: aiConfig,
+        });
+
+        this.logger.log(`[AI Tutor] Using model: ${modelId}`);
+        break;
+      } catch (error: unknown) {
+        if (this.isRetryableModelError(error)) {
+          const statusCode = this.extractStatusCode(error);
+          this.logger.warn(
+            `[AI Tutor] Model ${modelId} failed with status ${statusCode ?? 'unknown'}, trying fallback model.`,
+          );
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    if (!responseStream) {
+      throw new ServiceUnavailableException(
+        'Tất cả hệ thống AI (Gemma 4/3 & Gemini Flash) đều đang bận. Vui lòng thử lại sau 10 giây.',
+      );
+    }
 
     let fullAiResponse = '';
 
@@ -268,6 +351,48 @@ export class AiTutorService {
     }
 
     return instruction;
+  }
+
+  private getModelPriorityOrder(): string[] {
+    const startIndex = this.modelRotationIndex % MODEL_PRIORITY.length;
+    this.modelRotationIndex = (this.modelRotationIndex + 1) % MODEL_PRIORITY.length;
+
+    return [
+      ...MODEL_PRIORITY.slice(startIndex),
+      ...MODEL_PRIORITY.slice(0, startIndex),
+    ];
+  }
+
+  private isRetryableModelError(error: unknown): boolean {
+    const statusCode = this.extractStatusCode(error);
+    if (statusCode === 429 || (statusCode !== null && statusCode >= 500)) {
+      return true;
+    }
+
+    if (typeof error === 'object' && error !== null) {
+      const message = (error as { message?: unknown }).message;
+      if (typeof message === 'string' && /\b(?:429|5\d{2})\b/.test(message)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private extractStatusCode(error: unknown): number | null {
+    if (typeof error !== 'object' || error === null) {
+      return null;
+    }
+
+    const candidate = error as { status?: unknown; code?: unknown };
+    if (typeof candidate.status === 'number') {
+      return candidate.status;
+    }
+    if (typeof candidate.code === 'number') {
+      return candidate.code;
+    }
+
+    return null;
   }
 
   // Tạo "ảnh chụp màn hình" đầu kỳ của bài học cho AI.
