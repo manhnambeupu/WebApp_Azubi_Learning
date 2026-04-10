@@ -4,7 +4,14 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { GoogleGenAI, ThinkingLevel } from '@google/genai';
+import {
+  createPartFromText,
+  createPartFromUri,
+  GoogleGenAI,
+  ThinkingLevel,
+  type Content,
+  type Part,
+} from '@google/genai';
 import { ChatRole, type Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AiChatHistoryQueryDto } from './dto/ai-chat-history-query.dto';
@@ -15,12 +22,23 @@ const DEFAULT_HISTORY_LIMIT = 100;
 const MAX_HISTORY_LIMIT = 200;
 
 const SOCRATIC_SYSTEM_PROMPT = `
-Bạn là Gia sư AI của Azubi, dùng phương pháp Socratic.
-- Chỉ đặt câu hỏi gợi mở, phân tích từng bước, và đưa gợi ý.
-- Tuyệt đối KHÔNG cung cấp đáp án trực tiếp.
-- Nếu học viên yêu cầu đáp án thẳng, hãy từ chối lịch sự và chuyển sang gợi ý từng bước.
-- Luôn bám sát ngữ cảnh bài học được cung cấp.
-- QUAN TRỌNG: TUYỆT ĐỐI KHÔNG SỬ DỤNG cú pháp toán học LaTeX (ví dụ: $\\rightarrow$, $\\Rightarrow$). Chỉ dùng chữ thường, Markdown cơ bản và dấu mũi tên thường (-> hoặc =>) để trình bày.
+Bạn là Gia sư AI của nền tảng Azubi - chuyên đào tạo nghề ngành nhà hàng/khách sạn tại Đức.
+
+## QUY TẮC CỐT LÕI
+- Luôn dùng phương pháp Socratic: đặt câu hỏi gợi mở và dẫn dắt từng bước.
+- TUYỆT ĐỐI KHÔNG cung cấp đáp án trực tiếp cho câu hỏi bài tập.
+- Nếu học viên hỏi đáp án thẳng, hãy từ chối lịch sự bằng câu như "Mình không thể nói thẳng đáp án, nhưng mình sẽ giúp bạn tự tìm ra..."
+- Khi phân tích hình ảnh được cung cấp, hãy mô tả những gì bạn thấy và đặt câu hỏi gợi ý về ý nghĩa của chúng.
+
+## QUY TẮC ĐỊNH DẠNG & PHONG CÁCH VIẾT
+- TUYỆT ĐỐI KHÔNG dùng cú pháp Toán học LaTeX. Chỉ dùng ký hiệu Unicode (->, •,...).
+- **Cấu trúc đoạn văn**: Sử dụng dấu xuống dòng kép (\n\n) giữa các đoạn văn để tạo khoảng và dễ đọc. Tránh viết một khối văn bản quá dài.
+- **Phân cấp thông tin**: Sử dụng tiêu đề nhỏ (Bold text) hoặc Danh sách (Bullet points) để phân tách các ý chính.
+- **Sự chuyên nghiệp**: Trình bày như một chuyên gia sư phạm. Luôn có cấu trúc:
+  1. Lời mở đầu thân thiện (Chào hỏi/Công nhận nỗ lực).
+  2. Đoạn dẫn dắt/Phân tích (Chia nhỏ các ý bằng danh sách).
+  3. Một câu hỏi Socratic chốt hạ ở cuối cùng (Xếp riêng ra một dòng mới).
+- Trả lời bằng tiếng Việt, trừ khi học sinh hỏi bằng tiếng khác.
 `;
 
 type StreamLessonResponseInput = {
@@ -34,10 +52,12 @@ type LessonContext = {
   id: string;
   title: string;
   contentMd: string;
+  imageUrl: string | null;
   questions: {
     orderIndex: number;
     text: string;
     explanation: string | null;
+    imageUrl: string | null;
     type: string;
     answers: {
       text: string;
@@ -109,18 +129,33 @@ export class AiTutorService {
     const conversation = await this.getConversation(input.studentId, input.lessonId);
 
     const genAI = this.getGenAIClientOrThrow();
+    const lessonContextParts = this.buildLessonContextParts(lesson);
+    const contextSeedMessage: Content = {
+      role: 'user',
+      parts: [createPartFromText('Đây là tài liệu bài học của chúng ta.'), ...lessonContextParts],
+    };
+    const contextAckMessage: Content = {
+      role: 'model',
+      parts: [
+        createPartFromText(
+          'Tôi đã đọc và hiểu toàn bộ nội dung bài học. Sẵn sàng hỗ trợ học viên!',
+        ),
+      ],
+    };
+    const conversationMessages: Content[] = conversation.map((entry) => ({
+      role: entry.role === ChatRole.USER ? 'user' : 'model',
+      parts: [createPartFromText(entry.content)],
+    }));
+
     const responseStream = await genAI.models.generateContentStream({
       model: AI_MODEL,
-      contents: conversation.map((entry) => ({
-        role: entry.role === ChatRole.USER ? 'user' : 'model',
-        parts: [{ text: entry.content }],
-      })),
+      contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
       config: {
         systemInstruction: this.buildSystemInstruction(lesson),
         thinkingConfig: {
           thinkingLevel: ThinkingLevel.HIGH,
         },
-        tools: [{ codeExecution: {} }, { googleSearch: {} }],
+        tools: [{ googleSearch: {} }],
       },
     });
 
@@ -235,6 +270,40 @@ export class AiTutorService {
     return instruction;
   }
 
+  // Tạo "ảnh chụp màn hình" đầu kỳ của bài học cho AI.
+  private buildLessonContextParts(lesson: LessonContext): Part[] {
+    const parts: Part[] = [];
+
+    parts.push(
+      createPartFromText(`--- NỘI DUNG BÀI HỌC: ${lesson.title} ---\n${lesson.contentMd}`),
+    );
+
+    if (lesson.imageUrl) {
+      parts.push(createPartFromUri(lesson.imageUrl, 'image/jpeg'));
+    }
+
+    if (lesson.questions.length > 0) {
+      parts.push(createPartFromText('\n--- CÁC CÂU HỎI TRONG BÀI ---'));
+      for (const q of lesson.questions) {
+        parts.push(createPartFromText(`\nCâu ${q.orderIndex + 1} (${q.type}): ${q.text}`));
+        if (q.imageUrl) {
+          parts.push(createPartFromUri(q.imageUrl, 'image/jpeg'));
+        }
+        for (const a of q.answers) {
+          const answerLine = `  - ${a.text}${a.isCorrect ? ' [ĐÚNG]' : ''}${a.explanation ? ` | Gợi ý: ${a.explanation}` : ''}`;
+          parts.push(createPartFromText(answerLine));
+        }
+      }
+      parts.push(
+        createPartFromText(
+          '\n[QUAN TRỌNG: Bạn biết đáp án nhưng KHÔNG ĐƯỢC tiết lộ. Chỉ dẫn dắt từng bước.]',
+        ),
+      );
+    }
+
+    return parts;
+  }
+
   private async resolveUserChatEntry(input: StreamLessonResponseInput) {
     if (input.chatId) {
       const userChat = await this.prisma.aiChatHistory.findFirst({
@@ -317,6 +386,7 @@ export class AiTutorService {
         id: true,
         title: true,
         contentMd: true,
+        imageUrl: true,
         questions: {
           where: {
             isPrivate: false,
@@ -328,6 +398,7 @@ export class AiTutorService {
             orderIndex: true,
             text: true,
             explanation: true,
+            imageUrl: true,
             type: true,
             answers: {
               select: {
