@@ -26,6 +26,11 @@ enum SessionType {
   QUIZ_ATTEMPT
 }
 
+enum ChatRole {
+  USER
+  AI
+}
+
 model User {
   id               String                @id @default(uuid()) @db.Uuid
   email            String                @unique
@@ -41,6 +46,7 @@ model User {
   lessonAttempts   LessonAttempt[]
   lessonAccesses   StudentLessonAccess[]
   activitySessions ActivitySession[]
+  aiChatHistories  AiChatHistory[]
 
   @@unique([authProvider, providerId])
   @@map("users")
@@ -70,6 +76,7 @@ model Lesson {
   lessonAttempts   LessonAttempt[]
   studentAccesses  StudentLessonAccess[]
   activitySessions ActivitySession[]
+  aiChatHistories  AiChatHistory[]
 
   @@map("lessons")
 }
@@ -176,4 +183,20 @@ model StudentLessonAccess {
 
   @@unique([userId, lessonId])
   @@map("student_lesson_access")
+}
+
+model AiChatHistory {
+  id        String   @id @default(uuid()) @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  role      ChatRole
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lesson  Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, lessonId])
+  @@index([createdAt])
+  @@map("ai_chat_histories")
 }

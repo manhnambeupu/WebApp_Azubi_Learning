@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AiChatWidget } from "@/components/student/lessons/ai-chat-widget";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize from "rehype-sanitize";
@@ -377,6 +378,7 @@ export default function StudentLessonDetailPage() {
       </section>
 
       <AttemptHistory lessonId={lessonId} />
+      <AiChatWidget lessonId={lessonId} />
     </article>
   );
 }

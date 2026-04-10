@@ -233,3 +233,43 @@ export type AttemptHistoryItem = {
   correctCount: number;
   submittedAt: string;
 };
+
+export type AiChatRole = "USER" | "AI";
+
+export type CreateAiChatPayload = {
+  lessonId: string;
+  message: string;
+};
+
+export type CreateAiChatResponse = {
+  id: string;
+  studentId: string;
+  lessonId: string;
+  role: AiChatRole;
+  content: string;
+  createdAt: string;
+};
+
+export type GetAiHistoriesFilters = {
+  studentName?: string;
+  lessonTitle?: string;
+  limit?: number;
+};
+
+export type AiHistoryItem = {
+  id: string;
+  studentId: string;
+  lessonId: string;
+  role: AiChatRole;
+  content: string;
+  createdAt: string;
+  student: {
+    id: string;
+    email: string;
+    fullName: string;
+  };
+  lesson: {
+    id: string;
+    title: string;
+  };
+};
