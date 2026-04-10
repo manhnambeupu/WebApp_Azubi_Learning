@@ -33,6 +33,17 @@ type LessonContext = {
   id: string;
   title: string;
   contentMd: string;
+  questions: {
+    orderIndex: number;
+    text: string;
+    explanation: string | null;
+    type: string;
+    answers: {
+      text: string;
+      isCorrect: boolean;
+      explanation: string | null;
+    }[];
+  }[];
 };
 
 type AdminAiChatHistoryItem = {
@@ -200,7 +211,27 @@ export class AiTutorService {
   }
 
   private buildSystemInstruction(lesson: LessonContext): string {
-    return `${SOCRATIC_SYSTEM_PROMPT}\n\nNgữ cảnh bài học "${lesson.title}":\n${lesson.contentMd}`;
+    let instruction = `${SOCRATIC_SYSTEM_PROMPT}\n\nNgữ cảnh bài học "${lesson.title}":\n${lesson.contentMd}`;
+
+    if (lesson.questions.length > 0) {
+      instruction += '\n\n--- CÂU HỎI TRONG BÀI ---\n';
+      for (const q of lesson.questions) {
+        instruction += `\nCâu ${q.orderIndex + 1} (${q.type}): ${q.text}`;
+        if (q.explanation) {
+          instruction += `\n  Giải thích: ${q.explanation}`;
+        }
+        for (const a of q.answers) {
+          instruction += `\n  - ${a.text} ${a.isCorrect ? '(Đáp án đúng)' : ''}`;
+          if (a.explanation) {
+            instruction += ` | Giải thích: ${a.explanation}`;
+          }
+        }
+      }
+      instruction +=
+        '\n\nQuan trọng: Bạn BIẾT đáp án nhưng KHÔNG ĐƯỢC tiết lộ trực tiếp. Chỉ được dẫn dắt học viên tự tìm ra câu trả lời.';
+    }
+
+    return instruction;
   }
 
   private async resolveUserChatEntry(input: StreamLessonResponseInput) {
@@ -285,6 +316,27 @@ export class AiTutorService {
         id: true,
         title: true,
         contentMd: true,
+        questions: {
+          where: {
+            isPrivate: false,
+          },
+          orderBy: {
+            orderIndex: 'asc',
+          },
+          select: {
+            orderIndex: true,
+            text: true,
+            explanation: true,
+            type: true,
+            answers: {
+              select: {
+                text: true,
+                isCorrect: true,
+                explanation: true,
+              },
+            },
+          },
+        },
       },
     });
 
