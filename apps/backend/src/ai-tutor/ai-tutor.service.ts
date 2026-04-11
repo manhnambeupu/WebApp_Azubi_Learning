@@ -182,7 +182,7 @@ export class AiTutorService {
     await this.resolveUserChatEntry(input);
     const conversation = await this.getConversation(input.studentId, input.lessonId);
 
-    const genAI = this.getGenAIClientOrThrow();
+    const apiKeys = this.getApiKeysOrThrow();
     const lessonContextParts = this.buildLessonContextParts(lesson);
     const contextSeedMessage: Content = {
       role: 'user',
@@ -202,45 +202,67 @@ export class AiTutorService {
     }));
 
     let responseStream: Awaited<
-      ReturnType<typeof genAI.models.generateContentStream>
+      ReturnType<GoogleGenAI['models']['generateContentStream']>
     > | null = null;
 
     for (const modelId of MODEL_PRIORITY) {
-      try {
-        const isThinkingSupported = modelId.includes('31b') || modelId.includes('26b');
+      let isModelConnected = false;
 
-        responseStream = await genAI.models.generateContentStream({
-          model: modelId,
-          contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
-          config: {
-            systemInstruction: this.buildSystemInstruction(lesson),
-            ...(isThinkingSupported
-              ? {
-                  thinkingConfig: {
-                    thinkingLevel: ThinkingLevel.HIGH,
-                  },
-                }
-              : {}),
-          },
-        });
+      for (const [keyIndex, apiKey] of apiKeys.entries()) {
+        const genAI = new GoogleGenAI({ apiKey });
 
-        this.logger.log(`[AI Tutor] Đang sử dụng model gốc: ${modelId}`);
-        break;
-      } catch (error: unknown) {
-        const statusCode = this.extractStatusCode(error);
-        if (statusCode === 429 || statusCode === 400 || (statusCode !== null && statusCode >= 500)) {
-          this.logger.warn(
-            `[AI Tutor] Model ${modelId} gặp sự cố (mã: ${statusCode}). Đang fallback...`,
+        try {
+          const isThinkingSupported = modelId.includes('31b') || modelId.includes('26b');
+
+          responseStream = await genAI.models.generateContentStream({
+            model: modelId,
+            contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
+            config: {
+              systemInstruction: this.buildSystemInstruction(lesson),
+              ...(isThinkingSupported
+                ? {
+                    thinkingConfig: {
+                      thinkingLevel: ThinkingLevel.HIGH,
+                    },
+                  }
+                : {}),
+            },
+          });
+
+          this.logger.log(
+            `[AI Tutor] ✅ Thành công Model: ${modelId} | API Key số ${keyIndex + 1}`,
           );
-          continue;
+          isModelConnected = true;
+          break;
+        } catch (error: unknown) {
+          const statusCode = this.extractStatusCode(error);
+
+          if (statusCode === 429) {
+            this.logger.warn(
+              `[AI Tutor] ⚠️ Model ${modelId} quá tải ở Key số ${keyIndex + 1}. Thử Key tiếp theo...`,
+            );
+            continue;
+          }
+
+          if (statusCode === 400 || (statusCode !== null && statusCode >= 500)) {
+            this.logger.warn(
+              `[AI Tutor] ⚠️ Model ${modelId} bị lỗi nòng cốt (Mã: ${statusCode}). Rút lui sang Model khác...`,
+            );
+            break;
+          }
+
+          throw error;
         }
-        throw error;
+      }
+
+      if (isModelConnected) {
+        break;
       }
     }
 
     if (!responseStream) {
       throw new ServiceUnavailableException(
-        'Hệ thống AI hiện đang bảo trì toàn phần. Vui lòng thử lại sau 10 giây.',
+        'Toàn bộ đường truyền AI và Models dự phòng đều đang bận. Vui lòng thử lại sau 10 giây.',
       );
     }
 
@@ -322,13 +344,22 @@ export class AiTutorService {
     return { deleted: true, id };
   }
 
-  private getGenAIClientOrThrow(): GoogleGenAI {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new ServiceUnavailableException('AI Tutor chưa được cấu hình.');
+  private getApiKeysOrThrow(): string[] {
+    const apiKeys = [
+      process.env.GEMINI_API_KEY,
+      process.env.GEMINI_API_KEY_2,
+      process.env.GEMINI_API_KEY_3,
+    ]
+      .map((apiKey) => apiKey?.trim())
+      .filter((apiKey): apiKey is string => Boolean(apiKey));
+
+    const uniqueApiKeys = Array.from(new Set(apiKeys));
+
+    if (uniqueApiKeys.length === 0) {
+      throw new ServiceUnavailableException('AI Tutor chưa được cấu hình API Keys.');
     }
 
-    return new GoogleGenAI({ apiKey });
+    return uniqueApiKeys;
   }
 
   private buildSystemInstruction(lesson: LessonContext): string {
