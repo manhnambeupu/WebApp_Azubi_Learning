@@ -15,6 +15,7 @@ const siteUrl =
     ? frontendUrl
     : "http://localhost:3000";
 const normalizedSiteUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+const iconVersion = process.env.NEXT_PUBLIC_ICON_VERSION?.trim() || "20260411";
 const brandSameAs = (process.env.NEXT_PUBLIC_BRAND_SAME_AS ?? "")
   .split(",")
   .map((entry) => entry.trim())
@@ -81,6 +82,16 @@ export const metadata: Metadata = {
   description:
     "Nền tảng phi lợi nhuận hỗ trợ người Việt học và chuẩn bị Ausbildung tại Đức.",
   applicationName: "AzubiVN",
+  icons: {
+    icon: [
+      { url: `/favicon.ico?v=${iconVersion}` },
+      { url: `/icon.png?v=${iconVersion}`, type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: [{ url: `/favicon.ico?v=${iconVersion}` }],
+    apple: [
+      { url: `/apple-icon.png?v=${iconVersion}`, type: "image/png", sizes: "180x180" },
+    ],
+  },
   alternates: {
     canonical: "/",
     languages: {
