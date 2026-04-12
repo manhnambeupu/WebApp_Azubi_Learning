@@ -146,7 +146,7 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
         const data = rawEvent
           .split("\n")
           .filter((line) => line.startsWith("data:"))
-          .map((line) => line.slice(5).trimStart())
+          .map((line) => (line.startsWith("data: ") ? line.slice(6) : line.slice(5)))
           .join("\n");
 
         if (!data) {
@@ -306,7 +306,7 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                   key={message.id}
                 >
                   {message.role === "AI" ? (
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <div className="prose prose-sm max-w-none break-words dark:prose-invert [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {message.content ||
                           (isStreaming

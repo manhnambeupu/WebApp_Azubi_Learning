@@ -114,6 +114,7 @@ export class AiTutorController {
   @Roles('STUDENT')
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
   @Header('Pragma', 'no-cache')
+  @Header('X-Accel-Buffering', 'no')
   @ApiOperation({ summary: 'Stream phản hồi AI Tutor qua SSE cho học viên' })
   @ApiParam({ name: 'lessonId', description: 'Lesson ID (UUID)' })
   @ApiQuery({

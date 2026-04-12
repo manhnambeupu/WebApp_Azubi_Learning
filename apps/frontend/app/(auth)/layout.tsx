@@ -7,19 +7,21 @@ type AuthLayoutProps = {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div
-      className="relative flex min-h-screen flex-col items-center justify-center p-4"
-      style={{
-        backgroundImage: "url('/images/bg-login.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="relative flex min-h-screen flex-col items-center justify-center p-4">
+      <Image
+        src="/images/bg-login.jpg"
+        alt=""
+        fill
+        priority
+        quality={65}
+        sizes="100vw"
+        className="object-cover"
+        style={{ willChange: "transform" }}
+      />
       <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
       <div className="relative z-10 flex flex-col items-center w-full">
 
-        <div className="w-full max-w-5xl animate-in fade-in zoom-in duration-500">
+        <div className="w-full max-w-5xl animate-in fade-in duration-300">
           {children}
         </div>
 
