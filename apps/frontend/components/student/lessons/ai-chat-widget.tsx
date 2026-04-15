@@ -306,7 +306,7 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                   key={message.id}
                 >
                   {message.role === "AI" ? (
-                    <div className="prose prose-sm max-w-none break-words dark:prose-invert [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1">
+                    <div className="prose prose-sm prose-slate max-w-none break-words leading-relaxed dark:prose-invert [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {message.content ||
                           (isStreaming
