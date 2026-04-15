@@ -47,6 +47,13 @@ apps/backend/test-*.js
 # Misc
 *.tsbuildinfo
 .gitnexus
+# Context7 local artifacts (never commit)
+.context7/
+.context7-cache/
+.ctx7/
+context7/
+context7-data/
+.claude/context7/
 AGENTS.md
 CLAUDE.md
 .claude/skills/gitnexus/gitnexus-cli/SKILL.md
@@ -90,3 +97,4 @@ memory/entities/azubivn.md
 memory/research/keywords/ausbildung-strategy.md
 memory/audits/content/lesson-quality.md
 memory/research/keywords/gastronomie-silo-architecture.md
+.github/copilot-instructions.md

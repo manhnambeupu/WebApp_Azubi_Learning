@@ -49,6 +49,24 @@
 - Để tránh lỗi GUI/X11 trên môi trường headless, đặt backend mặc định:
   - `OPENSPACE_BACKEND_SCOPE=shell,mcp,web,system`
 
+---
+
+## 1.3 Context7-first Dependency Intelligence (MANDATORY)
+
+- Áp dụng cho mọi task non-doc liên quan thư viện/framework/API docs, setup/config, và nâng cấp version.
+- Trước khi code, phải truy vấn Context7 theo thứ tự:
+  1. `npx --yes ctx7 library "<library-name>" "<goal + current version/context>"`
+  2. `npx --yes ctx7 docs "<library-id>" "<API/setup/migration question>"`
+  3. Khi nâng cấp version, bắt buộc chạy `./scripts/context7-workflow.sh audit <library-id> <current-version> <target-version>`
+- Chính sách chọn phiên bản: **latest compatible > latest available**.
+  - Không nâng cấp major mới nhất chỉ vì "mới nhất".
+  - Luôn kiểm tra breaking changes, peer dependency ranges, và runtime/engine constraints.
+  - Nếu phát hiện xung đột, giữ/pin phiên bản tương thích và nêu rõ lý do trong phần summary.
+- Nếu Context7 tạm thời không truy cập được:
+  - Tạm dừng các thay đổi version có rủi ro.
+  - Fallback sang docs/changelog chính thức + lockfile hiện tại.
+  - Ghi rõ đã dùng fallback trong phản hồi.
+
 
 ## 2. High-Level Architecture
 

@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "ctx7:setup": "./scripts/context7-workflow.sh setup",
+    "ctx7:library": "./scripts/context7-workflow.sh library",
+    "ctx7:docs": "./scripts/context7-workflow.sh docs",
+    "ctx7:audit": "./scripts/context7-workflow.sh audit"
+  },
   "dependencies": {
     "@playwright/test": "^1.58.2"
   }
