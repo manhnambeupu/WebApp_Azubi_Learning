@@ -136,10 +136,11 @@ export default function LoginPage() {
           <Image
             src="/images/Logo_Book.png"
             alt="Azubi Learning Logo"
-            fill
-            className="object-contain"
+            width={320}
+            height={320}
+            unoptimized
+            className="h-auto w-full object-contain"
             priority
-            sizes="(max-width: 768px) 70vw, 320px"
           />
         </Link>
         {/* Support Card (Glassmorphism) */}

@@ -24,6 +24,7 @@ export class StudentLessonsService {
         id: true,
         title: true,
         summary: true,
+        createdAt: true,
         imageUrl: true,
         category: {
           select: {
