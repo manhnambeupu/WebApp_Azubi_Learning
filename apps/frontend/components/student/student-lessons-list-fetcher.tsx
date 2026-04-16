@@ -118,12 +118,12 @@ export function StudentLessonsListFetcher() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredLessons.map((lesson, index) => {
-            const featured = index % 5 === 0;
+            const featured = index === 0;
             return (
               <article
-                className={cn("h-full", featured ? "sm:col-span-2 xl:col-span-3" : "xl:col-span-2")}
+                className={cn("h-full", featured ? "sm:col-span-2 lg:col-span-2" : "col-span-1")}
                 key={lesson.id}
               >
                 <LessonCard featured={featured} lesson={lesson} />

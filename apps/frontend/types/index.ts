@@ -143,6 +143,7 @@ export type StudentLessonListItem = {
   id: string;
   title: string;
   summary: string;
+  createdAt?: string;
   imageUrl: string | null;
   category: Pick<Category, "id" | "name">;
   _count: {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpenCheck, BookOpenText, FileQuestion, ImageIcon, UserRound } from "lucide-react";
+import { BookOpenText, CalendarDays, FileQuestion, ImageIcon, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -80,9 +80,15 @@ export function LessonCard({ lesson, featured = false }: LessonCardProps) {
               Xem bài học
             </span>
           </div>
-          <div className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-muted-foreground">
-            <BookOpenCheck className="h-3.5 w-3.5 text-primary" />
-            Tập trung học tập
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-muted-foreground">
+            <CalendarDays className="h-3.5 w-3.5 text-primary" />
+            {lesson?.createdAt
+              ? new Date(lesson.createdAt).toLocaleDateString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
+              : "Bài học mới"}
           </div>
         </CardContent>
       </Card>
