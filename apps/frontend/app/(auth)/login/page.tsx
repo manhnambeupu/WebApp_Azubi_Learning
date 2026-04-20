@@ -163,6 +163,7 @@ export default function LoginPage() {
                 height={80}
                 className="relative rounded-full object-cover ring-2 ring-white/40 shadow-lg"
                 priority
+                unoptimized
               />
             </div>
           </div>
