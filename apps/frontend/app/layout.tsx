@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Nunito } from "next/font/google";
+import { NetworkStatusBanner } from "@/components/providers/network-status-banner";
 import { JsonLd } from "@/components/seo/json-ld";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ServiceWorkerRegister } from "@/components/providers/service-worker-register";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "highlight.js/styles/github.css";
@@ -137,7 +139,9 @@ export default function RootLayout({
       className={`${nunito.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <NetworkStatusBanner />
         <JsonLd data={brandEntitySchemas} />
+        <ServiceWorkerRegister />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <div className="relative isolate min-h-screen overflow-x-hidden">
             <div role="presentation">

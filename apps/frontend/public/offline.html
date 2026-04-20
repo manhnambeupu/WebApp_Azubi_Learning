@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AzubiVN - Đang bảo trì</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        color: #e2e8f0;
+        padding: 24px;
+      }
+
+      .card {
+        max-width: 520px;
+        width: 100%;
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 20px;
+        padding: 44px 30px;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      .icon {
+        font-size: 44px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #f8fafc;
+      }
+
+      p {
+        font-size: 15px;
+        line-height: 1.7;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+
+      .actions {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .contact {
+        display: inline-block;
+        padding: 12px 26px;
+        background: linear-gradient(135deg, #2f913c, #ffd24a);
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 14px;
+        border-radius: 12px;
+        text-decoration: none;
+      }
+
+      .contact:hover {
+        opacity: 0.86;
+      }
+
+      .retry {
+        display: inline-block;
+        padding: 10px 22px;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 13px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .retry:hover {
+        border-color: #e2e8f0;
+        color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" aria-live="polite">
+      <div class="icon" aria-hidden="true">🔧</div>
+      <h1>Server đang bảo trì</h1>
+      <p>Hiện tại hệ thống tạm thời không thể kết nối để xử lý đăng nhập.</p>
+      <p>Vui lòng đợi thêm hoặc liên hệ trực tiếp với admin để được hỗ trợ.</p>
+      <div class="actions">
+        <a class="contact" href="mailto:manhnamtranforwork@gmail.com">✉️ Liên hệ Admin</a>
+        <button class="retry" type="button" onclick="window.location.reload()">🔄 Thử lại</button>
+      </div>
+    </main>
+  </body>
+</html>

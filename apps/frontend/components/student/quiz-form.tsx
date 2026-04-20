@@ -1,6 +1,7 @@
 "use client";
 
 import { arrayMove } from "@dnd-kit/sortable";
+import axios from "axios";
 import { ChevronDown, ChevronUp, Loader2, Send, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -41,6 +42,12 @@ type QuizFormProps = {
 };
 
 type MatchingSelectionsState = Record<string, Record<string, string>>;
+type QuizDraft = {
+  selectedAnswers: Record<string, string[]>;
+  essayInputs: Record<string, string>;
+  orderingAnswerIdsByQuestion: Record<string, string[]>;
+  matchingSelectionsByQuestion: MatchingSelectionsState;
+};
 
 const shuffleArray = <T,>(items: T[]): T[] => {
   const nextItems = [...items];
@@ -116,16 +123,44 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     Record<string, string[]>
   >({});
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isDraftReady, setIsDraftReady] = useState(false);
+  const draftKey = `quiz_draft_${lessonId}`;
 
   useEffect(() => {
+    setIsDraftReady(false);
     const nextOrderingAnswerIdsByQuestion: Record<string, string[]> = {};
     const nextMatchingOptionsByQuestion: Record<string, string[]> = {};
+    const validQuestionIds = new Set(questions.map((question) => question.id));
+    let restoredDraft: Partial<QuizDraft> | null = null;
+
+    try {
+      const draftRaw = localStorage.getItem(draftKey);
+      if (draftRaw) {
+        const parsedDraft = JSON.parse(draftRaw) as unknown;
+        if (parsedDraft && typeof parsedDraft === "object") {
+          restoredDraft = parsedDraft as Partial<QuizDraft>;
+        }
+      }
+    } catch {
+      localStorage.removeItem(draftKey);
+    }
 
     for (const question of questions) {
       if (question.type === "ORDERING") {
-        nextOrderingAnswerIdsByQuestion[question.id] = shuffleArray(
-          question.answers.map((answer) => answer.id),
-        );
+        const fallbackOrdering = shuffleArray(question.answers.map((answer) => answer.id));
+        const restoredOrdering =
+          restoredDraft?.orderingAnswerIdsByQuestion?.[question.id];
+        const answerIds = new Set(question.answers.map((answer) => answer.id));
+
+        if (
+          Array.isArray(restoredOrdering) &&
+          restoredOrdering.length === question.answers.length &&
+          restoredOrdering.every((answerId) => answerIds.has(answerId))
+        ) {
+          nextOrderingAnswerIdsByQuestion[question.id] = restoredOrdering;
+        } else {
+          nextOrderingAnswerIdsByQuestion[question.id] = fallbackOrdering;
+        }
       }
 
       if (question.type === "MATCHING") {
@@ -135,12 +170,93 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       }
     }
 
-    setSelectedAnswers({});
-    setEssayInputs({});
+    const nextSelectedAnswers: Record<string, string[]> = {};
+    const restoredSelectedAnswers = restoredDraft?.selectedAnswers ?? {};
+
+    if (restoredSelectedAnswers && typeof restoredSelectedAnswers === "object") {
+      for (const [questionId, answerIds] of Object.entries(restoredSelectedAnswers)) {
+        if (
+          validQuestionIds.has(questionId) &&
+          Array.isArray(answerIds) &&
+          answerIds.every((answerId) => typeof answerId === "string")
+        ) {
+          nextSelectedAnswers[questionId] = answerIds;
+        }
+      }
+    }
+
+    const nextEssayInputs: Record<string, string> = {};
+    const restoredEssayInputs = restoredDraft?.essayInputs ?? {};
+
+    if (restoredEssayInputs && typeof restoredEssayInputs === "object") {
+      for (const [questionId, essayValue] of Object.entries(restoredEssayInputs)) {
+        if (validQuestionIds.has(questionId) && typeof essayValue === "string") {
+          nextEssayInputs[questionId] = essayValue;
+        }
+      }
+    }
+
+    const nextMatchingSelectionsByQuestion: MatchingSelectionsState = {};
+    const restoredMatchingSelections = restoredDraft?.matchingSelectionsByQuestion ?? {};
+
+    if (restoredMatchingSelections && typeof restoredMatchingSelections === "object") {
+      for (const question of questions) {
+        if (question.type !== "MATCHING") {
+          continue;
+        }
+
+        const answerIdSet = new Set(question.answers.map((answer) => answer.id));
+        const restoredSelections = restoredMatchingSelections[question.id];
+        if (!restoredSelections || typeof restoredSelections !== "object") {
+          continue;
+        }
+
+        const nextSelection: Record<string, string> = {};
+        for (const [answerId, matchText] of Object.entries(restoredSelections)) {
+          if (answerIdSet.has(answerId) && typeof matchText === "string") {
+            nextSelection[answerId] = matchText;
+          }
+        }
+
+        if (Object.keys(nextSelection).length > 0) {
+          nextMatchingSelectionsByQuestion[question.id] = nextSelection;
+        }
+      }
+    }
+
+    setSelectedAnswers(nextSelectedAnswers);
+    setEssayInputs(nextEssayInputs);
     setOrderingAnswerIdsByQuestion(nextOrderingAnswerIdsByQuestion);
-    setMatchingSelectionsByQuestion({});
+    setMatchingSelectionsByQuestion(nextMatchingSelectionsByQuestion);
     setMatchingOptionsByQuestion(nextMatchingOptionsByQuestion);
-  }, [questions]);
+    setIsDraftReady(true);
+  }, [draftKey, questions]);
+
+  useEffect(() => {
+    if (!isDraftReady) {
+      return;
+    }
+
+    try {
+      const draftPayload: QuizDraft = {
+        selectedAnswers,
+        essayInputs,
+        orderingAnswerIdsByQuestion,
+        matchingSelectionsByQuestion,
+      };
+
+      localStorage.setItem(draftKey, JSON.stringify(draftPayload));
+    } catch {
+      // localStorage is unavailable or full, keep runtime state only.
+    }
+  }, [
+    draftKey,
+    essayInputs,
+    isDraftReady,
+    matchingSelectionsByQuestion,
+    orderingAnswerIdsByQuestion,
+    selectedAnswers,
+  ]);
 
   const gradableQuestions = useMemo(
     () => questions.filter((question) => !question.isLocked),
@@ -247,6 +363,17 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     }
 
     try {
+      if (!navigator.onLine) {
+        toast({
+          title: "⚠️ Không có kết nối mạng",
+          description:
+            "Đáp án của bạn vẫn được giữ nguyên trên màn hình. Hãy kiểm tra mạng rồi nộp lại nhé!",
+          variant: "destructive",
+          duration: 10000,
+        });
+        return;
+      }
+
       const payload: SubmitQuizPayload = {
         answers: gradableQuestions.map((question) => {
           if (question.type === "ORDERING") {
@@ -284,16 +411,31 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
 
       const result = await submitQuizMutation.mutateAsync(payload);
       setConfirmOpen(false);
+      localStorage.removeItem(draftKey);
       onSubmitted(result);
       toast({
         title: "Nộp bài thành công",
         description: `Bạn đã hoàn thành lần nộp #${result.attemptNumber}.`,
       });
     } catch (error) {
+      const isAxiosNetworkError =
+        axios.isAxiosError(error) &&
+        !error.response &&
+        (error.code === "ERR_NETWORK" || Boolean(error.request));
+      const isServerUnavailable =
+        axios.isAxiosError(error) &&
+        typeof error.response?.status === "number" &&
+        error.response.status >= 500;
+
       toast({
         title: "Không thể nộp bài",
-        description: getApiErrorMessage(error),
+        description: isAxiosNetworkError
+          ? "Mất kết nối mạng. Đáp án của bạn vẫn an toàn trên màn hình, hãy kiểm tra mạng rồi thử lại."
+          : isServerUnavailable
+            ? "Máy chủ đang bận hoặc bảo trì. Đáp án vẫn an toàn, hãy thử lại sau ít phút."
+            : getApiErrorMessage(error),
         variant: "destructive",
+        duration: 10000,
       });
     }
   };

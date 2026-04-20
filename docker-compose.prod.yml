@@ -2,6 +2,13 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c effective_cache_size=256MB
+      -c work_mem=8MB
+      -c maintenance_work_mem=64MB
+      -c random_page_cost=4.0
     deploy:
       resources:
         limits:
@@ -93,6 +100,7 @@ services:
   nginx:
     image: nginx:alpine
     restart: unless-stopped
+    shm_size: '256mb'
     deploy:
       resources:
         limits:
