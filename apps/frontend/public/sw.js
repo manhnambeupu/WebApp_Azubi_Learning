@@ -1,11 +1,12 @@
-const CACHE_NAME = "azubi-offline-v1";
+const CACHE_NAME = "azubi-offline-v2";
 const OFFLINE_URL = "/offline.html";
+const PUBLIC_ASSETS = ["/offline.html", "/images/Logo_Book.png", "/images/avatar.jpg"];
 const PUBLIC_NAVIGATION_ROUTES = new Set(["/", "/login"]);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.add(OFFLINE_URL);
+      return cache.addAll(PUBLIC_ASSETS);
     }),
   );
   self.skipWaiting();

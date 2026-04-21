@@ -1,107 +1,474 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AzubiVN - Đang bảo trì</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AzubiVN - Đang bảo trì</title>
+  <style>
+    :root {
+      --bg-a: #020617;
+      --bg-b: #0f172a;
+      --bg-c: #1e293b;
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.68);
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-strong: rgba(255, 255, 255, 0.16);
+      --warning-bg: #fbbf24;
+      --warning-text: #78350f;
+      --brand-green: #2f913c;
+      --brand-yellow: #ffd24a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.18), transparent 45%),
+        linear-gradient(140deg, var(--bg-a), var(--bg-b) 50%, var(--bg-c));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 84px 20px 20px;
+    }
+
+    .network-alert {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .network-alert button {
+      border: none;
+      background: #b45309;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    .shell {
+      position: relative;
+      width: min(100%, 1020px);
+      border-radius: 32px;
+      border: 1px solid var(--glass-strong);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+      background: var(--glass);
+      overflow: hidden;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .offline-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background: transparent;
+      cursor: not-allowed;
+    }
+
+    .sidebar {
+      padding: 32px 24px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo-link {
+      display: block;
+      max-width: 260px;
+      margin: 0 auto 22px;
+    }
+
+    .logo {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .support {
+      max-width: 330px;
+      margin: 0 auto;
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.14);
+      color: #c7f9df;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .avatar-wrap {
+      margin: 14px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .support h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .support p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .form-side {
+      padding: 36px 24px 40px;
+    }
+
+    .portal-badge {
+      width: fit-content;
+      margin: 0 auto 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      background: rgba(255, 255, 255, 0.42);
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-header h2 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .form-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form {
+      max-width: 390px;
+      margin: 0 auto;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .input-group input {
+      width: 100%;
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.34);
+      color: #0f172a;
+      padding: 0 14px;
+      font-size: 15px;
+    }
+
+    .input-group input::placeholder {
+      color: rgba(15, 23, 42, 0.72);
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 52px;
+      border: none;
+      border-radius: 12px;
+      margin-top: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+      background: linear-gradient(130deg, var(--brand-green), var(--brand-yellow));
+    }
+
+    .divider {
+      position: relative;
+      text-align: center;
+      margin: 18px 0;
+    }
+
+    .divider::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .divider span {
+      position: relative;
+      padding: 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(7, 11, 24, 0.74);
+    }
+
+    .google-btn {
+      width: 100%;
+      height: 48px;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.84);
+      color: #0f172a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(4px);
+      padding: 20px;
+    }
+
+    .modal.is-open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(100%, 440px);
+      border-radius: 20px;
+      border: 1px solid rgba(239, 68, 68, 0.32);
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 24px 22px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.44);
+    }
+
+    .modal-card h3 {
+      margin: 8px 0 10px;
+      font-size: 22px;
+    }
+
+    .modal-card p {
+      margin: 0;
+      line-height: 1.6;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .modal-card button {
+      margin-top: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #334155;
+      color: #f8fafc;
+      font-weight: 700;
+      height: 42px;
+      min-width: 126px;
+      cursor: pointer;
+    }
+
+    @media (min-width: 860px) {
+      .layout {
+        flex-direction: row;
+        min-height: 580px;
       }
 
-      body {
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-        min-height: 100vh;
+      .sidebar {
+        width: 41%;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 0;
+        padding: 40px 34px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-        color: #e2e8f0;
-        padding: 24px;
-      }
-
-      .card {
-        max-width: 520px;
-        width: 100%;
-        background: rgba(30, 41, 59, 0.85);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 20px;
-        padding: 44px 30px;
-        text-align: center;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      }
-
-      .icon {
-        font-size: 44px;
-        margin-bottom: 14px;
-      }
-
-      h1 {
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: #f8fafc;
-      }
-
-      p {
-        font-size: 15px;
-        line-height: 1.7;
-        color: #94a3b8;
-        margin-bottom: 8px;
-      }
-
-      .actions {
-        margin-top: 24px;
-        display: flex;
         flex-direction: column;
+      }
+
+      .form-side {
+        width: 59%;
+        display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        padding: 40px 34px;
       }
+    }
+  </style>
+</head>
 
-      .contact {
-        display: inline-block;
-        padding: 12px 26px;
-        background: linear-gradient(135deg, #2f913c, #ffd24a);
-        color: #0f172a;
-        font-weight: 700;
-        font-size: 14px;
-        border-radius: 12px;
-        text-decoration: none;
-      }
+<body>
+  <div class="network-alert">
+    <span id="network-alert-text">⚠️ Bạn đang ngoại tuyến. Hệ thống tạm thời không thể kết nối máy chủ, vì đang bảo
+      trì.</span>
+    <button type="button" id="retry-button">Thử kết nối lại</button>
+  </div>
 
-      .contact:hover {
-        opacity: 0.86;
-      }
+  <main class="shell" aria-live="polite">
+    <button type="button" class="offline-overlay" id="interaction-guard"
+      aria-label="Mở thông báo trạng thái ngoại tuyến"></button>
+    <div class="layout">
+      <section class="sidebar">
+        <a href="/" class="logo-link" aria-label="AzubiVN">
+          <img src="/images/Logo_Book.png" alt="AzubiVN Logo" class="logo" />
+        </a>
+        <article class="support">
+          <span class="badge"><span class="dot"></span>Online 24/7</span>
+          <div class="avatar-wrap">
+            <img src="/images/avatar.jpg" alt="Gia sư hỗ trợ" class="avatar" />
+          </div>
+          <h3>Gia Sư Fachkraft für Gastronomie</h3>
+          <p>Khoá học hệ 2 năm Fachkraft für Gastronomie 1-1. Liên hệ Whatsapp hoặc Gmail để biết thêm chi tiết ❤️</p>
+        </article>
+      </section>
+      <section class="form-side">
+        <div class="form">
+          <div class="portal-badge">E-Learning-Plattform</div>
+          <header class="form-header">
+            <h2>Anmeldung</h2>
+            <p>Zugang zum Lernportal für Auszubildende</p>
+          </header>
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="Enter your email" disabled />
+          </div>
+          <div class="input-group">
+            <label for="password">Passwort</label>
+            <input id="password" type="password" placeholder="Enter your password" disabled />
+          </div>
+          <button type="button" class="primary-btn" disabled>Anmelden</button>
+          <div class="divider"><span>oder weiter mit</span></div>
+          <button type="button" class="google-btn" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                fill="#4285F4"></path>
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"></path>
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                fill="#FBBC05"></path>
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335"></path>
+            </svg>
+            Google
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
 
-      .retry {
-        display: inline-block;
-        padding: 10px 22px;
-        background: transparent;
-        color: #94a3b8;
-        font-size: 13px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 10px;
-        cursor: pointer;
-      }
+  <div class="modal" id="offline-modal" role="dialog" aria-modal="true" aria-labelledby="offline-modal-title">
+    <div class="modal-card">
+      <div aria-hidden="true" style="font-size: 40px">🚫</div>
+      <h3 id="offline-modal-title">Máy chủ đang bảo trì</h3>
+      <p>
+        Hệ thống hiện không thể kết nối để xử lý đăng nhập. Vui lòng thử lại sau hoặc liên hệ Admin:
+        <strong>tranmanhnam@azubivn.de</strong>.
+      </p>
+      <button type="button" id="close-modal">Tôi đã hiểu</button>
+    </div>
+  </div>
 
-      .retry:hover {
-        border-color: #e2e8f0;
-        color: #e2e8f0;
-      }
-    </style>
-  </head>
-  <body>
-    <main class="card" aria-live="polite">
-      <div class="icon" aria-hidden="true">🔧</div>
-      <h1>Server đang bảo trì</h1>
-      <p>Hiện tại hệ thống tạm thời không thể kết nối để xử lý đăng nhập.</p>
-      <p>Vui lòng đợi thêm hoặc liên hệ trực tiếp với admin để được hỗ trợ.</p>
-      <div class="actions">
-        <a class="contact" href="mailto:manhnamtranforwork@gmail.com">✉️ Liên hệ Admin</a>
-        <button class="retry" type="button" onclick="window.location.reload()">🔄 Thử lại</button>
-      </div>
-    </main>
-  </body>
+  <script>
+    (function () {
+      const modal = document.getElementById("offline-modal");
+      const guard = document.getElementById("interaction-guard");
+      const closeBtn = document.getElementById("close-modal");
+      const retryBtn = document.getElementById("retry-button");
+      const alertText = document.getElementById("network-alert-text");
+
+      const showModal = () => {
+        modal.classList.add("is-open");
+      };
+
+      const closeModal = () => {
+        modal.classList.remove("is-open");
+      };
+
+      guard.addEventListener("click", showModal);
+      closeBtn.addEventListener("click", closeModal);
+      retryBtn.addEventListener("click", () => window.location.reload());
+
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+
+      window.addEventListener("online", () => {
+        alertText.textContent = "✅ Kết nối mạng đã khôi phục. Bạn có thể thử tải lại trang.";
+      });
+
+      window.addEventListener("offline", () => {
+        alertText.textContent = "⚠️ Bạn đang ngoại tuyến. Hệ thống tạm thời không thể kết nối máy chủ, vì máy chủ đang bảo trì.";
+      });
+    })();
+  </script>
+</body>
+
 </html>
