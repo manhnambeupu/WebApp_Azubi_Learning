@@ -20,12 +20,20 @@ const roleRedirectPath = (role: UserRole): string =>
 
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
+    if (!error.response || error.code === "ERR_NETWORK") {
+      return "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc liên hệ Admin: tranmanhnam@azubivn.de";
+    }
+
+    if (error.response.status >= 500) {
+      return "Hệ thống đang bảo trì. Vui lòng thử lại sau ít phút hoặc liên hệ Admin: tranmanhnam@azubivn.de";
+    }
+
     const apiMessage = (error.response?.data as { message?: string })?.message;
     if (apiMessage) {
       return apiMessage;
     }
   }
-  return "Login failed. Please check your credentials and try again.";
+  return "Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.";
 };
 
 function OAuthErrorToaster() {
@@ -111,7 +119,7 @@ export default function LoginPage() {
       const message = getErrorMessage(error);
       setErrorMessage(message);
       toast({
-        title: "Login failed",
+        title: "Đăng nhập thất bại",
         description: message,
         variant: "destructive",
       });
@@ -288,14 +296,12 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/30" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 text-white/80">
-                oder weiter mit
-              </span>
+              <span className="px-3 text-white/80">oder weiter mit</span>
             </div>
           </div>
 
           {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <a
               className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-300/50 bg-white/70 text-sm font-medium text-gray-800 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-md"
               href={`${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/google`}
@@ -319,20 +325,6 @@ export default function LoginPage() {
                 />
               </svg>
               Google
-            </a>
-            <a
-              className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-300/50 bg-[#1877F2] text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#166FE5] hover:shadow-md"
-              href={`${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/facebook`}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Facebook
             </a>
           </div>
         </form>
