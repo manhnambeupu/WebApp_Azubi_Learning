@@ -7,17 +7,19 @@
   <title>AzubiVN - Đang bảo trì</title>
   <style>
     :root {
-      --bg-a: #020617;
-      --bg-b: #0f172a;
-      --bg-c: #1e293b;
-      --text: #f8fafc;
-      --muted: rgba(248, 250, 252, 0.68);
-      --glass: rgba(255, 255, 255, 0.1);
-      --glass-strong: rgba(255, 255, 255, 0.16);
-      --warning-bg: #fbbf24;
-      --warning-text: #78350f;
-      --brand-green: #2f913c;
-      --brand-yellow: #ffd24a;
+      --primary: #58cc02;
+      --primary-dark: #46a302;
+      --secondary: #ce82ff;
+      --warning: #ffc800;
+      --surface: #ffffff;
+      --text: #3c3c3c;
+      --text-secondary: #777777;
+      --border: #e5e5e5;
+      --bg-alt: #f7f7f7;
+      --footer: #235390;
+      --banner-bg: #fbbf24;
+      --banner-text: #78350f;
+      --banner-button: #92400e;
     }
 
     * {
@@ -27,268 +29,464 @@
     html,
     body {
       margin: 0;
-      min-height: 100%;
+      padding: 0;
     }
 
     body {
-      font-family: "Segoe UI", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.18), transparent 45%),
-        linear-gradient(140deg, var(--bg-a), var(--bg-b) 50%, var(--bg-c));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 84px 20px 20px;
+      background: var(--surface);
+      line-height: 1.6;
     }
 
-    .network-alert {
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .maintenance-banner {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 100;
-      background: var(--warning-bg);
-      color: var(--warning-text);
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 16px;
-      font-size: 14px;
+      z-index: 9999;
+      background: var(--banner-bg);
+      color: var(--banner-text);
       font-weight: 700;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
     }
 
-    .network-alert button {
-      border: none;
-      background: #b45309;
+    .banner-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .banner-inner p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .banner-inner a {
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    .reload-button {
+      border: 0;
+      border-radius: 10px;
+      background: var(--banner-button);
       color: #fff;
-      font-weight: 700;
-      border-radius: 8px;
-      padding: 6px 12px;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 8px 14px;
       cursor: pointer;
     }
 
-    .shell {
-      position: relative;
-      width: min(100%, 1020px);
-      border-radius: 32px;
-      border: 1px solid var(--glass-strong);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(12px);
-      background: var(--glass);
-      overflow: hidden;
+    main {
+      padding-top: 112px;
     }
 
-    .layout {
+    .hero {
+      min-height: 90vh;
+      background-image: linear-gradient(to bottom,
+          rgb(0 0 0 / 22%) 0%,
+          rgb(0 0 0 / 34%) 52%,
+          rgb(0 0 0 / 45%) 100%),
+        url("/images/bg-login.jpg");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .hero-content {
+      max-width: 920px;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      gap: 18px;
     }
 
-    .offline-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      background: transparent;
-      cursor: not-allowed;
+    .hero-logo {
+      width: 160px;
+      filter: drop-shadow(0 6px 20px rgb(0 0 0 / 30%));
     }
 
-    .sidebar {
-      padding: 32px 24px;
-      background: rgba(0, 0, 0, 0.2);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    .hero h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.2;
     }
 
-    .logo-link {
-      display: block;
-      max-width: 260px;
-      margin: 0 auto 22px;
+    .hero p {
+      margin: 0;
+      color: rgb(255 255 255 / 92%);
+      font-size: 18px;
     }
 
-    .logo {
-      display: block;
-      width: 100%;
-      height: auto;
+    .cta-button {
+      border: 0;
+      border-radius: 16px;
+      background: var(--primary);
+      color: #fff;
+      border-bottom: 4px solid var(--primary-dark);
+      font-weight: 800;
+      font-size: 18px;
+      padding: 14px 28px;
+      cursor: pointer;
     }
 
-    .support {
-      max-width: 330px;
-      margin: 0 auto;
-      border-radius: 20px;
-      padding: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.08);
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgb(88 204 2 / 42%);
+    }
+
+    .cta-button:active {
+      transform: translateY(1px);
+      border-bottom-width: 2px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      border: 2px solid rgb(255 255 255 / 25%);
       border-radius: 999px;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      background: rgba(16, 185, 129, 0.14);
-      color: #c7f9df;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 10px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-    }
-
-    .avatar-wrap {
-      margin: 14px 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.4);
-    }
-
-    .support h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .support p {
-      margin: 0;
-      color: var(--muted);
+      background: rgb(255 255 255 / 20%);
+      color: #fff;
       font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .form-side {
-      padding: 36px 24px 40px;
-    }
-
-    .portal-badge {
-      width: fit-content;
-      margin: 0 auto 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.34);
-      background: rgba(255, 255, 255, 0.42);
-      color: #0f172a;
-      font-size: 12px;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 6px 14px;
     }
 
-    .form-header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .form-header h2 {
-      margin: 0 0 8px;
-      font-size: 30px;
-    }
-
-    .form-header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .form {
-      max-width: 390px;
+    .section {
+      max-width: 1160px;
       margin: 0 auto;
+      padding: 64px 20px;
     }
 
-    .input-group {
-      margin-bottom: 14px;
-    }
-
-    .input-group label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .input-group input {
-      width: 100%;
-      height: 48px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      background: rgba(255, 255, 255, 0.34);
-      color: #0f172a;
-      padding: 0 14px;
-      font-size: 15px;
-    }
-
-    .input-group input::placeholder {
-      color: rgba(15, 23, 42, 0.72);
-    }
-
-    .primary-btn {
-      width: 100%;
-      height: 52px;
-      border: none;
-      border-radius: 12px;
-      margin-top: 10px;
-      font-size: 17px;
-      font-weight: 700;
-      color: #111827;
-      background: linear-gradient(130deg, var(--brand-green), var(--brand-yellow));
-    }
-
-    .divider {
-      position: relative;
+    .section-title {
+      margin: 0 0 34px;
+      font-size: 32px;
+      line-height: 1.2;
       text-align: center;
-      margin: 18px 0;
     }
 
-    .divider::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      border-top: 1px solid rgba(255, 255, 255, 0.25);
+    .grid-3 {
+      display: grid;
+      gap: 16px;
     }
 
-    .divider span {
-      position: relative;
-      padding: 0 10px;
-      font-size: 12px;
-      color: var(--muted);
-      background: rgba(7, 11, 24, 0.74);
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-bottom: 4px solid #d9d9d9;
+      border-radius: 16px;
+      padding: 24px;
     }
 
-    .google-btn {
-      width: 100%;
-      height: 48px;
-      border: 1px solid rgba(255, 255, 255, 0.42);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.84);
-      color: #0f172a;
+    .feature-card {
+      text-align: center;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+      border-bottom-color: var(--primary);
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      font-size: 14px;
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .icon-primary {
+      background: #e8f5e1;
+    }
+
+    .icon-secondary {
+      background: #f3e8ff;
+    }
+
+    .icon-warning {
+      background: #fef9e7;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    .section-alt {
+      background: var(--bg-alt);
+    }
+
+    .grid-2 {
+      display: grid;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    .avatar-glow {
+      position: absolute;
+      inset: -10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #58cc02, #ffc800, #58cc02);
+      opacity: 0.48;
+      filter: blur(8px);
+    }
+
+    .avatar {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 999px;
+      border: 4px solid #fff;
+      box-shadow: 0 20px 34px rgb(0 0 0 / 12%);
+    }
+
+    .teacher-badge {
+      display: inline-block;
+      border-radius: 999px;
+      border: 2px solid rgb(88 204 2 / 20%);
+      background: #e8f5e1;
+      color: var(--primary);
       font-weight: 700;
+      font-size: 14px;
+      padding: 6px 14px;
+    }
+
+    .teacher h2 {
+      margin: 14px 0 0;
+      font-size: 34px;
+      line-height: 1.2;
+    }
+
+    .teacher p {
+      margin: 12px 0 0;
+      color: var(--text-secondary);
+    }
+
+    .contact-grid {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .contact-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contact-card strong {
+      display: block;
+    }
+
+    .contact-card span {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      border-bottom: 4px solid var(--primary-dark);
+      font-weight: 900;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step h3 {
+      margin: 14px 0 8px;
+      font-size: 22px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    .cta-wrap {
+      text-align: center;
+      margin-top: 34px;
+    }
+
+    .faq-list {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      border: 2px solid var(--border);
+      border-bottom: 4px solid #d9d9d9;
+      border-radius: 16px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .faq-item[open] {
+      border-color: var(--primary);
+      border-bottom-color: var(--primary-dark);
+    }
+
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item summary::after {
+      content: "+";
+      font-size: 24px;
+      color: var(--primary);
+    }
+
+    .faq-item[open] summary::after {
+      content: "−";
+    }
+
+    .faq-item p {
+      margin: 0;
+      padding: 0 20px 18px;
+      color: var(--text-secondary);
+    }
+
+    .footer {
+      background: var(--footer);
+      color: #fff;
+      padding: 48px 0 30px;
+    }
+
+    .footer-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      width: 72px;
+      filter: brightness(0) invert(1);
+      opacity: 0.85;
+    }
+
+    .footer-muted {
+      color: rgb(255 255 255 / 78%);
+      font-size: 14px;
+    }
+
+    .footer-col h3 {
+      margin: 0 0 12px;
+    }
+
+    .footer-col a {
+      display: block;
+      color: rgb(255 255 255 / 76%);
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+
+    .footer-col a:hover {
+      color: #fff;
+    }
+
+    .footer hr {
+      border: 0;
+      border-top: 1px solid rgb(255 255 255 / 20%);
+      margin: 24px 0;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      color: rgb(255 255 255 / 70%);
+      font-size: 14px;
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      z-index: 200;
+      z-index: 10000;
+      background: rgb(0 0 0 / 70%);
+      backdrop-filter: blur(4px);
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(4px);
       padding: 20px;
     }
 
@@ -297,175 +495,369 @@
     }
 
     .modal-card {
-      width: min(100%, 440px);
-      border-radius: 20px;
-      border: 1px solid rgba(239, 68, 68, 0.32);
-      background: #1e293b;
-      color: #e2e8f0;
-      padding: 24px 22px;
+      width: min(100%, 520px);
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.44);
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 20px 40px rgb(0 0 0 / 24%);
     }
 
-    .modal-card h3 {
+    .modal-card h2 {
       margin: 8px 0 10px;
-      font-size: 22px;
     }
 
     .modal-card p {
       margin: 0;
-      line-height: 1.6;
-      color: #cbd5e1;
-      font-size: 14px;
+      color: var(--text-secondary);
     }
 
-    .modal-card button {
-      margin-top: 18px;
-      border: none;
-      border-radius: 10px;
-      background: #334155;
-      color: #f8fafc;
-      font-weight: 700;
-      height: 42px;
-      min-width: 126px;
+    .modal-actions {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      border: 0;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 12px 16px;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    @media (min-width: 860px) {
-      .layout {
+    .modal-btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .modal-btn-secondary {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    @media (min-width: 768px) {
+      .banner-inner {
         flex-direction: row;
-        min-height: 580px;
+        justify-content: space-between;
+        align-items: center;
       }
 
-      .sidebar {
-        width: 41%;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 0;
-        padding: 40px 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+      main {
+        padding-top: 72px;
       }
 
-      .form-side {
-        width: 59%;
-        display: flex;
-        align-items: center;
+      .hero h1 {
+        font-size: 48px;
+      }
+
+      .section {
+        padding: 96px 24px;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 40px;
+      }
+
+      .contact-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .footer-grid {
+        grid-template-columns: 1.4fr 1fr 1fr;
+      }
+
+      .modal-actions {
+        flex-direction: row;
         justify-content: center;
-        padding: 40px 34px;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .cta-button,
+      .card {
+        transition: none !important;
+      }
+
+      .cta-button:hover,
+      .feature-card:hover {
+        transform: none !important;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="network-alert">
-    <span id="network-alert-text">⚠️ Bạn đang ngoại tuyến. Hệ thống tạm thời không thể kết nối máy chủ, vì đang bảo
-      trì.</span>
-    <button type="button" id="retry-button">Thử kết nối lại</button>
+  <div class="maintenance-banner" role="status" aria-live="polite">
+    <div class="banner-inner">
+      <p>
+        ⚠️ Hệ thống đang bảo trì — Vui lòng liên hệ Admin:
+        <a href="mailto:tranmanhnam@azubivn.de">tranmanhnam@azubivn.de</a>
+        hoặc thử tải lại trang.
+      </p>
+      <button type="button" class="reload-button" id="reload-page">🔄 Tải lại trang</button>
+    </div>
   </div>
 
-  <main class="shell" aria-live="polite">
-    <button type="button" class="offline-overlay" id="interaction-guard"
-      aria-label="Mở thông báo trạng thái ngoại tuyến"></button>
-    <div class="layout">
-      <section class="sidebar">
-        <a href="/" class="logo-link" aria-label="AzubiVN">
-          <img src="/images/Logo_Book.png" alt="AzubiVN Logo" class="logo" />
-        </a>
-        <article class="support">
-          <span class="badge"><span class="dot"></span>Online 24/7</span>
-          <div class="avatar-wrap">
-            <img src="/images/avatar.jpg" alt="Gia sư hỗ trợ" class="avatar" />
-          </div>
-          <h3>Gia Sư Fachkraft für Gastronomie</h3>
-          <p>Khoá học hệ 2 năm Fachkraft für Gastronomie 1-1. Liên hệ Whatsapp hoặc Gmail để biết thêm chi tiết ❤️</p>
-        </article>
-      </section>
-      <section class="form-side">
-        <div class="form">
-          <div class="portal-badge">E-Learning-Plattform</div>
-          <header class="form-header">
-            <h2>Anmeldung</h2>
-            <p>Zugang zum Lernportal für Auszubildende</p>
-          </header>
-          <div class="input-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" placeholder="Enter your email" disabled />
-          </div>
-          <div class="input-group">
-            <label for="password">Passwort</label>
-            <input id="password" type="password" placeholder="Enter your password" disabled />
-          </div>
-          <button type="button" class="primary-btn" disabled>Anmelden</button>
-          <div class="divider"><span>oder weiter mit</span></div>
-          <button type="button" class="google-btn" disabled>
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                fill="#4285F4"></path>
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"></path>
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"></path>
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"></path>
-            </svg>
-            Google
-          </button>
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <img src="/images/Logo_Book.png" alt="AzubiVN Logo" class="hero-logo" onerror="this.style.display='none'" />
+        <h1>Ôn thi Abschlussprüfung ngành Gastronomie — Miễn phí, bằng tiếng Việt</h1>
+        <p>
+          Bài tập tự luyện + gia sư kèm riêng dành cho Azubi Việt Nam tại Đức. Soạn bởi người đã
+          tốt nghiệp Fachkraft für Gastronomie và có bằng AdA-Schein.
+        </p>
+        <button type="button" class="cta-button" onclick="showMaintenanceModal()">
+          Bắt đầu luyện thi →
+        </button>
+        <div class="hero-badges">
+          <span class="badge">🎓 100% miễn phí</span>
+          <span class="badge">📱 Online 24/7</span>
+          <span class="badge">🇻🇳 Tiếng Việt</span>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Tại sao nên học cùng AzubiVN?</h2>
+      <div class="grid-3">
+        <article class="card feature-card">
+          <div class="feature-icon icon-primary">📝</div>
+          <h3>Bài tập tự luyện</h3>
+          <p>
+            Hệ thống câu hỏi trắc nghiệm bám sát đề thi Abschlussprüfung. Làm bài, nộp, và xem
+            kết quả ngay.
+          </p>
+        </article>
+        <article class="card feature-card">
+          <div class="feature-icon icon-secondary">👨‍🏫</div>
+          <h3>Gia sư kèm riêng 1-1</h3>
+          <p>
+            Được dạy trực tiếp bởi người đã tốt nghiệp Fachkraft và có chứng chỉ sư phạm nghề
+            AdA-Schein. Hiểu rõ chương trình vì đã đi qua.
+          </p>
+        </article>
+        <article class="card feature-card">
+          <div class="feature-icon icon-warning">🇻🇳</div>
+          <h3>Nội dung tiếng Việt</h3>
+          <p>
+            Toàn bộ bài học và giải thích bằng tiếng Việt. Giúp bạn hiểu sâu kiến thức thay vì
+            chỉ dịch máy móc từ tiếng Đức.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="grid-2">
+        <div class="avatar-wrap">
+          <div class="avatar-glow" aria-hidden="true"></div>
+          <img src="/images/avatar.jpg" alt="Jason — Gia sư Fachkraft für Gastronomie" class="avatar"
+            onerror="this.style.display='none'; this.parentElement.style.display='none';" />
+        </div>
+        <article class="teacher">
+          <span class="teacher-badge">Fachkraft für Gastronomie • AdA-Schein</span>
+          <h2>Xin chào, mình là Jason 👋</h2>
+          <p>
+            Mình tốt nghiệp chương trình Ausbildung 2 năm ngành Fachkraft für Gastronomie tại
+            Đức. Sau khi ra nghề, mình thi thêm bằng AdA-Schein (Ausbildereignung) — chứng chỉ
+            sư phạm nghề cho phép đào tạo Azubi. Mình hiểu chương trình học từ A đến Z vì đã trải
+            qua. Giờ mình muốn giúp các bạn Việt Nam cũng đang trên con đường này.
+          </p>
+          <div class="contact-grid">
+            <a class="card contact-card" href="https://wa.me/4915758084635" target="_blank" rel="noopener noreferrer">
+              <div class="contact-icon icon-primary">💬</div>
+              <div>
+                <strong>WhatsApp</strong>
+                <span>+49 15758084635</span>
+              </div>
+            </a>
+            <a class="card contact-card" href="mailto:jasonluong@azubivn.de">
+              <div class="contact-icon icon-secondary">✉️</div>
+              <div>
+                <strong>Email</strong>
+                <span>jasonluong@azubivn.de</span>
+              </div>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">3 bước để bắt đầu</h2>
+      <div class="grid-3">
+        <article class="step">
+          <div class="step-number">1</div>
+          <h3>Đăng ký tài khoản</h3>
+          <p>
+            Tạo tài khoản miễn phí bằng Email, Google, hoặc Facebook. Mất chưa tới 1 phút.
+          </p>
+        </article>
+        <article class="step">
+          <div class="step-number">2</div>
+          <h3>Chọn bài học & làm quiz</h3>
+          <p>
+            Bài học được sắp xếp theo chủ đề. Mỗi bài có phần lý thuyết và câu hỏi trắc nghiệm.
+          </p>
+        </article>
+        <article class="step">
+          <div class="step-number">3</div>
+          <h3>Xem kết quả & ôn lại</h3>
+          <p>Hệ thống chấm điểm tự động. Xem lại đáp án đúng — sai để ôn tập hiệu quả.</p>
+        </article>
+      </div>
+      <div class="cta-wrap">
+        <button type="button" class="cta-button" onclick="showMaintenanceModal()">
+          Đăng ký miễn phí →
+        </button>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="faq">
+      <h2 class="section-title">Những câu hỏi hay gặp</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>AzubiVN có thật sự miễn phí không?</summary>
+          <p>
+            Có. Toàn bộ bài học và bài tập trên nền tảng đều miễn phí 100%. Bọn mình vận hành
+            bằng sự ủng hộ tự nguyện từ cộng đồng.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Ai soạn nội dung bài học?</summary>
+          <p>
+            Nội dung được soạn bởi người đã tốt nghiệp Ausbildung ngành Gastronomie tại Đức và có
+            bằng sư phạm nghề AdA-Schein.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Mình đang học ngành khác, có dùng được không?</summary>
+          <p>
+            Hiện tại AzubiVN tập trung vào ngành Fachkraft für Gastronomie. Bọn mình đang có kế
+            hoạch mở rộng sang các ngành nghề khác trong tương lai.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Dịch vụ gia sư kèm riêng hoạt động thế nào?</summary>
+          <p>
+            Bạn liên hệ qua WhatsApp hoặc Email để trao đổi lịch học. Buổi học 1-1 online, linh
+            hoạt theo giờ của bạn. Liên hệ để biết thêm chi tiết.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Làm sao để ủng hộ AzubiVN?</summary>
+          <p>
+            Bạn có thể ủng hộ bọn mình qua PayPal, chỉ từ 2€. Mọi khoản ủng hộ đều giúp duy trì
+            server và soạn thêm bài tập mới.
+          </p>
+        </details>
+      </div>
+    </section>
   </main>
 
-  <div class="modal" id="offline-modal" role="dialog" aria-modal="true" aria-labelledby="offline-modal-title">
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <section class="footer-col">
+          <img src="/images/Logo_Book.png" alt="AzubiVN Logo" class="footer-logo" onerror="this.style.display='none'" />
+          <p class="footer-muted">
+            AzubiVN — Nền tảng phi lợi nhuận hỗ trợ Azubi Việt Nam ôn thi nghề tại Đức.
+          </p>
+          <p class="footer-muted">© 2026 AzubiVN. Tất cả nội dung miễn phí.</p>
+        </section>
+        <section class="footer-col">
+          <h3>Pháp lý</h3>
+          <a href="#">Impressum</a>
+          <a href="#">Datenschutzerklärung</a>
+        </section>
+        <section class="footer-col">
+          <h3>Liên hệ</h3>
+          <a href="https://wa.me/4915758084635" target="_blank" rel="noopener noreferrer">
+            WhatsApp: +49 157 58084635
+          </a>
+          <a href="mailto:jasonluong@azubivn.de">Email: jasonluong@azubivn.de</a>
+        </section>
+      </div>
+      <hr />
+      <p class="footer-bottom">Được xây dựng với ❤️ cho cộng đồng Azubi Việt Nam tại Đức</p>
+    </div>
+  </footer>
+
+  <div class="modal" id="maintenance-modal" role="dialog" aria-modal="true" aria-labelledby="maintenance-modal-title">
     <div class="modal-card">
-      <div aria-hidden="true" style="font-size: 40px">🚫</div>
-      <h3 id="offline-modal-title">Máy chủ đang bảo trì</h3>
+      <div style="font-size: 40px" aria-hidden="true">🔧</div>
+      <h2 id="maintenance-modal-title">Hệ thống đang được bảo trì</h2>
       <p>
-        Hệ thống hiện không thể kết nối để xử lý đăng nhập. Vui lòng thử lại sau hoặc liên hệ Admin:
-        <strong>tranmanhnam@azubivn.de</strong>.
+        Máy chủ tạm thời không khả dụng. Vui lòng thử lại sau ít phút hoặc liên hệ Admin qua
+        email:
+        <strong>tranmanhnam@azubivn.de</strong>
       </p>
-      <button type="button" id="close-modal">Tôi đã hiểu</button>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-secondary" data-close-modal>
+          Tôi đã hiểu
+        </button>
+        <a class="modal-btn modal-btn-primary" href="mailto:tranmanhnam@azubivn.de">
+          📧 Liên hệ Admin
+        </a>
+        <button type="button" class="modal-btn modal-btn-secondary" id="reload-from-modal">
+          🔄 Tải lại trang
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
     (function () {
-      const modal = document.getElementById("offline-modal");
-      const guard = document.getElementById("interaction-guard");
-      const closeBtn = document.getElementById("close-modal");
-      const retryBtn = document.getElementById("retry-button");
-      const alertText = document.getElementById("network-alert-text");
+      const modal = document.getElementById("maintenance-modal");
+      const reloadPageButton = document.getElementById("reload-page");
+      const reloadModalButton = document.getElementById("reload-from-modal");
+      const closeButtons = document.querySelectorAll("[data-close-modal]");
 
-      const showModal = () => {
+      const showMaintenanceModal = () => {
         modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
       };
 
-      const closeModal = () => {
+      const closeMaintenanceModal = () => {
         modal.classList.remove("is-open");
+        document.body.classList.remove("modal-open");
       };
 
-      guard.addEventListener("click", showModal);
-      closeBtn.addEventListener("click", closeModal);
-      retryBtn.addEventListener("click", () => window.location.reload());
+      window.showMaintenanceModal = showMaintenanceModal;
+      reloadPageButton.addEventListener("click", () => window.location.reload());
+      reloadModalButton.addEventListener("click", () => window.location.reload());
+
+      closeButtons.forEach((button) => {
+        button.addEventListener("click", closeMaintenanceModal);
+      });
 
       modal.addEventListener("click", (event) => {
         if (event.target === modal) {
-          closeModal();
+          closeMaintenanceModal();
         }
       });
 
-      window.addEventListener("online", () => {
-        alertText.textContent = "✅ Kết nối mạng đã khôi phục. Bạn có thể thử tải lại trang.";
-      });
-
-      window.addEventListener("offline", () => {
-        alertText.textContent = "⚠️ Bạn đang ngoại tuyến. Hệ thống tạm thời không thể kết nối máy chủ, vì máy chủ đang bảo trì.";
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeMaintenanceModal();
+        }
       });
     })();
   </script>
