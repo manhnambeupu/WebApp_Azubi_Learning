@@ -122,6 +122,29 @@ services:
           memory: 100M
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    sysctls:
+      net.ipv4.tcp_keepalive_time: "60"
+      net.ipv4.tcp_keepalive_intvl: "10"
+      net.ipv4.tcp_keepalive_probes: "6"
+    depends_on:
+      - nginx
+
+  # Docker Compose (non-swarm) ignores deploy.replicas.
+  # Run a second connector to keep the tunnel alive when one stream is dropped.
+  cloudflared-2:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --protocol http2 run
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    sysctls:
+      net.ipv4.tcp_keepalive_time: "60"
+      net.ipv4.tcp_keepalive_intvl: "10"
+      net.ipv4.tcp_keepalive_probes: "6"
     depends_on:
       - nginx
 
