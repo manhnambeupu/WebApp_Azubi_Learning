@@ -40,7 +40,7 @@ export class EmailsService {
   private readonly logger = new Logger(EmailsService.name);
   private transporter: Transporter | null = null;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async sendBulk(dto: SendBulkEmailDto): Promise<SendBulkEmailAcceptedResponse> {
     const subject = dto.subject.trim();
@@ -159,8 +159,8 @@ export class EmailsService {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
           <tr>
             <td style="padding:20px 24px;background:linear-gradient(90deg,#111827,#1f2937);color:#f8fafc;">
-              <div style="font-size:18px;font-weight:700;">AzubiVN Learning</div>
-              <div style="margin-top:4px;font-size:12px;opacity:0.85;">Thong bao tu he thong dao tao</div>
+              <div style="font-size:18px;font-weight:700;">Ôn Thi cho Azubi</div>
+              <div style="margin-top:4px;font-size:12px;opacity:0.85;">Thông báo mới từ azubivn.de!</div>
             </td>
           </tr>
           <tr>
@@ -171,7 +171,7 @@ export class EmailsService {
           </tr>
           <tr>
             <td style="padding:16px 24px;background:#f8fafc;color:#64748b;font-size:12px;">
-              Email nay duoc gui tu he thong AzubiVN.
+              Email này được gửi từ hệ thống ôn thi Abschlussprüfung ngành Fachkarft für Gastronomie tại azubivn.de .
             </td>
           </tr>
         </table>

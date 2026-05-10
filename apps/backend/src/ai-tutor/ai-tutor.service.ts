@@ -20,7 +20,7 @@ import type { AiChatHistoryQueryDto } from './dto/ai-chat-history-query.dto';
 const MODEL_PRIORITY = [
   // === TIER 1: Gemma 4 - Thông minh nhất & TPM Vô hạn ===
   'gemma-4-31b-it',
-  'gemma-4-26b-it',
+  'gemma-4-26b-a4b-it',
 
   // === TIER 2: Gemma 3 Series - RPM cao (30), RPD cực lớn (14.4K) ===
   'gemma-3-27b-it',
@@ -311,9 +311,9 @@ export class AiTutorService {
             continue;
           }
 
-          if (statusCode === 400 || (statusCode !== null && statusCode >= 500)) {
+          if (statusCode === 400 || statusCode === 404 || (statusCode !== null && statusCode >= 500)) {
             this.logger.warn(
-              `[AI Tutor] ⚠️ Model ${modelId} bị lỗi nòng cốt (Mã: ${statusCode}). Rút lui sang Model khác...`,
+              `[AI Tutor] ⚠️ Model ${modelId} không khả dụng hoặc bị lỗi (Mã: ${statusCode}). Rút lui sang Model khác...`,
             );
             break;
           }
@@ -459,12 +459,26 @@ export class AiTutorService {
       return null;
     }
 
-    const candidate = error as { status?: unknown; code?: unknown };
-    if (typeof candidate.status === 'number') {
-      return candidate.status;
+    const candidate = error as any;
+
+    // 1. Kiểm tra các thuộc tính trực tiếp
+    const code = candidate.status ?? candidate.code ?? candidate.error?.code ?? candidate.error?.status;
+    if (typeof code === 'number') {
+      return code;
     }
-    if (typeof candidate.code === 'number') {
-      return candidate.code;
+
+    // 2. Nếu là string, thử parse sang số
+    if (typeof code === 'string' && /^\d+$/.test(code)) {
+      return parseInt(code, 10);
+    }
+
+    // 3. Cuối cùng: Soi trong message để tìm mã lỗi 3 chữ số (ví dụ: "code: 404" hoặc "status 429")
+    const message = candidate.message;
+    if (typeof message === 'string') {
+      const match = message.match(/\b(4\d{2}|5\d{2})\b/);
+      if (match) {
+        return parseInt(match[0], 10);
+      }
     }
 
     return null;
