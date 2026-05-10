@@ -268,20 +268,18 @@ export class AiTutorService {
       parts: [createPartFromText(entry.content)],
     }));
 
-    let responseStream: Awaited<
-      ReturnType<GoogleGenAI['models']['generateContentStream']>
-    > | null = null;
-
     for (const modelId of MODEL_PRIORITY) {
-      let isModelConnected = false;
+      let shouldTryNextModel = false;
 
       for (const [keyIndex, apiKey] of apiKeys.entries()) {
         const genAI = new GoogleGenAI({ apiKey });
+        let hasStreamedText = false;
+        let fullAiResponse = '';
 
         try {
           const isThinkingSupported = modelId.includes('31b') || modelId.includes('26b');
 
-          responseStream = await genAI.models.generateContentStream({
+          const responseStream = await genAI.models.generateContentStream({
             model: modelId,
             contents: [contextSeedMessage, contextAckMessage, ...conversationMessages],
             config: {
@@ -299,64 +297,73 @@ export class AiTutorService {
           this.logger.log(
             `[AI Tutor] ✅ Thành công Model: ${modelId} | API Key số ${keyIndex + 1}`,
           );
-          isModelConnected = true;
-          break;
+
+          for await (const chunk of responseStream) {
+            const textChunk = chunk.text;
+            if (!textChunk) {
+              continue;
+            }
+
+            const cleanedChunk = sanitizeLatex(textChunk);
+            fullAiResponse += cleanedChunk;
+            hasStreamedText = true;
+            yield cleanedChunk;
+          }
+
+          const normalizedAiResponse = fullAiResponse.trim();
+          if (normalizedAiResponse) {
+            await this.prisma.aiChatHistory.create({
+              data: {
+                studentId: input.studentId,
+                lessonId: input.lessonId,
+                role: ChatRole.AI,
+                content: normalizedAiResponse,
+              },
+            });
+          }
+
+          return;
         } catch (error: unknown) {
           const statusCode = this.extractStatusCode(error);
 
-          if (statusCode === 429) {
+          if (!hasStreamedText && statusCode === 429) {
             this.logger.warn(
               `[AI Tutor] ⚠️ Model ${modelId} quá tải ở Key số ${keyIndex + 1}. Thử Key tiếp theo...`,
             );
             continue;
           }
 
-          if (statusCode === 400 || statusCode === 404 || (statusCode !== null && statusCode >= 500)) {
+          if (
+            !hasStreamedText &&
+            (statusCode === 400 ||
+              statusCode === 404 ||
+              (statusCode !== null && statusCode >= 500))
+          ) {
             this.logger.warn(
               `[AI Tutor] ⚠️ Model ${modelId} không khả dụng hoặc bị lỗi (Mã: ${statusCode}). Rút lui sang Model khác...`,
             );
+            shouldTryNextModel = true;
             break;
+          }
+
+          if (hasStreamedText) {
+            this.logger.error(
+              `[AI Tutor] ❌ Model ${modelId} lỗi trong lúc stream (Mã: ${statusCode ?? 'unknown'}).`,
+            );
           }
 
           throw error;
         }
       }
 
-      if (isModelConnected) {
-        break;
-      }
-    }
-
-    if (!responseStream) {
-      throw new ServiceUnavailableException(
-        'Toàn bộ đường truyền AI và Models dự phòng đều đang bận. Vui lòng thử lại sau 10 giây.',
-      );
-    }
-
-    let fullAiResponse = '';
-
-    for await (const chunk of responseStream) {
-      const textChunk = chunk.text;
-      if (!textChunk) {
+      if (shouldTryNextModel) {
         continue;
       }
-
-      const cleanedChunk = sanitizeLatex(textChunk);
-      fullAiResponse += cleanedChunk;
-      yield cleanedChunk;
     }
 
-    const normalizedAiResponse = fullAiResponse.trim();
-    if (normalizedAiResponse) {
-      await this.prisma.aiChatHistory.create({
-        data: {
-          studentId: input.studentId,
-          lessonId: input.lessonId,
-          role: ChatRole.AI,
-          content: normalizedAiResponse,
-        },
-      });
-    }
+    throw new ServiceUnavailableException(
+      'Toàn bộ đường truyền AI và Models dự phòng đều đang bận. Vui lòng thử lại sau 10 giây.',
+    );
   }
 
   async getAdminHistory(
