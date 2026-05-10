@@ -2,9 +2,7 @@
 
 > **Mục đích:** File này cung cấp toàn bộ context về project để Copilot hiểu mà KHÔNG cần đọc lại từng dòng code.
 > Cập nhật lần cuối: Phase 5 hoàn thành (19 prompts).
-
 ---
-
 ## 1. Source-of-Truth Documents
 
 - `Azubi_BRD_v1.1.md` — Business Requirements Document (yêu cầu nghiệp vụ từ BA)
@@ -12,9 +10,7 @@
 - `.antigravityrules` — Quy tắc buộc đối chiếu BRD + Project Plan trước khi thay đổi
 
 **Quy tắc:** Nếu yêu cầu mâu thuẫn với BRD hoặc Project Plan → cảnh báo trước khi implement.
-
 ---
-
 ## 1.1 GitNexus-first Workflow (MANDATORY)
 
 - Trước mọi tác vụ sửa code (không phải docs-only), Copilot **bắt buộc** chạy GitNexus theo thứ tự:
@@ -28,10 +24,7 @@
   - `npx -y gitnexus@1.3.10 analyze --force` (nếu stale)
 - Trước khi hoàn tất bất kỳ thay đổi code nào, bắt buộc chạy `gitnexus_detect_changes({scope: "all"})` và tóm tắt blast radius.
 - Chỉ được bỏ qua workflow GitNexus ở trên với tác vụ **docs-only** hoặc task không đụng mã nguồn.
-
 ---
-
-
 ## 1.2 OpenSpace-first Memory Loop (MANDATORY)
 
 - Trước mọi tác vụ non-doc, Copilot/Gemini/Antigravity/Claude phải gọi OpenSpace trước để tái sử dụng kinh nghiệm:
@@ -48,11 +41,8 @@
   - `.claude/skills/openspace/venv/bin/openspace-mcp`
 - Để tránh lỗi GUI/X11 trên môi trường headless, đặt backend mặc định:
   - `OPENSPACE_BACKEND_SCOPE=shell,mcp,web,system`
-
 ---
-
 ## 1.3 Context7-first Dependency Intelligence (MANDATORY)
-
 - Áp dụng cho mọi task non-doc liên quan thư viện/framework/API docs, setup/config, và nâng cấp version.
 - Trước khi code, phải truy vấn Context7 theo thứ tự:
   1. `npx --yes ctx7 library "<library-name>" "<goal + current version/context>"`
@@ -66,7 +56,18 @@
   - Tạm dừng các thay đổi version có rủi ro.
   - Fallback sang docs/changelog chính thức + lockfile hiện tại.
   - Ghi rõ đã dùng fallback trong phản hồi.
-
+---
+## 1.4 Luôn chạy Caveman để tiết kiệm token 
+- Respond terse like smart caveman. All technical substance stay. Only fluff die.
+- Rules:
+    Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging
+    Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
+    Pattern: [thing] [action] [reason]. [next step].
+    Not: "Sure! I'd be happy to help you with that."
+    Yes: "Bug in auth middleware. Fix:"
+- Switch level: /caveman lite|full|ultra|wenyan Stop: "stop caveman" or "normal mode"
+- Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
+- Boundaries: code/commits/PRs written normal.
 
 ## 2. High-Level Architecture
 

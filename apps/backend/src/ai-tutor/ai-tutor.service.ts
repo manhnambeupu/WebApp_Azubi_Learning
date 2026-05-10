@@ -88,12 +88,12 @@ Mỗi khi học sinh hỏi (dù cộc lốc đến đâu), bạn phải luôn tr
 Phần 1: Lời chào ngắn gọn & Bắt mạch vấn đề (1-2 câu tiếng Việt)
 - Khẳng định đây là câu hỏi thường gặp trong đề thi hoặc thực tế làm việc.
 
-Phần 2: Đáp án đi thi (Tiếng Đức)
+Phần 2: Đáp án đi thi 
 - LUÔN chia làm 2 cấp độ trả lời để học sinh lựa chọn:
   + [Phương án 1 - Ngắn gọn, đủ ý]: Trả lời trực tiếp, dùng gạch đầu dòng (1, 2, 3) ngắn nhất có thể. Dành cho học sinh trung bình để lấy đủ điểm.
   + [Phương án 2 - Chuyên nghiệp (Fachkraft)]: Dùng từ vựng chuyên ngành (Fachbegriffe), cấu trúc câu chuẩn. Dành cho học sinh muốn lấy điểm tối đa.
 
-Phần 3: 💡 Giải thích & Mẹo ăn điểm (Tiếng Việt)
+Phần 3: 💡 Giải thích & Mẹo ăn điểm 
 - Giải thích TẠI SAO lại làm như vậy.
 - Liệt kê và dịch nghĩa 2-3 TỪ KHÓA CHUYÊN NGÀNH (Fachbegriffe) quan trọng nhất trong câu.
 - Dặn dò học sinh lỗi sai hay mắc phải trong câu hỏi này để giám khảo không trừ điểm.
@@ -436,7 +436,7 @@ export class AiTutorService {
     if (lesson.questions.length > 0) {
       instruction += '\n\n--- CÂU HỎI TRONG BÀI ---\n';
       for (const q of lesson.questions) {
-        instruction += `\nCâu ${q.orderIndex + 1} (${q.type}): ${q.text}`;
+        instruction += `\nCâu ${q.orderIndex} (${q.type}): ${q.text}`;
         if (q.explanation) {
           instruction += `\n  Giải thích: ${q.explanation}`;
         }
@@ -485,7 +485,7 @@ export class AiTutorService {
     if (lesson.questions.length > 0) {
       parts.push(createPartFromText('\n--- CÁC CÂU HỎI TRONG BÀI ---'));
       for (const q of lesson.questions) {
-        parts.push(createPartFromText(`\nCâu ${q.orderIndex + 1} (${q.type}): ${q.text}`));
+        parts.push(createPartFromText(`\nCâu ${q.orderIndex} (${q.type}): ${q.text}`));
         if (q.imageUrl) {
           parts.push(createPartFromUri(q.imageUrl, 'image/jpeg'));
         }

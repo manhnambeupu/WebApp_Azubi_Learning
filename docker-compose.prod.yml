@@ -69,6 +69,12 @@ services:
       FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
       FACEBOOK_CALLBACK_URL: ${FACEBOOK_CALLBACK_URL}
       FRONTEND_URL: ${FRONTEND_URL}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-AzubiVN Learning}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       GEMINI_API_KEY_2: ${GEMINI_API_KEY_2}
       GEMINI_API_KEY_3: ${GEMINI_API_KEY_3}
@@ -122,6 +128,9 @@ services:
           memory: 100M
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     sysctls:
       net.ipv4.tcp_keepalive_time: "60"
       net.ipv4.tcp_keepalive_intvl: "10"
@@ -141,6 +150,9 @@ services:
           memory: 100M
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     sysctls:
       net.ipv4.tcp_keepalive_time: "60"
       net.ipv4.tcp_keepalive_intvl: "10"

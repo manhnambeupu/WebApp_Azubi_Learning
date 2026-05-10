@@ -7,6 +7,7 @@ import {
   FolderTree,
   Loader2,
   LogOut,
+  Mail,
   Menu,
   Users,
 } from "lucide-react";
@@ -51,6 +52,11 @@ const navItems: NavItem[] = [
     href: "/admin/students",
     label: "Quản lý học viên",
     icon: Users,
+  },
+  {
+    href: "/admin/emails",
+    label: "Gửi email",
+    icon: Mail,
   },
   {
     href: "/admin/analytics",

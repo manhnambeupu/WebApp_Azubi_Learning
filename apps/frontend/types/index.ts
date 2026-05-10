@@ -139,6 +139,18 @@ export type Student = {
   createdAt: string;
 };
 
+export type SendBulkEmailPayload = {
+  subject: string;
+  markdownContent: string;
+  targetEmails: "ALL" | string[];
+};
+
+export type SendBulkEmailResult = {
+  status: "accepted";
+  totalRecipients: number;
+  message: string;
+};
+
 export type StudentLessonListItem = {
   id: string;
   title: string;

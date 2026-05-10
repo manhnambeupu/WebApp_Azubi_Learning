@@ -347,7 +347,7 @@ export function StudentDetailDrawer({ studentId, onClose }: Props) {
                       >
                         <p className="whitespace-pre-wrap font-medium leading-normal">
                           <span className="mb-1 block w-fit rounded-md bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 sm:mb-0">
-                            [Câu số {question.orderIndex + 1}]
+                            [Câu số {question.orderIndex}]
                           </span>
                           {question.questionText}
                         </p>
