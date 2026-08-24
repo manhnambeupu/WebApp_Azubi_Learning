@@ -293,8 +293,7 @@ Azubi_Webapp/
 ├── .env.example                          # Dev environment template
 ├── .env.production.example               # Production environment template
 ├── .github/workflows/ci.yml             # CI/CD pipeline
-├── Azubi_BRD_v1.1.md                    # Business Requirements Document
-└── azubi-project-plan.md                 # Technical Architecture Plan
+└── .github/copilot-instructions.md       # Codebase Map (Codegraph) — single source of truth
 ```
 
 ---
@@ -694,8 +693,7 @@ Dự án được xây dựng qua **5 Phases**, tổng cộng **19 implementatio
 
 | Tài liệu | Đường dẫn | Mục đích |
 |---|---|---|
-| Business Requirements | `Azubi_BRD_v1.1.md` | Yêu cầu nghiệp vụ (source of truth) |
-| Project Plan | `azubi-project-plan.md` | Kiến trúc & kế hoạch kỹ thuật |
+| Codebase Map | `.github/copilot-instructions.md` | Codegraph — kiến trúc, schema, API, business rules (single source of truth) |
 | Copilot Instructions | `.github/copilot-instructions.md` | Context cho AI coding assistant |
 | Swagger API Docs | `http://localhost:3001/api/docs` | Interactive API documentation |
 | Dev Env Template | `.env.example` | Environment variables (dev) |

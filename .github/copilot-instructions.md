@@ -1,18 +1,10 @@
-# Copilot Instructions — Azubi Webapp
+# Azubi Webapp — Codebase Map (Codegraph)
 
-> **Mục đích:** File này cung cấp toàn bộ context về project để Copilot hiểu mà KHÔNG cần đọc lại từng dòng code.
-> Cập nhật lần cuối: Phase 5 hoàn thành (19 prompts).
+> **Purpose:** Single source of truth for AI agents. Auto-generated from source code audit 2026-06-05.
+> Replace `Azubi_BRD_v1.1.md` and `azubi-project-plan.md` (both deprecated).
 ---
-## 1. Source-of-Truth Documents
-
-- `Azubi_BRD_v1.1.md` — Business Requirements Document (yêu cầu nghiệp vụ từ BA)
-- `azubi-project-plan.md` — Technical Design & Architecture (kế hoạch triển khai từ SE)
-- `.antigravityrules` — Quy tắc buộc đối chiếu BRD + Project Plan trước khi thay đổi
-
-**Quy tắc:** Nếu yêu cầu mâu thuẫn với BRD hoặc Project Plan → cảnh báo trước khi implement.
----
+## * Agent Workflows
 ## 1.1 GitNexus-first Workflow (MANDATORY)
-
 - Trước mọi tác vụ sửa code (không phải docs-only), Copilot **bắt buộc** chạy GitNexus theo thứ tự:
   1. `gitnexus_query({query: "<feature/bug target>"})`
   2. `gitnexus_context({name: "<primary symbol>"})`
@@ -24,9 +16,7 @@
   - `npx -y gitnexus@1.3.10 analyze --force` (nếu stale)
 - Trước khi hoàn tất bất kỳ thay đổi code nào, bắt buộc chạy `gitnexus_detect_changes({scope: "all"})` và tóm tắt blast radius.
 - Chỉ được bỏ qua workflow GitNexus ở trên với tác vụ **docs-only** hoặc task không đụng mã nguồn.
----
 ## 1.2 OpenSpace-first Memory Loop (MANDATORY)
-
 - Trước mọi tác vụ non-doc, Copilot/Gemini/Antigravity/Claude phải gọi OpenSpace trước để tái sử dụng kinh nghiệm:
   - **AUTO-RUN mỗi lần chạy:** với mỗi user request không phải docs-only, tool call đầu tiên bắt buộc là `search_skills(query: "<task>", source: "all", auto_import: true)`.
   - Không được bắt đầu sửa code/chạy test trước bước `search_skills`.
@@ -41,7 +31,6 @@
   - `.claude/skills/openspace/venv/bin/openspace-mcp`
 - Để tránh lỗi GUI/X11 trên môi trường headless, đặt backend mặc định:
   - `OPENSPACE_BACKEND_SCOPE=shell,mcp,web,system`
----
 ## 1.3 Context7-first Dependency Intelligence (MANDATORY)
 - Áp dụng cho mọi task non-doc liên quan thư viện/framework/API docs, setup/config, và nâng cấp version.
 - Trước khi code, phải truy vấn Context7 theo thứ tự:
@@ -56,7 +45,6 @@
   - Tạm dừng các thay đổi version có rủi ro.
   - Fallback sang docs/changelog chính thức + lockfile hiện tại.
   - Ghi rõ đã dùng fallback trong phản hồi.
----
 ## 1.4 Luôn chạy Caveman để tiết kiệm token 
 - Respond terse like smart caveman. All technical substance stay. Only fluff die.
 - Rules:
@@ -68,422 +56,448 @@
 - Switch level: /caveman lite|full|ultra|wenyan Stop: "stop caveman" or "normal mode"
 - Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
 - Boundaries: code/commits/PRs written normal.
+### GitNexus (code intelligence)
+Before modifying any symbol: `gitnexus_impact` → check blast radius → proceed if safe.
+Before committing: `gitnexus_detect_changes` → verify scope.
+### OpenSpace (skill memory)
+Before non-doc tasks: `search_skills` → reuse prior experience.
+After execution: upload evolved skills if `upload_ready=true`.
+### Context7 (dependency intelligence)
+Before using libraries: `ctx7 library` + `ctx7 docs` → verify API compatibility.
+Version policy: latest compatible > latest available.
 
-## 2. High-Level Architecture
+---
+
+## 1. Project Identity
+
+- **Domain:** azubivn.de — E-learning for Vietnamese Ausbildung workers in Germany
+- **Phase 1 (current):** 100% FREE content, donations only (Buy Me A Coffee / Ko-fi). No paywall.
+- **Phase 2 (future, ~3 years):** UG company formation → Premium subscriptions after co-founder gets Niederlassungserlaubnis
+- **Legal:** German law (DSGVO/GDPR compliant). Impressum + Datenschutzerklärung required for .de domain.
+
+---
+
+## 2. Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                     Nginx (SSL)                      │
-│              :80 → redirect :443                     │
-│      /api/* → backend:3001  |  /* → frontend:3000    │
-└──────────────┬──────────────────────┬────────────────┘
-               │                      │
-    ┌──────────┴──────────┐  ┌───────┴──────────┐
-    │   NestJS Backend    │  │  Next.js Frontend │
-    │   (apps/backend)    │  │  (apps/frontend)  │
-    │                     │  │                   │
-    │  Prisma → PostgreSQL│  │  shadcn/ui        │
-    │  MinIO  → S3 files  │  │  TanStack Query   │
-    │  JWT    → Auth      │  │  Zustand (auth)   │
-    └─────────────────────┘  └───────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                    Nginx (SSL/TLS)                    │
+│           :80 → 301 :443 (production)                │
+│    /api/* → backend:3001  |  /* → frontend:3000      │
+└───────────────┬─────────────────────┬────────────────┘
+                │                     │
+    ┌───────────┴──────────┐  ┌──────┴───────────┐
+    │   NestJS Backend     │  │  Next.js Frontend │
+    │   apps/backend/      │  │  apps/frontend/   │
+    │                      │  │                   │
+    │  Prisma → PostgreSQL │  │  shadcn/ui+Radix  │
+    │  MinIO  → S3 files   │  │  TanStack Query   │
+    │  JWT    → Auth       │  │  Zustand (auth)   │
+    │  Google GenAI → AI   │  │  Tailwind CSS 3   │
+    │  Nodemailer → Email  │  │  Recharts         │
+    │  @nestjs/schedule    │  │  react-hook-form  │
+    └──────────────────────┘  └──────────────────┘
 ```
-Frontend	localhost:3000	Giao diện web chính
-Backend API	localhost:3001	REST API
-Swagger Docs	localhost:3001/api/docs	Tài liệu API
-Prisma Studio	localhost:5555	🆕 Duyệt database (bảng, dữ liệu)
-MinIO Console	localhost:9001	Quản lý file đính kèm (PDF, ảnh)
-PostgreSQL	localhost:5432	Database (dùng qua tool hoặc Prisma Studio)
-### Tech Stack
+
+| Service | Dev URL | Purpose |
+|---|---|---|
+| Frontend | localhost:3000 | Next.js 15 App Router |
+| Backend API | localhost:3001 | NestJS REST API |
+| Swagger Docs | localhost:3001/api/docs | API docs (non-prod only) |
+| PostgreSQL | localhost:5432 | Database |
+| MinIO Console | localhost:9001 | File storage UI |
+
+---
+
+## 3. Tech Stack (Actual Versions)
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (App Router) + TypeScript + shadcn/ui + Zustand + TanStack Query |
-| Backend | NestJS + TypeScript + Prisma ORM |
+| Frontend | Next.js 15 + React 18 + TypeScript + Tailwind CSS 3 + shadcn/ui (Radix) |
+| State | Zustand 5 (auth only) + TanStack Query 5 (server state) |
+| Forms | react-hook-form 7 + zod 4 |
+| Charts | Recharts 3 |
+| DnD | @dnd-kit (drag-and-drop for question reordering) |
+| Markdown | @uiw/react-md-editor + react-markdown + remark-gfm + rehype-highlight/sanitize |
+| Backend | NestJS 11 + TypeScript + Prisma 5 ORM |
+| AI | @google/genai (Gemini) — AI Tutor feature |
+| Email | nodemailer 8 — Bulk email to students |
+| Auth | passport-jwt + passport-google-oauth20 + passport-facebook |
+| Security | helmet 8 + @nestjs/throttler 6 + bcrypt 6 (cost 12) |
+| Image | sharp 0.34 (resize/strip EXIF/WebP) + browser-image-compression |
+| Storage | MinIO 8 (S3-compatible) |
 | Database | PostgreSQL 16 |
-| File Storage | MinIO (S3-compatible) |
-| Auth | JWT (access in memory) + Refresh Token (HttpOnly cookie) |
-| API Docs | Swagger/OpenAPI at `/api/docs` (non-production only) |
-| DevOps | Docker Compose + Nginx reverse proxy + SSL |
+| DevOps | Docker Compose + Nginx reverse proxy + Cloudflare Tunnel |
+| Scheduling | @nestjs/schedule 6 (cron cleanup jobs) |
 
 ---
 
-## 3. Project Structure
-
-```
-Azubi_Webapp/
-├── apps/
-│   ├── backend/                  # NestJS API server
-│   │   ├── prisma/
-│   │   │   ├── schema.prisma     # 7 models (see §4)
-│   │   │   └── seed.ts           # Admin seeder
-│   │   └── src/
-│   │       ├── main.ts           # Bootstrap: helmet, CORS, Swagger, throttler
-│   │       ├── app.module.ts     # Root module: imports all feature modules + ThrottlerModule
-│   │       ├── app.controller.ts # GET /api/health
-│   │       ├── auth/             # Login, logout, refresh, me
-│   │       ├── users/            # Admin CRUD students
-│   │       ├── categories/       # Admin CRUD categories
-│   │       ├── lessons/          # Admin CRUD lessons + file upload
-│   │       ├── questions/        # Admin CRUD questions+answers (nested under lessons)
-│   │       ├── student-lessons/  # Student: lesson list, detail, file download
-│   │       ├── submissions/      # Student: quiz submit, attempt history
-│   │       ├── files/            # MinIO service wrapper
-│   │       ├── prisma/           # PrismaService (global module)
-│   │       └── common/
-│   │           ├── decorators/   # @CurrentUser(), @Roles()
-│   │           ├── guards/       # JwtAuthGuard, RolesGuard
-│   │           ├── filters/      # HttpExceptionFilter (Prisma errors + 5xx logging)
-│   │           └── interceptors/ # LoggingInterceptor (dev only)
-│   │
-│   └── frontend/                 # Next.js 14 App Router
-│       ├── app/
-│       │   ├── (auth)/login/     # Login page
-│       │   ├── (admin)/admin/    # Admin pages (RoleProtectedLayout ADMIN)
-│       │   │   ├── dashboard/    # Lesson list (admin) → redirect target after login
-│       │   │   ├── lessons/      # New + [id]/edit lesson pages
-│       │   │   ├── categories/   # Category management
-│       │   │   └── students/     # Student management
-│       │   └── (student)/student/# Student pages (RoleProtectedLayout STUDENT)
-│       │       └── lessons/      # Lesson list + [id] detail (quiz + history)
-│       ├── components/
-│       │   ├── admin/            # AdminSidebar, CreateStudentDialog
-│       │   ├── student/          # StudentNav, LessonCard, QuizForm, QuizResult, AttemptHistory
-│       │   ├── auth/             # RoleProtectedLayout
-│       │   ├── categories/       # CategoryFormDialog
-│       │   ├── lessons/          # LessonForm, LessonFilesManager, MarkdownEditor
-│       │   ├── questions/        # QuestionList, QuestionFormDialog
-│       │   ├── providers/        # QueryProvider (TanStack Query)
-│       │   └── ui/               # shadcn components
-│       ├── hooks/                # Custom React Query hooks
-│       │   ├── use-categories.ts
-│       │   ├── use-lessons.ts
-│       │   ├── use-questions.ts
-│       │   ├── use-student-lessons.ts
-│       │   ├── use-submissions.ts
-│       │   ├── use-students.ts
-│       │   └── use-toast.ts
-│       ├── stores/auth-store.ts  # Zustand store (user, accessToken, actions)
-│       ├── lib/
-│       │   ├── api.ts            # Axios instance with interceptors + token refresh
-│       │   ├── api-error.ts      # Error message extractor
-│       │   ├── auth.ts           # useAuth hook (login, logout, checkAuth)
-│       │   └── utils.ts          # cn() helper
-│       └── types/index.ts        # All frontend TypeScript types
-│
-├── docker/
-│   ├── nginx/
-│   │   ├── nginx.conf            # Production: TLS 1.2/1.3, security headers, gzip, websocket
-│   │   ├── generate-ssl.sh       # Self-signed cert generator
-│   │   └── ssl/                  # .pem files (gitignored)
-│   └── postgres/init.sql         # uuid-ossp extension
-│
-├── docker-compose.yml            # Dev: postgres + minio + backend + frontend
-├── docker-compose.prod.yml       # Prod: + nginx + healthchecks + service_healthy deps
-├── .env.example                  # Dev env template
-├── .env.production.example       # Prod env template
-└── .github/workflows/ci.yml      # CI: backend test + frontend build + deploy
-```
-
----
-
-## 4. Database Schema (Prisma)
-
-7 models, all UUIDs, snake_case DB columns:
+## 4. Database Schema (12 models)
 
 ```
 User (users)
-├── id, email (unique), password (bcrypt), fullName, role (ADMIN|STUDENT), createdAt
-└── → LessonAttempt[]
+├── id, email (unique), password?, fullName, role (ADMIN|STUDENT)
+├── authProvider?, providerId?            ← OAuth (Google/Facebook)
+├── refreshTokenHash?                     ← Server-side token revocation
+├── failedLoginCount, lockedUntil?        ← Brute-force protection
+├── @@unique([authProvider, providerId])
+├── → LessonAttempt[], StudentLessonAccess[], ActivitySession[], AiChatHistory[]
 
 Category (categories)
 ├── id, name (unique)
-└── → Lesson[]
+├── → Lesson[]
 
 Lesson (lessons)
-├── id, title, summary, contentMd, imageUrl?, categoryId (FK), createdAt, updatedAt
-├── → Category
-├── → LessonFile[] (onDelete: Cascade)
-├── → Question[] (onDelete: Cascade)
-└── → LessonAttempt[]
+├── id, title, summary, contentMd, imageUrl?, isPrivate, categoryId (FK)
+├── createdAt, updatedAt
+├── → Category, LessonFile[], Question[], LessonAttempt[]
+├── → StudentLessonAccess[], ActivitySession[], AiChatHistory[]
 
 LessonFile (lesson_files)
 ├── id, lessonId (FK, cascade), fileName, fileUrl, uploadedAt
-└── → Lesson
 
 Question (questions)
-├── id, lessonId (FK, cascade), text, explanation?, orderIndex
-├── → Answer[] (onDelete: Cascade)
-└── → Submission[]
+├── id, lessonId (FK, cascade), text, explanation?, imageUrl?
+├── isPrivate, type (QuestionType enum), orderIndex
+├── → Answer[] (cascade), Submission[]
 
 Answer (answers)
 ├── id, questionId (FK, cascade), text, isCorrect, explanation?
-└── → Submission[]
+├── orderIndex?, matchText?               ← For ORDERING/MATCHING types
 
 LessonAttempt (lesson_attempts)
-├── id, userId (FK), lessonId (FK), attemptNumber, score?, correctCount?, submittedAt
+├── id, userId (FK), lessonId (FK), attemptNumber, score?, correctCount?
 ├── @@unique([userId, lessonId, attemptNumber])
-└── → Submission[] (onDelete: Cascade)
 
 Submission (submissions)
-├── id, attemptId (FK, cascade), questionId (FK), answerId (FK), isCorrect
+├── id, attemptId (FK, cascade), questionId (FK), answerId (FK)
+├── orderIndex?, matchText?, isCorrect
+
+StudentLessonAccess (student_lesson_access)
+├── id, userId (FK, cascade), lessonId (FK, cascade), grantedAt
+├── @@unique([userId, lessonId])           ← Private lesson access control
+
+ActivitySession (activity_sessions)
+├── id, userId, lessonId, startedAt, endedAt?, lastHeartbeatAt
+├── activeDurationSeconds, idleDurationSeconds, sessionType (LESSON_VIEW|QUIZ_ATTEMPT)
+
+AiChatHistory (ai_chat_histories)
+├── id, studentId, lessonId, role (USER|AI), content, createdAt
+```
+
+### Enums
+```
+Role: ADMIN | STUDENT
+QuestionType: SINGLE_CHOICE | MULTIPLE_CHOICE | ESSAY | IMAGE_ESSAY | ORDERING | MATCHING
+SessionType: LESSON_VIEW | QUIZ_ATTEMPT
+ChatRole: USER | AI
 ```
 
 ---
 
-## 5. API Routes — Complete Reference
+## 5. Backend Modules (NestJS)
 
-### Auth (`/api/auth`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/auth/login` | Public | Login → accessToken + refreshToken cookie. Rate limited: 5/60s |
-| POST | `/auth/logout` | Public | Clear refreshToken cookie |
-| POST | `/auth/refresh` | Cookie | Refresh access token |
-| GET | `/auth/me` | Bearer | Get current user info |
-
-### Admin — Categories (`/api/admin/categories`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/admin/categories` | Admin | List all categories (include lessonCount) |
-| GET | `/admin/categories/:id` | Admin | Get category by ID |
-| POST | `/admin/categories` | Admin | Create category `{ name }` |
-| PATCH | `/admin/categories/:id` | Admin | Update category `{ name }` |
-| DELETE | `/admin/categories/:id` | Admin | Delete (blocked if has lessons — BR-06) |
-
-### Admin — Lessons (`/api/admin/lessons`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/admin/lessons?categoryId=` | Admin | List lessons (optional filter) |
-| GET | `/admin/lessons/:id` | Admin | Lesson detail + files + questions |
-| POST | `/admin/lessons` | Admin | Create lesson (multipart, optional image) |
-| PATCH | `/admin/lessons/:id` | Admin | Update lesson (multipart, optional image) |
-| DELETE | `/admin/lessons/:id` | Admin | Delete cascade |
-| POST | `/admin/lessons/:id/files` | Admin | Upload .docx file |
-| DELETE | `/admin/lessons/:id/files/:fileId` | Admin | Delete file |
-| GET | `/admin/lessons/:id/files/:fileId/download` | Admin | Signed download URL |
-
-### Admin — Questions (`/api/admin/lessons/:lessonId/questions`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/:lessonId/questions` | Admin | List questions + answers |
-| POST | `/:lessonId/questions` | Admin | Create question + answers (BR-03: min 2 answers, min 1 correct) |
-| PATCH | `/:lessonId/questions/:id` | Admin | Update question, replace answers |
-| DELETE | `/:lessonId/questions/:id` | Admin | Delete question cascade |
-| PATCH | `/:lessonId/questions/reorder` | Admin | Reorder `{ questionIds: string[] }` |
-
-### Admin — Students (`/api/admin/students`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/admin/students` | Admin | List all students |
-| POST | `/admin/students` | Admin | Create `{ email, password, fullName }` |
-| DELETE | `/admin/students/:id` | Admin | Delete student + cascade attempts |
-
-### Student — Lessons (`/api/student/lessons`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/student/lessons` | Student | Lesson list + `isCompleted` (BR-01) |
-| GET | `/student/lessons/:id` | Student | Detail: content, files, questions (NO explanation/isCorrect — BR-02) |
-| GET | `/student/lessons/:id/files/:fileId/download` | Student | Signed download URL |
-
-### Student — Quiz (`/api/student/lessons/:lessonId/attempts`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/:lessonId/attempts` | Student | Submit quiz → returns result + explanations (BR-02) |
-| GET | `/:lessonId/attempts` | Student | Attempt history (ordered by attemptNumber desc) |
-| GET | `/:lessonId/attempts/latest` | Student | Latest attempt detail |
-| GET | `/:lessonId/attempts/:attemptId` | Student | Specific attempt detail |
-
-### System
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/health` | Public | Health check → `{ status: 'ok', timestamp }` |
-
----
-
-## 6. Business Rules — Quan trọng
-
-| Rule | Mô tả | Nơi áp dụng |
-|---|---|---|
-| **BR-01** | `isCompleted` = có LessonAttempt với `attemptNumber = 1`. Không thay đổi dù làm lại. | `student-lessons.service`, `submissions.service` |
-| **BR-02** | TRƯỚC nộp bài: KHÔNG trả `explanation`, `isCorrect` cho student. SAU nộp: trả đầy đủ. | `student-lessons.service` (sanitize), `submissions.service` (full response) |
-| **BR-03** | Mỗi question phải có ≥ 2 answers và ≥ 1 correct answer. | `questions.service` (backend validate), `QuestionFormDialog` (frontend validate) |
-| **BR-05** | Single-choice quiz — mỗi câu chỉ chọn 1 answer (radio button). | `submissions.service` (validate), `QuizForm` (RadioGroup) |
-| **BR-06** | Không cho delete category nếu còn lessons reference. | `categories.service` |
-
----
-
-## 7. Security & Middleware (Phase 5)
-
-### main.ts Pipeline
+### Module Graph (`app.module.ts`)
 ```
-cookieParser → helmet → CORS (CORS_ORIGIN env) → globalPrefix('api')
-→ HttpExceptionFilter → LoggingInterceptor → ValidationPipe
+AppModule
+├── PrismaModule (global)
+├── ThrottlerModule (100 req/60s global)
+├── ScheduleModule (cron jobs)
+├── AuthModule
+├── ActivityModule
+├── AnalyticsModule
+├── CategoriesModule
+├── EmailsModule
+├── LessonsModule
+├── QuestionsModule
+├── SubmissionsModule
+├── StudentLessonsModule
+└── AiTutorModule
+```
+
+### Bootstrap Pipeline (`main.ts`)
+```
+cookieParser → helmet(CSP) → CORS(multi-origin) → globalPrefix('api')
+→ HttpExceptionFilter → LoggingInterceptor → ValidationPipe(whitelist+transform)
 → Swagger (non-prod only) → listen(BACKEND_PORT)
 ```
 
-### Global Guards (via app.module APP_GUARD)
-- `ThrottlerGuard` — 100 req/60s global
-- Auth route `@Throttle({ default: { limit: 5, ttl: 60000 } })` — chống brute-force
+---
 
-### HttpExceptionFilter
-- Prisma P2002 → 409 "Dữ liệu đã tồn tại."
-- Prisma P2025 → 404 "Không tìm thấy dữ liệu."
-- Prisma P2003 → 409 "Dữ liệu liên quan không tồn tại."
-- 5xx → `console.error(exception)` (only server errors)
+## 6. API Routes — Complete Reference
 
-### Auth Flow
+### Auth (`/api/auth`) — AuthController
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/auth/login` | Public | Rate: 5/60s. Account lockout after 5 fails (15min) |
+| POST | `/auth/logout` | Cookie | Revokes refreshTokenHash in DB |
+| POST | `/auth/refresh` | Cookie | Token rotation (new refresh token each time) |
+| GET | `/auth/me` | Bearer | Current user info |
+| GET | `/auth/google` | Public | Google OAuth redirect |
+| GET | `/auth/google/callback` | OAuth | → redirect to frontend `/auth/oauth-callback` |
+| GET | `/auth/facebook` | Public | Facebook OAuth redirect |
+| GET | `/auth/facebook/callback` | OAuth | → redirect to frontend `/auth/oauth-callback` |
+
+### Admin — Categories (`/api/admin/categories`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | Admin | List all (include lessonCount) |
+| GET | `/:id` | Admin | Detail |
+| POST | `/` | Admin | Create `{ name }` |
+| PATCH | `/:id` | Admin | Update |
+| DELETE | `/:id` | Admin | Blocked if has lessons (BR-06) |
+
+### Admin — Lessons (`/api/admin/lessons`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/?categoryId=` | Admin | List (optional filter) |
+| GET | `/:id` | Admin | Detail + files + questions |
+| POST | `/` | Admin | Create (multipart, optional image). Fields: `isPrivate` |
+| PATCH | `/:id` | Admin | Update (multipart) |
+| DELETE | `/:id` | Admin | Cascade delete |
+| GET | `/:id/access` | Admin | List students with access to private lesson |
+| POST | `/:id/access` | Admin | Grant access by email `{ email }` |
+| DELETE | `/:id/access/:userId` | Admin | Revoke access |
+| POST | `/:id/files` | Admin | Upload .docx/.pdf (max 20MB) |
+| DELETE | `/:id/files/:fileId` | Admin | Delete file |
+| GET | `/:id/files/:fileId/download` | Admin | Presigned download URL |
+| POST | `/upload-markdown-image` | Admin | Upload image for MD content → returns dimensions+URL |
+
+### Admin — Questions (`/api/admin/lessons/:lessonId/questions`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | Admin | List + answers |
+| GET | `/:id` | Admin | Detail |
+| POST | `/` | Admin | Create + answers (min 2 answers, min 1 correct) |
+| PATCH | `/:id` | Admin | Update, replace answers |
+| DELETE | `/:id` | Admin | Cascade delete |
+| PATCH | `/reorder` | Admin | `{ questionIds: string[] }` |
+
+### Admin — Questions Image Upload (`/api/admin/questions`)
+| POST | `/upload-image` | Admin | Upload question image (max 5MB) |
+
+### Admin — Students (`/api/admin/students`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | Admin | List all students |
+| POST | `/` | Admin | Create `{ email, password, fullName }` |
+| DELETE | `/:id` | Admin | Delete + cascade |
+
+### Admin — Analytics (`/api/admin/analytics`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/overview` | Admin | Dashboard overview stats |
+| GET | `/students` | Admin | Per-student analytics summary |
+| GET | `/students/:id` | Admin | Detailed student analytics |
+| DELETE | `/students/:id` | Admin | Delete student's activity sessions |
+
+### Admin — Emails (`/api/admin/emails`)
+| POST | `/send-bulk` | Admin | `{ subject, markdownContent, targetEmails: "ALL"|string[] }` → 202 Accepted |
+
+### AI Tutor (`/api/ai-tutor`)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/chat` | Student | Create chat message. Rate: 5/60s per user |
+| GET | `/history/student/:lessonId` | Student | Personal chat history per lesson |
+| DELETE | `/history/student/:lessonId` | Student | Clear own history |
+| SSE | `/stream/:lessonId?chatId=&message=` | Student | Stream AI response via SSE. Rate limited |
+| GET | `/history?studentName=&lessonTitle=&limit=` | Admin | Browse all chat histories |
+| DELETE | `/history/:id` | Admin | Delete single history record |
+
+### Student — Lessons (`/api/student/lessons`)
+| GET | `/` | Student | List + `isCompleted` flag. Respects `isPrivate` + `StudentLessonAccess` |
+| GET | `/:id` | Student | Detail (NO explanation/isCorrect before submission — BR-02) |
+| GET | `/:id/files/:fileId/download` | Student | Presigned URL |
+
+### Student — Quiz (`/api/student/lessons/:lessonId/attempts`)
+| POST | `/` | Student | Submit quiz → returns full results + explanations |
+| GET | `/` | Student | Attempt history (desc by attemptNumber) |
+| GET | `/latest` | Student | Latest attempt detail |
+| GET | `/:attemptId` | Student | Specific attempt detail |
+
+### Student — Activity (`/api/student/analytics/session`)
+| POST | `/` | Student | Start tracking session |
+| POST | `/heartbeat` | Student | Heartbeat update |
+| POST | `/end` | Student | End session |
+
+### System
+| GET | `/health` | Public | `{ status: 'ok', timestamp }` |
+
+---
+
+## 7. Frontend Structure
+
+### Route Groups
 ```
-Login → access token (in-memory Zustand) + refresh token (HttpOnly cookie, path=/api/auth)
-→ API requests: Bearer token in Authorization header
-→ Token expired? → Axios interceptor auto-calls /auth/refresh → retry original request
-→ Refresh failed? → Logout + redirect to /login
+app/
+├── page.tsx                           ← Landing page (public)
+├── layout.tsx                         ← Root layout (fonts, metadata, providers)
+├── robots.ts, sitemap.ts              ← SEO
+├── (auth)/
+│   ├── login/                         ← Login page
+│   └── auth/                          ← OAuth callback handler
+├── (admin)/admin/
+│   ├── dashboard/                     ← Lesson management table
+│   ├── lessons/                       ← Create/Edit lessons
+│   ├── categories/                    ← Category CRUD
+│   ├── students/                      ← Student management
+│   ├── analytics/                     ← Analytics dashboard (Recharts)
+│   ├── ai-tutor/                      ← AI chat history management
+│   └── emails/                        ← Bulk email sender
+├── (student)/student/
+│   └── lessons/                       ← Lesson list + [id] detail (quiz/history)
+└── (legal)/
+    ├── impressum/                     ← Legal: Impressum (German law)
+    └── datenschutz/                   ← Legal: Privacy policy (DSGVO)
+```
+
+### Component Map
+```
+components/
+├── admin/
+│   ├── admin-sidebar.tsx              ← Navigation sidebar
+│   ├── admin-lessons-table-fetcher.tsx ← Lessons table with filters
+│   ├── create-student-dialog.tsx      ← Student creation modal
+│   └── analytics/
+│       ├── students-table.tsx         ← Analytics student list
+│       └── student-detail-drawer.tsx  ← Per-student analytics drawer
+├── student/
+│   ├── student-nav.tsx                ← Top navigation bar
+│   ├── student-footer.tsx             ← Footer with legal links
+│   ├── lesson-card.tsx                ← Lesson grid card
+│   ├── student-lessons-list-fetcher.tsx ← Lesson list with Suspense
+│   ├── student-lesson-counter-badge.tsx
+│   ├── quiz-form.tsx                  ← Quiz taking UI (32KB — all 6 question types)
+│   ├── quiz-result.tsx                ← Quiz result display
+│   ├── attempt-history.tsx            ← Past attempts list
+│   ├── donation-banner.tsx            ← Donation CTA
+│   └── lessons/
+│       └── ai-chat-widget.tsx         ← AI tutor chat (SSE streaming)
+├── auth/
+│   ├── role-protected-layout.tsx      ← Role-based route guard
+│   └── inactivity-provider.tsx        ← Auto-logout on inactivity
+├── categories/
+│   └── CategoryFormDialog (inline)
+├── lessons/
+│   ├── lesson-form.tsx                ← Create/Edit form (Markdown editor)
+│   ├── lesson-files-manager.tsx       ← File upload/delete
+│   ├── markdown-editor.tsx            ← MD editor with image upload
+│   └── AccessManagementDialog.tsx     ← Private lesson access control
+├── questions/
+│   ├── question-form-dialog.tsx       ← Question CRUD (all 6 types, 34KB)
+│   └── question-list.tsx              ← Draggable question list
+├── seo/
+│   └── json-ld.tsx                    ← Structured data (Schema.org)
+├── providers/
+│   └── QueryProvider                  ← TanStack Query provider
+└── ui/                                ← 24 shadcn/ui components
+```
+
+### Hooks (React Query)
+```
+hooks/
+├── use-categories.ts      → CRUD hooks for categories
+├── use-lessons.ts         → CRUD + file upload + markdown image + access management
+├── use-questions.ts       → CRUD + reorder + image upload
+├── use-students.ts        → CRUD + password reset
+├── use-student-lessons.ts → Student lesson list + detail
+├── use-submissions.ts     → Submit quiz + attempt history + detail
+├── use-activity-tracker.ts → Session start/heartbeat/end
+├── use-ai-tutor.ts        → Chat + history + stream
+├── use-emails.ts          → Bulk email send
+└── use-toast.ts           → Toast notifications
+```
+
+### State & Data Flow
+```
+Auth: Zustand store (in-memory only, NO localStorage)
+  → { user, accessToken, isAuthenticated, setAuth, clearAuth, setAccessToken }
+
+API: Axios instance (lib/api.ts)
+  → Request interceptor: attach Bearer token
+  → Response interceptor: on 401 → refresh token → retry, else logout
+  → Session role conflict detection (lib/auth-session.ts)
+
+Server State: TanStack Query
+  → Each mutation invalidates related query keys → auto-refresh UI
 ```
 
 ---
 
-## 8. Frontend State & Data Flow
+## 8. Business Rules
 
-### Auth State (`stores/auth-store.ts`)
-```ts
-{ user: User | null, accessToken: string | null, isAuthenticated: boolean }
-// Actions: setAuth(user, token), clearAuth(), setToken(token)
-```
-
-### API Layer (`lib/api.ts`)
-- Axios instance with `baseURL` from `NEXT_PUBLIC_API_URL`
-- Request interceptor: attach `Authorization: Bearer <token>`
-- Response interceptor: on 401 → try refresh → retry, else logout
-
-### React Query Hooks Pattern
-```
-hooks/use-categories.ts  → useGetCategories(), useCreateCategory(), useUpdateCategory(), useDeleteCategory()
-hooks/use-lessons.ts     → useGetLessons(), useGetLessonDetail(), useCreateLesson(), useUpdateLesson(), useDeleteLesson()
-hooks/use-questions.ts   → useGetQuestions(), useCreateQuestion(), useUpdateQuestion(), useDeleteQuestion(), useReorderQuestions()
-hooks/use-students.ts    → useGetStudents(), useCreateStudent(), useDeleteStudent()
-hooks/use-student-lessons.ts → useGetStudentLessons(), useGetStudentLessonDetail()
-hooks/use-submissions.ts → useSubmitQuiz(), useGetAttemptHistory(), useGetAttemptDetail(), useGetLatestAttempt()
-```
-Mỗi mutation hook invalidates related query keys để auto-refresh UI.
-
-### Frontend Types (`types/index.ts`)
-- **Admin types:** `Category`, `LessonListItem`, `LessonDetail`, `QuestionDetail`, `AnswerDetail`, `Student`
-- **Student types:** `StudentLessonListItem`, `StudentLessonDetail`, `StudentQuestion`, `StudentAnswer` (NO isCorrect/explanation — BR-02)
-- **Quiz types:** `SubmitQuizPayload`, `QuizResult`, `QuizResultQuestion`, `QuizResultAnswer`, `AttemptHistoryItem`
-
----
-
-## 9. File Upload (MinIO)
-
-### MinIO Buckets
-| Bucket | Policy | Used for |
+| Rule | Description | Enforced At |
 |---|---|---|
-| `lesson-images` | Public read | Lesson cover images (jpg/png, max 5MB) |
-| `lesson-files` | Private | Lesson attachments (.docx only, max 20MB, signed URL download) |
-
-### MinioService Methods
-```ts
-uploadFile(bucket, objectName, buffer, mimetype)  → URL
-deleteFile(bucket, objectName)
-getPresignedUrl(bucket, objectName, expiry=3600)   → signed URL (private files)
-getPublicUrl(bucket, objectName)                    → direct URL (public bucket)
-```
+| **BR-01** | `isCompleted` = has LessonAttempt with attemptNumber=1. Never resets on retakes. | student-lessons.service, submissions.service |
+| **BR-02** | BEFORE submit: hide `explanation`, `isCorrect`. AFTER submit: show all. | student-lessons.service (sanitize), submissions.service (full) |
+| **BR-03** | Each question ≥ 2 answers, ≥ 1 correct. | questions.service + QuestionFormDialog |
+| **BR-05** | Single-choice = 1 answer per question (radio). Multiple-choice = partial scoring. | submissions.service + QuizForm |
+| **BR-06** | Cannot delete category if lessons reference it. | categories.service |
+| **BR-07** | Private lessons only visible to students with `StudentLessonAccess` grant. | student-lessons.service |
+| **BR-08** | Partial scoring: MULTIPLE_CHOICE gives proportional credit but 0 if any wrong answer selected. | submissions.service |
+| **BR-09** | ESSAY/IMAGE_ESSAY: no auto-scoring. Reference answer shown after submission. | submissions.service |
 
 ---
 
-## 10. Docker & Deployment
+## 9. Security Posture
 
-### Dev
-```bash
-docker compose up              # postgres + minio + backend + frontend
-# backend: http://localhost:3001, frontend: http://localhost:3000
-# MinIO console: http://localhost:9001
-```
+All 30 rules in `SECURITY_RULES.md`. Key implementations:
 
-### Production
-```bash
-./docker/nginx/generate-ssl.sh  # Generate self-signed SSL certs
-cp .env.production.example .env # Configure production env
-docker compose -f docker-compose.prod.yml up -d
-# All traffic through Nginx: :80 → :443 → SSL
-# /api/* → backend, /* → frontend
-```
-
-### Nginx Features (Production)
-- TLS 1.2/1.3, ssl_prefer_server_ciphers
-- Security headers: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy
-- Gzip compression
-- WebSocket proxy support
-- 20MB client upload limit
-
-### Health Checks
-- Postgres: `pg_isready`
-- Backend: `GET /api/health` → `{ status: 'ok' }`
-- Dependency chain: postgres(healthy) → backend(healthy) → frontend
-
----
-
-## 11. Testing
-
-### Coverage (as of Phase 5)
-| Metric | Value |
+| Area | Implementation |
 |---|---|
-| Statements | 93.04% |
-| Branches | 71.68% |
-| Functions | 96.57% |
-| Lines | 92.46% |
+| Token storage | Access token in Zustand (memory). Refresh in HttpOnly cookie. |
+| Token rotation | New refresh token on every `/auth/refresh`. Hash stored in DB. |
+| Logout | Server-side revocation: `refreshTokenHash = null` |
+| Brute-force | `failedLoginCount` + `lockedUntil` (15min after 5 fails) |
+| Rate limiting | Global 100/60s + Auth 5/60s + AI Tutor 5/60s per user |
+| CSP | helmet + nginx headers |
+| Password | bcrypt cost 12 |
+| Image upload | sharp: strip EXIF, resize ≤1280px, convert WebP q80 |
+| File upload | Max 5MB images, 20MB docs. MIME validation. |
+| Error handling | Generic messages in production, detailed logs server-side |
+| OAuth | Google + Facebook via Passport strategies |
 
-### Test Files
-Every service and controller has `.spec.ts` files. Common utilities (filter, guard, interceptor) also tested.
+---
 
-### Coverage Exclusions (jest config in `package.json`)
-```
-coveragePathIgnorePatterns: [".module.ts", "main.ts", ".dto.ts", "prisma.service.ts"]
-```
+## 10. File Upload (MinIO)
 
-### Commands
+| Bucket | Policy | Used For | Max Size |
+|---|---|---|---|
+| `lesson-images` | Public read | Lesson covers, question images, markdown images | 5MB |
+| `lesson-files` | Private | .docx/.pdf attachments (presigned URL download) | 20MB |
+
+Image pipeline: Frontend compress → Backend sharp(strip EXIF, resize, WebP) → MinIO
+
+---
+
+## 11. Docker & Deployment
+
 ```bash
-cd apps/backend
-npm run test          # Run all tests
-npm run test:cov      # Coverage report
-npm run test:e2e      # E2E tests
+# Dev
+docker compose up  # postgres + minio + backend + frontend
 
-cd apps/frontend
-npm run type-check    # TypeScript check
-npm run lint          # ESLint
-npm run build         # Production build
+# Production
+docker compose -f docker-compose.prod.yml up -d
+# Adds: nginx (SSL), healthchecks, service dependency chain
+# postgres(healthy) → backend(healthy) → frontend → nginx
 ```
 
 ---
 
 ## 12. Environment Variables
 
-### Required (.env.example)
-```env
-DB_USER=azubi_user
-DB_PASSWORD=azubi_pass
-DB_NAME=azubi_db
-JWT_SECRET=your_jwt_secret
-JWT_REFRESH_SECRET=your_jwt_refresh_secret
-JWT_ACCESS_EXPIRATION=15m
-JWT_REFRESH_EXPIRATION=7d
-MINIO_USER=minio_user
-MINIO_PASSWORD=minio_password
-MINIO_ENDPOINT=localhost      # 'minio' inside Docker
-MINIO_PORT=9000
-BACKEND_PORT=3001
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-CORS_ORIGIN=http://localhost:3000
-```
-
-### Production additions (.env.production.example)
-```env
-NODE_ENV=production
-CORS_ORIGIN=https://yourdomain.com
-NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
-```
+See `.env` (dev) and `.env.production.example` (prod). Key vars:
+- `DB_USER`, `DB_PASSWORD`, `DB_NAME` — PostgreSQL
+- `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACCESS_EXPIRATION`, `JWT_REFRESH_EXPIRATION`
+- `MINIO_USER`, `MINIO_PASSWORD`, `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_PUBLIC_URL`
+- `BACKEND_PORT`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`, `FRONTEND_URL`
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`
+- `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_CALLBACK_URL`
+- `NODE_ENV` — controls Swagger visibility, error detail, cookie secure flag
 
 ---
 
-## 13. Code Style Conventions
+## 13. Code Conventions
 
 | Scope | Convention |
 |---|---|
@@ -492,115 +506,34 @@ NEXT_PUBLIC_API_URL=/api       # Through Nginx proxy
 | Variables/functions | camelCase |
 | Constants | SCREAMING_SNAKE_CASE |
 | DB columns | snake_case (via Prisma `@map`) |
-| Backend modules | Feature-based: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `dto/*.dto.ts` |
-| Frontend hooks | `use-{entity}.ts` with React Query |
-| Frontend types | Centralized in `types/index.ts` |
+| Backend modules | `*.module.ts`, `*.controller.ts`, `*.service.ts`, `dto/*.dto.ts` |
+| Frontend hooks | `use-{entity}.ts` with TanStack Query |
+| Frontend types | `types/index.ts` (centralized) |
+| Guards | `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles('ADMIN')` at controller level |
+| Validation | `class-validator` decorators + `ValidationPipe` (whitelist, forbidNonWhitelisted, transform) |
 
 ---
 
-## 14. Key Patterns to Follow
+## 14. Constraints — MUST NOT Violate
 
-### Backend (NestJS)
-- **Module pattern:** Module imports PrismaModule, provides Service, registers Controller
-- **Guard pattern:** `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles('ADMIN')` at controller level
-- **DTO validation:** `class-validator` decorators + `ValidationPipe` (whitelist, forbidNonWhitelisted, transform)
-- **Swagger:** `@ApiTags`, `@ApiBearerAuth`, `@ApiOperation`, `@ApiResponse` on all controllers; `@ApiProperty` on all DTOs
-- **Error handling:** Throw NestJS `HttpException` subclasses; Prisma errors auto-caught by filter
-- **Nested routes:** Questions under lessons `admin/lessons/:lessonId/questions`
-
-### Frontend (Next.js)
-- **Route groups:** `(auth)` for login, `(admin)` for admin, `(student)` for student
-- **Role protection:** `RoleProtectedLayout` component checks `useAuthStore` role
-- **Data fetching:** Custom hooks wrapping `useQuery`/`useMutation` from TanStack Query
-- **State management:** Zustand for auth only; React Query for all server state
-- **UI components:** shadcn/ui primitives + custom composed components
-- **Markdown rendering:** `react-markdown` + `remark-gfm` + `rehype-highlight` + `rehype-sanitize`
+- ❌ Don't expose `explanation`/`isCorrect` in student lesson detail (BR-02)
+- ❌ Don't delete categories with lessons (BR-06)
+- ❌ Don't use localStorage for tokens (use Zustand in-memory)
+- ❌ Don't enable Swagger in production
+- ❌ Don't skip backend validation even if frontend validates
+- ❌ Don't integrate payment gateways in Phase 1 (visa restriction)
+- ❌ Don't create modules without importing into `app.module.ts`
+- ❌ Don't use bcrypt cost < 12
+- ❌ Don't return stack traces in production responses
 
 ---
 
-## 15. Constraints — Copilot MUST NOT violate these rules (What NOT to Do) 
 
-- ❌ Don't expose `explanation` or `isCorrect` in student lesson detail API (BR-02)
-- ❌ Don't allow category deletion when lessons reference it (BR-06)
-- ❌ Don't use localStorage for access tokens (use Zustand in-memory)
-- ❌ **MUST SUPPORT MULTIPLE QUESTION TYPES:** Single Choice, Multiple Choice (requires partial scoring), Essay (no auto score, display reference answer).
-- ❌ Don't reset completion status on retakes — first attempt determines completion (BR-01)
-- ❌ Don't enable Swagger in production (`NODE_ENV=production`)
-- ❌ Don't skip validation on DTO fields — always use `class-validator` decorators
-- ❌ Don't create module files without importing into `app.module.ts`
-
-## 16. Security Rules — Bắt buộc tuân thủ
-
-Mọi code suggestion phải tuân thủ @SECURITY_RULES.md trước khi đề xuất.
-
-### 3 lỗ hổng P0, 3 lỗ hổng P1 và 3 lỗ hổng P2 — ĐÃ ĐƯỢC FIX
-
-| # | Vấn đề | Trạng thái |
-|---|--------|-------------|
-| 1 | Logout không revoke refresh token ở server | ✅ Đã Fix |
-| 2 | Không có account lockout sau 5 lần sai password | ✅ Đã Fix |
-| 3 | Thiếu Content-Security-Policy header | ✅ Đã Fix |
-| 4 | Hash password cost < 12 | ✅ Đã Fix |
-| 5 | Leak lỗi hệ thống (Rule 08) | ✅ Đã Fix |
-| 6 | Metadata ảnh (Rule 07) | ✅ Đã Fix |
-| 7 | Cache Auth API (Rule 27) | ✅ Đã Fix |
-| 8 | Dependency Scan (Rule 23) | ✅ Đã Fix |
-### Checklist nhanh trước khi generate code
-
-- [ ] Token có đang được lưu localStorage không? → Không được
-- [ ] Input từ client có được validate lại ở backend không? → Phải có
-- [ ] Response lỗi có leak stack trace / Prisma detail không? → Không được
-- [ ] File private có đang dùng presigned URL không? → Phải dùng
-- [ ] Password hash có dùng bcrypt cost ≥ 12 không? → Phải đủ
-
-Nếu vi phạm bất kỳ điểm nào → từ chối generate và giải thích cách đúng.
-```
-
----
-
-**Tóm lại cấu trúc 3 file hoạt động cùng nhau:**
-```
-SECURITY_RULES.md          ← Toàn bộ 30 rules, code examples chi tiết
-       ↑                          ↑
-.antigravityrules          copilot-instructions.md
-(reference + 3 P0, 3 P1, 3 P2)         (reference + checklist nhanh)
-```
-
----
-
-**Tóm lại cấu trúc 3 file hoạt động cùng nhau:**
-```
-SECURITY_RULES.md          ← Toàn bộ 30 rules, code examples chi tiết
-       ↑                          ↑
-(reference + 3 P0, 3 P1, 3 P2)         (reference + checklist nhanh)
-```
-
----
-
-## 17. Lịch sử Triển khai (Các Phase đã hoàn thành gốc)
-
-Dưới đây là các tính năng hệ thống ĐÃ ĐƯỢC XÂY DỰNG TỪ TRƯỚC. Khi nhận task mới, AI cần hiểu rằng các tính năng này ĐÃ TỒN TẠI và sử dụng chúng thay vì tạo lại từ đầu.
-
-### Phase 6 — Câu hỏi Tự luận & Trắc nghiệm Nhiều đáp án
-- **Lõi:** Hệ thống hỗ trợ nhiều loại câu hỏi (`SINGLE_CHOICE`, `MULTIPLE_CHOICE`, `ESSAY`, `ORDERING`, `MATCHING`).
-- **Chấm điểm (Partial Scoring):** MULTIPLE_CHOICE cho điểm dựa trên số đáp án đúng (tối đa 1 điểm). Nếu chọn sai 1 đáp án sẽ bị 0 điểm toàn câu.
-
-### Phase 7 — Câu hỏi dạng Ảnh (IMAGE_ESSAY)
-- Hỗ trợ câu hỏi Tự luận đính kèm Hình ảnh (dữ liệu phân tích). Học viên làm bài bằng văn bản, hệ thống giải khóa Đáp án Mẫu để tham chiếu sau khi học viên nộp bài.
-
-### Phase 8 — Tối ưu hóa Ảnh Hệ thống Toàn diện (Culling 3 tầng)
-- **Tầng 1:** `browser-image-compression` nén ảnh tại React Client trước khi post.
-- **Tầng 2:** `sharp` tại NestJS backend resize ảnh về `1280px` và chuyển sang `WebP` để đẩy vào MinIO.
-- **Tầng 3:** Thẻ `<Image unoptimized={true} />` của Next.js tại Frontend tối ưu lazy load và Cumulative Layout Shift (CLS).
-
-### Phase 9 — Tối ưu SEO, HTML Semantics & Accessibility (A11y)
-- Frontend dọn dẹp "div soup", sử dụng HTML5 semantics (`<main>`, `<section>`, `<article>`). Kết hợp ARIA Attributes và Dynamic Open Graph Metadata cho chia sẻ MXH.
-
-### Phase 10 — Hình Ảnh Phổ Quát Cho Mọi Loại Câu Hỏi
-- Database schema `imageUrl` dạng Optional đã được kích hoạt trên Admin UI cho TẤT CẢ các loại câu hỏi (Trắc nghiệm, Sắp xếp...).
-
-### Phase 11 — Tối ưu hóa Hiệu năng Frontend & Bundle Size (JS Optimization)
-- Khai thác tối đa TTI & LCP thông qua 3 trụ cột:
-  - Lười tải JS Component nặng bằng `next/dynamic`.
-  - Tách luồng render UI với API fetching bằng `React Suspense` & Skeletons.
-  - Giảm thiểu JS Payload của các component Kokonut UI bằng cách sử dụng `<LazyMotion features={domAnimation}>` và thẻ `<m.div>` thay thế `framer-motion` nguyên bản.
+### Security Checklist
+Before generating code:
+- [ ] Tokens NOT in localStorage?
+- [ ] Backend validates all client input?
+- [ ] Errors don't leak internals in production?
+- [ ] Private files use presigned URLs?
+- [ ] Password hash uses bcrypt cost ≥ 12?
+- [ ] No payment integration in Phase 1?

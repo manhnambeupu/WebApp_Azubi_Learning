@@ -239,8 +239,7 @@ Azubi_Webapp/
 ├── docker-compose.prod.yml               # Produktionsumgebung
 ├── .env.example                          # Umgebungsvariablen (Dev)
 ├── .env.production.example               # Umgebungsvariablen (Prod)
-├── Azubi_BRD_v1.1.md                    # Geschäftsanforderungen
-└── azubi-project-plan.md                 # Technische Architektur
+└── .github/copilot-instructions.md       # Codebase Map (Codegraph) — zentrale Dokumentation
 ```
 
 ---
@@ -635,8 +634,7 @@ Das Projekt wurde in **5 Phasen** mit insgesamt **19 Implementierungsprompts** a
 
 | Dokument | Pfad | Zweck |
 |---|---|---|
-| Geschäftsanforderungen | `Azubi_BRD_v1.1.md` | Fachliche Anforderungen (Quelle der Wahrheit) |
-| Projektplan | `azubi-project-plan.md` | Architektur & technischer Plan |
+| Codebase Map | `.github/copilot-instructions.md` | Codegraph — Architektur, Schema, API, Business Rules (Quelle der Wahrheit) |
 | Copilot-Anweisungen | `.github/copilot-instructions.md` | Kontext für KI-Coding-Assistenten |
 | Swagger-API-Dokumentation | `http://localhost:3001/api/docs` | Interaktive API-Dokumentation |
 | Umgebungsvorlage (Dev) | `.env.example` | Umgebungsvariablen (Entwicklung) |
