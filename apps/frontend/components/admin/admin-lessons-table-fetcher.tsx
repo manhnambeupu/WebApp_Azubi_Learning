@@ -121,15 +121,15 @@ export function AdminLessonsTableFetcher() {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end">
-        <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium" htmlFor="lesson-search">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        <div className="flex-1 space-y-1.5">
+          <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="lesson-search">
             Tìm kiếm
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777777] dark:text-slate-400" />
             <Input
-              className="h-10 border-primary/20 bg-white/80 pl-9 dark:bg-slate-900/80"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] pl-10 text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="lesson-search"
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -141,8 +141,8 @@ export function AdminLessonsTableFetcher() {
           </div>
         </div>
 
-        <div className="space-y-2 md:w-[220px]">
-          <label className="text-sm font-medium" htmlFor="lesson-category-filter">
+        <div className="space-y-1.5 md:w-[220px]">
+          <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="lesson-category-filter">
             Lọc theo danh mục
           </label>
           <Select
@@ -153,12 +153,12 @@ export function AdminLessonsTableFetcher() {
             value={categoryFilter}
           >
             <SelectTrigger
-              className="border-primary/20 bg-white/80 dark:bg-slate-900/80"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="lesson-category-filter"
             >
               <SelectValue placeholder="Chọn danh mục" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
               <SelectItem value={ALL_CATEGORIES_VALUE}>Tất cả danh mục</SelectItem>
               {(categoriesQuery.data ?? []).map((category) => (
                 <SelectItem key={category.id} value={category.id}>
@@ -169,8 +169,8 @@ export function AdminLessonsTableFetcher() {
           </Select>
         </div>
 
-        <div className="space-y-2 md:w-[200px]">
-          <label className="text-sm font-medium" htmlFor="lesson-sort">
+        <div className="space-y-1.5 md:w-[200px]">
+          <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="lesson-sort">
             Sắp xếp
           </label>
           <Select
@@ -194,10 +194,13 @@ export function AdminLessonsTableFetcher() {
             }}
             value={`${sortKey}-${sortDirection}`}
           >
-            <SelectTrigger className="border-primary/20 bg-white/80 dark:bg-slate-900/80" id="lesson-sort">
+            <SelectTrigger
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
+              id="lesson-sort"
+            >
               <SelectValue placeholder="Sắp xếp theo" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
               <SelectItem value="default-asc">Mặc định</SelectItem>
               <SelectItem value="title-asc">Tên (A-Z)</SelectItem>
               <SelectItem value="title-desc">Tên (Z-A)</SelectItem>
@@ -211,92 +214,93 @@ export function AdminLessonsTableFetcher() {
       {lessonsQuery.isLoading ? <LessonsTableSkeleton /> : null}
 
       {lessonsQuery.isError ? (
-        <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
           {getApiErrorMessage(lessonsQuery.error)}
         </p>
       ) : null}
 
       {lessonsQuery.data ? (
         <>
-          <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
+          <div className="overflow-hidden rounded-2xl border-2 border-[#e5e5e5] bg-white shadow-sm dark:border-[#2b3940] dark:bg-[#131f24]">
             <Table>
               <TableHeader>
-                <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                  <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                <TableRow className="border-b-2 border-[#e5e5e5] bg-[#f7f7f7] hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] dark:hover:bg-[#111b21]">
+                  <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                     Bài học
                   </TableHead>
-                  <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                  <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                     Danh mục
                   </TableHead>
-                  <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                  <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                     Số câu hỏi
                   </TableHead>
-                  <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90">
-                    Có ảnh
+                  <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                    Trạng thái
                   </TableHead>
-                  <TableHead className="h-11 px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90">
+                  <TableHead className="h-12 px-4 text-right text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                     Thao tác
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedLessons.length === 0 ? (
-                  <TableRow className="border-primary/10 hover:bg-transparent">
-                    <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell className="py-12 text-center text-sm font-bold text-[#777777] dark:text-slate-400" colSpan={5}>
                       Chưa có bài học nào khớp với bộ lọc.
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedLessons.map((lesson) => (
                     <TableRow
-                      className="border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]"
+                      className="border-b border-[#e5e5e5] transition-colors hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:hover:bg-[#18252d]"
                       key={lesson.id}
                     >
                       <TableCell className="max-w-[360px] px-4 py-4 align-top">
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-medium leading-6">{lesson.title}</p>
+                            <p className="font-extrabold leading-6 text-[#3c3c3c] dark:text-white">{lesson.title}</p>
                             {lesson.isPrivate ? (
-                              <Badge className="rounded-full border border-rose-300/60 bg-rose-100 text-rose-700 hover:bg-rose-100">
+                              <Badge className="rounded-full border-2 border-[#ff4b4b]/30 bg-[#ffebee] px-2 py-0.5 text-[11px] font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/20">
                                 🔒 Private
                               </Badge>
                             ) : null}
                           </div>
-                          <p className="line-clamp-2 text-sm text-muted-foreground">
+                          <p className="line-clamp-2 text-xs font-bold text-[#777777] dark:text-slate-400">
                             {lesson.summary}
                           </p>
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-4">
-                        <Badge className="rounded-full border border-primary/20 bg-primary/10 text-primary hover:bg-primary/15">
+                        <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-2.5 py-0.5 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
                           {lesson.category.name}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-4 py-4">{lesson._count.questions}</TableCell>
+                      <TableCell className="px-4 py-4 font-bold text-[#3c3c3c] dark:text-white">
+                        {lesson._count.questions}
+                      </TableCell>
                       <TableCell className="px-4 py-4">
                         <Badge
                           className={
                             lesson.imageUrl
-                              ? "rounded-full border border-emerald-300/60 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                              : undefined
+                              ? "rounded-full border-2 border-[#0284c7]/30 bg-[#e0f2fe] px-2.5 py-0.5 text-xs font-extrabold text-[#0284c7] dark:bg-[#0284c7]/20"
+                              : "rounded-full border-2 border-[#e5e5e5] bg-[#f7f7f7] px-2.5 py-0.5 text-xs font-extrabold text-[#777777] dark:border-[#2b3940] dark:bg-[#111b21] dark:text-slate-400"
                           }
-                          variant={lesson.imageUrl ? "secondary" : "outline"}
                         >
                           {lesson.imageUrl ? "Có ảnh" : "Không ảnh"}
                         </Badge>
                       </TableCell>
                       <TableCell className="px-4 py-4 text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end items-center gap-2">
                           <AccessManagementDialog lessonId={lesson.id} />
 
                           <Button
                             asChild
-                            className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
+                            className="h-9 rounded-xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-3 text-xs font-extrabold text-[#3c3c3c] hover:border-[#58cc02] hover:text-[#46a302] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
                             size="sm"
-                            variant="outline"
+                            variant="ghost"
                           >
                             <Link href={`/admin/lessons/${lesson.id}/edit`}>
-                              <Pencil className="mr-2 h-4 w-4" />
+                              <Pencil className="mr-1.5 h-3.5 w-3.5" />
                               Sửa
                             </Link>
                           </Button>
@@ -304,26 +308,31 @@ export function AdminLessonsTableFetcher() {
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
+                                className="h-9 rounded-xl border-2 border-[#ff4b4b]/30 border-b-4 border-b-[#e03838] bg-[#ffebee] px-3 text-xs font-extrabold text-[#ff4b4b] hover:bg-[#ffdada] active:translate-y-0.5 active:border-b-2 dark:border-[#ff4b4b]/40 dark:border-b-[#ff4b4b]/80 dark:bg-[#ff4b4b]/20"
                                 disabled={deleteLessonMutation.isPending && pendingDeleteId === lesson.id}
                                 size="sm"
-                                variant="destructive"
+                                variant="ghost"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                 Xóa
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white p-6 dark:border-[#2b3940] dark:bg-[#131f24]">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Xóa bài học?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogTitle className="text-lg font-extrabold text-[#3c3c3c] dark:text-white">
+                                  Xóa bài học?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
                                   Xóa bài học sẽ xóa tất cả câu hỏi, đáp án, file đính kèm và lịch sử
-                                  làm bài. Bạn có chắc chắn?
+                                  làm bài. Bạn có chắc chắn muốn xóa?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Hủy</AlertDialogCancel>
+                              <AlertDialogFooter className="mt-4 gap-2">
+                                <AlertDialogCancel className="rounded-xl border-2 border-[#e5e5e5] font-extrabold text-[#3c3c3c] dark:border-[#2b3940] dark:text-white">
+                                  Hủy
+                                </AlertDialogCancel>
                                 <AlertDialogAction
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  className="rounded-xl border-b-4 border-[#e03838] bg-[#ff4b4b] font-extrabold text-white hover:bg-[#e03838]"
                                   onClick={() => {
                                     void handleDeleteLesson(lesson.id);
                                   }}
@@ -342,7 +351,7 @@ export function AdminLessonsTableFetcher() {
             </Table>
           </div>
 
-          <div className="py-4">
+          <div className="py-2">
             <ClientPagination
               currentPage={currentPage}
               totalItems={filteredAndSortedLessons.length}

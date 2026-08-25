@@ -1,87 +1,60 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Datenschutzerklärung",
-  description: "Informationen zum Datenschutz (DSGVO)",
-};
-
 export default function DatenschutzPage() {
   return (
-    <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl rounded-2xl bg-white/80 p-8 shadow-lg backdrop-blur-sm sm:p-12 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
-        <h1 className="mb-8 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+    <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-10">
+        <h1 className="text-3xl font-extrabold text-[#3c3c3c] dark:text-white mb-6">
           Datenschutzerklärung
         </h1>
 
-        <section className="space-y-8 leading-relaxed">
+        <section className="space-y-6 text-xs md:text-sm font-bold leading-relaxed text-[#777777] dark:text-slate-300">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h2 className="text-base font-extrabold text-[#3c3c3c] dark:text-white mb-2">
               1. Datenschutz auf einen Blick
             </h2>
-            <h3 className="font-medium text-slate-800 dark:text-slate-200 mb-2">
-              Allgemeine Hinweise
-            </h3>
             <p>
-              Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren
-              personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene
-              Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
-              Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem
-              Text aufgeführten Datenschutzerklärung.
+              Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten
+              passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie
+              persönlich identifiziert werden können.
             </p>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
-              2. Verantwortlich für die Datenerfassung auf dieser Website
+            <h2 className="text-base font-extrabold text-[#3c3c3c] dark:text-white mb-2">
+              2. Verantwortliche Stelle
             </h2>
-            <p>Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber:</p>
-            <p className="mt-3 bg-slate-50 dark:bg-slate-950/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
-              <strong>Nguyễn Lương Sơn</strong>
-              <br />
-              An der Glinder Au 67
-              <br />
-              22115 Hamburg
-              <br />
-              Deutschland
-              <br />
-              <br />
-              E-Mail: bonziet (at) gmail (dot) com
-            </p>
+            <p>Lương Thái Sơn</p>
+            <p>An der Glinder Au 67</p>
+            <p>22115 Hamburg</p>
+            <p>Deutschland</p>
+            <p>E-Mail:bonziet (at) gmail (dot) com</p>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h2 className="text-base font-extrabold text-[#3c3c3c] dark:text-white mb-2">
               3. Datenerfassung auf unserer Website
             </h2>
-            <h3 className="font-medium text-slate-800 dark:text-slate-200 mb-2">
-              Cookies (Technisch notwendig)
-            </h3>
-            <p>
-              Unsere Internetseiten verwenden teilweise sogenannte Cookies. Cookies richten auf
-              Ihrem Rechner keinen Schaden an und enthalten keine Viren. Cookies dienen dazu, unser
-              Angebot nutzerfreundlicher, effektiver und sicherer zu machen. Wir nutzen auf dieser
-              Plattform ausschließlich **technisch notwendige Cookies** (z.B. JWT-Tokens für das
-              Login), welche für den reibungslosen Betrieb der Lernplattform zwingend erforderlich
-              sind. Wir setzen **keine** Werbe- oder Marketing-Tracker-Cookies ein.
+            <h3 className="text-sm font-extrabold text-[#3c3c3c] dark:text-white mt-3 mb-1">Cookies (Technisch notwendig)</h3>
+            <p className="mb-3">
+              Wir nutzen auf dieser Plattform ausschließlich <strong>technisch notwendige Cookies</strong> (z.B. JWT-Tokens für das Login), welche für den reibungslosen Betrieb der Lernplattform zwingend erforderlich sind. Wir setzen <strong>keine</strong> Werbe- oder Marketing-Tracker-Cookies ein.
             </p>
 
-            <h3 className="font-medium text-slate-800 dark:text-slate-200 mt-5 mb-2">
-              Registrierung & Authentifizierung
-            </h3>
-            <p>
-              Wenn Sie sich auf unserer Website für den Zugang zum Lernportal registrieren, erheben
-              wir Ihre E-Mail-Adresse und Ihren Namen. Diese Daten werden ausschließlich zum Zweck
-              der Kontoverwaltung und Authentifizierung auf Basis von Art. 6 Abs. 1 lit. b DSGVO
-              gespeichert.
+            <h3 className="text-sm font-extrabold text-[#3c3c3c] dark:text-white mt-3 mb-1">Registrierung & Authentifizierung</h3>
+            <p className="mb-3">
+              Wenn Sie sich auf unserer Website für den Zugang zum Lernportal registrieren, erheben wir Ihre E-Mail-Adresse und Ihren Namen. Diese Daten werden ausschließlich zum Zweck der Kontoverwaltung, Authentifizierung und Bereitstellung der Lerninhalte auf Basis von Art. 6 Abs. 1 lit. b DSGVO gespeichert.
             </p>
 
-            <h3 className="font-medium text-slate-800 dark:text-slate-200 mt-5 mb-2">
-              Ihre Rechte
-            </h3>
+            <h3 className="text-sm font-extrabold text-[#3c3c3c] dark:text-white mt-3 mb-1">Spenden über PayPal</h3>
             <p>
-              Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und
-              Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein
-              Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.
+              Auf unserer Website bieten wir die Möglichkeit an, unsere Arbeit über PayPal zu unterstützen (Spenden-Button). Wenn Sie diesen Button anklicken, werden Sie auf die Website von PayPal weitergeleitet. Dabei werden ggf. Daten (wie Ihre IP-Adresse) an PayPal (Europe) S.à r.l. et Cie, S.C.A. übermittelt. Grundlage hierfür ist unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) an der Finanzierung unserer Plattform. Weitere Informationen zum Datenschutz bei PayPal finden Sie in deren Datenschutzerklärung.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-base font-extrabold text-[#3c3c3c] dark:text-white mb-2">
+              4. Ihre Rechte
+            </h2>
+            <p>
+              Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung, Sperrung oder Löschung dieser Daten zu verlangen. Wenn Sie eine Einwilligung zur Datenverarbeitung erteilt haben, können Sie diese jederzeit für die Zukunft widerrufen. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden. Des Weiteren steht Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu.
             </p>
           </div>
         </section>

@@ -441,30 +441,34 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
   };
 
   return (
-    <section className="kokonut-glass-card kokonut-glow-border space-y-6 border-primary/15 bg-white/70 p-6 shadow-glass transition-all dark:bg-slate-900/70">
-      <div className="space-y-4">
+    <section className="space-y-6 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
+      <div className="space-y-4 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold sm:text-xl">📚BÀI TẬP</h2>
-            <p className="text-sm leading-7 text-muted-foreground">
-              Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc
-              tự suy nghĩ đáp án cho phần tự luận.
+            <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
+              Luyện tập trắc nghiệm
+            </div>
+            <h2 className="text-xl font-extrabold tracking-tight text-[#3c3c3c] dark:text-white sm:text-2xl">
+              📚 BÀI TẬP
+            </h2>
+            <p className="text-xs md:text-sm font-bold leading-relaxed text-[#777777] dark:text-slate-300">
+              Tùy loại câu hỏi, bạn có thể chọn đáp án, sắp xếp thứ tự, ghép đôi hoặc tự suy nghĩ đáp án cho phần tự luận.
             </p>
           </div>
-          <Badge className="rounded-full border border-accent/40 bg-accent/15 text-foreground shadow-[0_8px_20px_-14px_hsl(var(--accent)/0.9)] hover:bg-accent/15">
-            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-accent-foreground" />
-            🎓Chúc bạn hoàn thành bài tập một cách xuất sắc💯
+          <Badge className="rounded-full border-2 border-[#ffc800]/40 bg-[#fef9e7] px-3 py-1 text-xs font-extrabold text-[#d97706] shadow-sm dark:bg-[#ffc800]/20 dark:text-[#ffc800]" variant="secondary">
+            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-[#d97706] dark:text-[#ffc800]" />
+            🎓 Chúc bạn hoàn thành bài tập một cách xuất sắc 💯
           </Badge>
         </div>
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="space-y-1.5 pt-2">
+          <div className="flex items-center justify-between text-xs font-extrabold text-[#777777] dark:text-slate-400">
             <span>
               Đã trả lời {answeredCount}/{totalQuestions} câu
             </span>
             <span>{Math.round((answeredCount / Math.max(totalQuestions, 1)) * 100)}%</span>
           </div>
           <Progress
-            className="h-2.5 overflow-hidden rounded-full bg-primary/10 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-accent"
+            className="h-3 overflow-hidden rounded-full border border-[#e5e5e5] bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] [&>div]:bg-[#58cc02]"
             value={(answeredCount / Math.max(totalQuestions, 1)) * 100}
           />
         </div>
@@ -497,10 +501,10 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
             <article
               aria-labelledby={`question-title-${question.id}`}
               className={cn(
-                "relative overflow-hidden space-y-4 rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm transition-all duration-300 dark:bg-slate-900/80",
+                "relative overflow-hidden space-y-4 rounded-[20px] border-2 p-5 transition-all",
                 questionAnswered
-                  ? "shadow-glow-soft ring-1 ring-accent/20"
-                  : "hover:border-primary/35 hover:shadow-glow-soft",
+                  ? "border-[#58cc02] border-b-4 border-b-[#46a302] bg-white dark:bg-[#131f24]"
+                  : "border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] hover:border-[#58cc02] dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#111b21]",
               )}
               data-ai-question-index={questionIndex + 1}
               data-ai-question-text={question.text}
@@ -516,16 +520,16 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               >
                 <header className="space-y-1">
                   <h3
-                    className="font-medium leading-7 whitespace-pre-wrap"
+                    className="text-sm font-extrabold leading-6 text-[#3c3c3c] dark:text-white whitespace-pre-wrap"
                     id={`question-title-${question.id}`}
                   >
                     Câu {questionIndex + 1}: {question.text}
                   </h3>
                   {question.imageUrl ? (
-                    <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+                    <div className="mt-3 overflow-hidden rounded-2xl border-2 border-[#e5e5e5] dark:border-[#2b3940]">
                       <Image
                         alt={`Hình ảnh đi kèm câu hỏi ${questionIndex + 1}`}
-                        className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
+                        className="max-h-[400px] h-auto w-full object-contain bg-white dark:bg-[#131f24]"
                         height={720}
                         sizes="(max-width: 768px) 100vw, 768px"
                         src={question.imageUrl}
@@ -534,15 +538,15 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                       />
                     </div>
                   ) : null}
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-bold text-[#777777] dark:text-slate-400">
                     {getQuestionInstruction(question)}
                   </p>
                 </header>
 
                 {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
-                  <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 p-3">
+                  <div className="rounded-2xl border-2 border-dashed border-[#e5e5e5] bg-white p-3 dark:border-[#2b3940] dark:bg-[#131f24]">
                     <Textarea
-                      className="min-h-32 resize-y rounded-xl border-primary/15 bg-white/85 text-foreground placeholder:text-muted-foreground/70 dark:bg-slate-950/85"
+                      className="min-h-28 resize-y rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-xs font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                       onChange={(event) =>
                         setEssayInputs((prev) => ({
                           ...prev,
@@ -558,41 +562,43 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     />
                   </div>
                 ) : question.type === "ORDERING" ? (
-                  <ol className="space-y-2" data-ai-question-options="ordering">
+                  <ol className="space-y-2.5" data-ai-question-options="ordering">
                     {orderedAnswers.map((answer, answerIndex) => (
                       <li
                         data-ai-answer-index={answerIndex + 1}
                         data-ai-answer-text={answer.text}
                         data-ai-answer-type="ordering-item"
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 shadow-sm transition-all hover:shadow-glow-soft dark:bg-slate-900/85"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-3 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d]"
                         key={answer.id}
                       >
                         <div className="flex flex-1 items-center gap-3">
-                          <Badge variant="secondary">#{answerIndex + 1}</Badge>
-                          <p className="text-sm">{answer.text}</p>
+                          <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] text-xs font-extrabold text-[#46a302]">
+                            #{answerIndex + 1}
+                          </Badge>
+                          <p className="text-xs font-bold text-[#3c3c3c] dark:text-white">{answer.text}</p>
                         </div>
                         <div className="flex items-center gap-1">
                           <Button
-                            className="h-8 w-8 rounded-full border-primary/20"
+                            className="h-8 w-8 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] hover:border-[#58cc02] hover:text-[#46a302] dark:border-[#2b3940] dark:bg-[#111b21]"
                             disabled={answerIndex === 0}
                             onClick={() =>
                               moveAnswer(question.id, answerIndex, answerIndex - 1)
                             }
                             size="icon"
                             type="button"
-                            variant="outline"
+                            variant="ghost"
                           >
                             <ChevronUp className="h-4 w-4" />
                           </Button>
                           <Button
-                            className="h-8 w-8 rounded-full border-primary/20"
+                            className="h-8 w-8 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] hover:border-[#58cc02] hover:text-[#46a302] dark:border-[#2b3940] dark:bg-[#111b21]"
                             disabled={answerIndex === orderedAnswers.length - 1}
                             onClick={() =>
                               moveAnswer(question.id, answerIndex, answerIndex + 1)
                             }
                             size="icon"
                             type="button"
-                            variant="outline"
+                            variant="ghost"
                           >
                             <ChevronDown className="h-4 w-4" />
                           </Button>
@@ -606,17 +612,17 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                       <div
                         data-ai-answer-text={answer.text}
                         data-ai-answer-type="matching-left"
-                        className="grid gap-3 rounded-xl border border-primary/15 bg-white/85 p-3 md:grid-cols-[1fr_1fr] dark:bg-slate-900/85"
+                        className="grid gap-3 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-3.5 md:grid-cols-[1fr_1fr] dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d]"
                         key={answer.id}
                       >
-                        <div className="space-y-1 rounded-md border border-primary/10 bg-primary/5 px-3 py-2">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <div className="space-y-1 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-2.5 dark:border-[#2b3940] dark:bg-[#111b21]">
+                          <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                             Vế trái
                           </p>
-                          <p className="text-sm">{answer.text}</p>
+                          <p className="text-xs font-bold text-[#3c3c3c] dark:text-white">{answer.text}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                             Vế phải
                           </p>
                           <Select
@@ -625,13 +631,13 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                             }
                             value={matchingSelections[answer.id]}
                           >
-                            <SelectTrigger className="max-w-[calc(100vw-4rem)] border-primary/20 bg-white/80 [&>span]:truncate dark:bg-slate-950/80">
+                            <SelectTrigger className="h-10 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-xs font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white">
                               <SelectValue placeholder="Chọn vế phải phù hợp" />
                             </SelectTrigger>
-                            <SelectContent className="max-w-[calc(100vw-2rem)]">
+                            <SelectContent className="max-w-[calc(100vw-2rem)] rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
                               {matchingOptions.map((option, optionIndex) => (
                                 <SelectItem
-                                  className="max-w-[calc(100vw-2rem)] shrink-0"
+                                  className="max-w-[calc(100vw-2rem)] shrink-0 text-xs font-bold"
                                   key={`${question.id}-${answer.id}-${optionIndex}`}
                                   value={option}
                                 >
@@ -647,7 +653,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     ))}
                   </div>
                 ) : question.type === "MULTIPLE_CHOICE" ? (
-                  <ol className="space-y-3" data-ai-question-options="multiple-choice">
+                  <ol className="space-y-2.5" data-ai-question-options="multiple-choice">
                     {question.answers.map((answer, answerIndex) => {
                       const answerLabel = String.fromCharCode(65 + answerIndex);
                       const checkboxId = `${question.id}-${answer.id}`;
@@ -660,16 +666,16 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                             data-ai-answer-text={answer.text}
                             data-ai-answer-type="multiple-choice"
                             className={cn(
-                              "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
+                              "flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-3 transition-all",
                               isSelected
-                                ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
-                                : "",
+                                ? "border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
+                                : "border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white text-[#3c3c3c] hover:border-[#58cc02] dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white",
                             )}
                             htmlFor={checkboxId}
                           >
                             <Checkbox
                               checked={isSelected}
-                              className="mt-0.5 border-primary/40 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
+                              className="mt-0.5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:bg-[#58cc02] data-[state=checked]:text-white dark:border-[#2b3940]"
                               id={checkboxId}
                               onCheckedChange={(checked) =>
                                 handleMultipleChoiceChange(
@@ -679,11 +685,11 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                                 )
                               }
                             />
-                            <div className="space-y-1">
-                              <p className="text-xs font-semibold text-muted-foreground">
+                            <div className="space-y-0.5">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                                 Đáp án {answerLabel}
                               </p>
-                              <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                              <p className="text-xs font-bold leading-5">
                                 {answer.text}
                               </p>
                             </div>
@@ -701,7 +707,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                     }
                     value={selectedAnswerIds[0] ?? ""}
                   >
-                    <ol className="space-y-3">
+                    <ol className="space-y-2.5">
                       {question.answers.map((answer, answerIndex) => {
                         const answerLabel = String.fromCharCode(65 + answerIndex);
                         const radioId = `${question.id}-${answer.id}`;
@@ -714,23 +720,23 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
                               data-ai-answer-text={answer.text}
                               data-ai-answer-type="single-choice"
                               className={cn(
-                                "flex cursor-pointer items-start gap-3 rounded-xl border border-primary/15 bg-white/85 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-glow-soft dark:bg-slate-900/85",
+                                "flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-3 transition-all",
                                 isSelected
-                                  ? "border-accent/55 bg-gradient-to-br from-primary/10 via-background to-accent/20 shadow-[0_0_0_1px_hsl(var(--accent)/0.3),0_16px_30px_-20px_hsl(var(--accent)/0.95)] hover:border-accent/60"
-                                  : "",
+                                  ? "border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
+                                  : "border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white text-[#3c3c3c] hover:border-[#58cc02] dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white",
                               )}
                               htmlFor={radioId}
                             >
                               <RadioGroupItem
-                                className="mt-0.5 border-primary/40 text-accent data-[state=checked]:border-accent"
+                                className="mt-0.5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:text-[#58cc02] dark:border-[#2b3940]"
                                 id={radioId}
                                 value={answer.id}
                               />
-                              <div className="space-y-1">
-                                <p className="text-xs font-semibold text-muted-foreground">
+                              <div className="space-y-0.5">
+                                <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                                   Đáp án {answerLabel}
                                 </p>
-                                <p className={cn("text-sm leading-6", isSelected ? "font-medium" : "")}>
+                                <p className="text-xs font-bold leading-5">
                                   {answer.text}
                                 </p>
                               </div>
@@ -744,9 +750,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
               </div>
               {isLocked ? (
                 <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-                  <div className="max-w-md rounded-2xl border border-white/35 bg-white/80 px-5 py-4 text-center shadow-glass backdrop-blur-md dark:border-slate-200/20 dark:bg-slate-900/75">
+                  <div className="max-w-md rounded-2xl border-2 border-[#ffc800] bg-white p-5 text-center shadow-lg dark:bg-[#131f24]">
                     <p className="text-2xl">🔒</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">
+                    <p className="mt-2 text-xs font-extrabold text-[#3c3c3c] dark:text-white">
                       Câu hỏi dành cho học viên tham gia khóa học kèm 1-1. Liên hệ với Jason để mở khóa toàn bộ bài tập!
                     </p>
                   </div>
@@ -757,9 +763,9 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
         })}
       </div>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end pt-4">
         <Button
-          className="kokonut-hover-lift h-12 rounded-xl border border-white/30 bg-gradient-to-r from-primary to-amber-600 px-8 text-base font-semibold text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
+          className="h-12 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-8 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
           disabled={submitQuizMutation.isPending || totalQuestions === 0}
           onClick={handleOpenConfirm}
           type="button"
@@ -779,18 +785,21 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       </div>
 
       <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 dark:border-[#2b3940] dark:bg-[#131f24]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Bạn muốn nộp bài ngay bây giờ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn nộp bài? Sau khi nộp, bạn sẽ thấy kết quả và giải
-              thích.
+            <AlertDialogTitle className="text-lg font-extrabold text-[#3c3c3c] dark:text-white">
+              Bạn muốn nộp bài ngay bây giờ?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
+              Bạn có chắc chắn muốn nộp bài? Sau khi nộp, bạn sẽ xem được điểm số và giải thích chi tiết cho từng câu hỏi.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel className="rounded-xl border-2 border-[#e5e5e5] font-extrabold text-[#3c3c3c] dark:border-[#2b3940] dark:text-white">
+              Hủy
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-gradient-to-r from-primary to-amber-600 text-slate-950 hover:brightness-105"
+              className="rounded-xl border-b-4 border-[#46a302] bg-[#58cc02] font-extrabold text-white hover:bg-[#46a302]"
               disabled={submitQuizMutation.isPending}
               onClick={() => {
                 void handleSubmit();

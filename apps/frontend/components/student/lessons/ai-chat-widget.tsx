@@ -245,72 +245,74 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
 
   return (
     <>
+      {/* Floating Toggle Button (Lingo 3D Button) */}
       <Button
-        className="fixed bottom-6 right-6 z-40 h-12 rounded-full border border-primary/20 bg-gradient-to-r from-primary to-amber-600 px-4 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110 hover:shadow-glow-strong"
+        className="fixed bottom-6 right-6 z-40 h-14 rounded-2xl border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#58cc02] px-5 text-sm font-extrabold text-white shadow-lg transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 cursor-pointer"
         onClick={() => setIsOpen((prev) => !prev)}
         type="button"
       >
-        {isOpen ? <X className="mr-2 h-4 w-4" /> : <BotMessageSquare className="mr-2 h-4 w-4" />}
-        {isOpen ? "Đóng AI Tutor" : "AI Tutor"}
+        {isOpen ? <X className="mr-2 h-5 w-5" /> : <BotMessageSquare className="mr-2 h-5 w-5" />}
+        {isOpen ? "Đóng AI Tutor" : "Hỏi AI Tutor"}
       </Button>
 
+      {/* Floating Chat Box */}
       {isOpen ? (
-        <aside className="fixed bottom-20 right-4 z-40 w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-primary/20 bg-white/95 shadow-[0_30px_70px_-32px_rgba(15,23,42,0.7)] backdrop-blur dark:bg-slate-950/95">
-          <header className="flex items-center justify-between border-b border-primary/15 bg-gradient-to-r from-primary/10 via-background to-accent/20 px-4 py-3">
+        <aside className="fixed bottom-24 right-4 z-40 w-[min(420px,calc(100vw-2rem))] rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white shadow-2xl dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] overflow-hidden">
+          <header className="flex items-center justify-between border-b-2 border-[#e5e5e5] bg-[#f7f7f7] px-4 py-3 dark:border-[#2b3940] dark:bg-[#111b21]">
             <div className="space-y-0.5">
-              <p className="inline-flex items-center gap-1 text-sm font-semibold text-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <p className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#3c3c3c] dark:text-white">
+                <Sparkles className="h-4 w-4 text-[#58cc02]" />
                 Azubi AI Tutor
               </p>
-              <p className="text-xs text-muted-foreground">
-                Hướng dẫn theo phương pháp Socratic
+              <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
+                Gợi ý & Hướng dẫn tư duy
               </p>
             </div>
             <div className="flex items-center gap-1">
               <Button
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-xl text-[#777777] hover:bg-[#ffebee] hover:text-[#ff4b4b] dark:text-slate-400"
                 disabled={isStreaming}
                 onClick={() => {
                   void handleClearHistory();
                 }}
                 size="icon"
-                title="Xóa dòng chat để bắt đầu lại"
+                title="Xóa đoạn chat"
                 type="button"
                 variant="ghost"
               >
                 <Trash2 className="h-4 w-4" />
-                <span className="sr-only">Xóa dòng chat để bắt đầu lại</span>
+                <span className="sr-only">Xóa đoạn chat</span>
               </Button>
-              {isStreaming ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : null}
+              {isStreaming ? <Loader2 className="h-4 w-4 animate-spin text-[#58cc02]" /> : null}
             </div>
           </header>
 
-          <div className="max-h-[52vh] space-y-3 overflow-y-auto px-4 py-4">
+          <div className="max-h-[50vh] space-y-3 overflow-y-auto p-4">
             {isLoadingHistory ? (
-              <div className="flex items-center justify-center py-8 text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
+              <div className="flex items-center justify-center py-8 text-xs font-bold text-[#777777] dark:text-slate-400">
+                <Loader2 className="h-5 w-5 animate-spin text-[#58cc02]" />
               </div>
             ) : !hasMessages ? (
-              <p className="rounded-xl border border-dashed border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-                Hãy đặt câu hỏi về bài học, mình sẽ gợi ý từng bước để bạn tự tìm ra đáp án.
-              </p>
+              <div className="rounded-2xl border-2 border-dashed border-[#58cc02]/30 bg-[#e8f5e1]/50 p-4 text-xs font-bold text-[#46a302] dark:bg-[#58cc02]/10 dark:text-[#58cc02]">
+                Hãy đặt câu hỏi về bài học, mình sẽ gợi ý từng bước để bạn nắm vững kiến thức!
+              </div>
             ) : (
               messages.map((message) => (
                 <div
                   className={cn(
-                    "max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm",
+                    "max-w-[88%] rounded-2xl p-3 text-xs leading-relaxed font-bold",
                     message.role === "USER"
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "mr-auto border border-primary/15 bg-slate-50 text-foreground dark:bg-slate-900",
+                      ? "ml-auto border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#58cc02] text-white"
+                      : "mr-auto border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] text-[#3c3c3c] dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white",
                   )}
                   key={message.id}
                 >
                   {message.role === "AI" ? (
-                    <div className="prose prose-sm prose-slate max-w-none break-words leading-relaxed dark:prose-invert [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1">
+                    <div className="prose prose-xs max-w-none break-words dark:prose-invert">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {message.content ||
                           (isStreaming
-                            ? "Google Deep Mind đang phân tích dữ liệu, bạn chờ một chút nhé... ⏳"
+                            ? "AI đang suy nghĩ câu trả lời... ⏳"
                             : "")}
                       </ReactMarkdown>
                     </div>
@@ -323,10 +325,10 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="space-y-2 border-t border-primary/15 px-4 py-3">
+          <div className="space-y-2 border-t-2 border-[#e5e5e5] p-3 dark:border-[#2b3940]">
             <div className="flex items-end gap-2">
               <Textarea
-                className="min-h-[72px] resize-none bg-white/80 text-sm dark:bg-slate-900/80"
+                className="min-h-[64px] resize-none rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-xs font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                 disabled={isStreaming}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
@@ -339,11 +341,12 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                 value={draft}
               />
               <Button
-                className="h-10 rounded-xl"
+                className="h-10 w-10 rounded-xl border-b-4 border-[#46a302] bg-[#58cc02] text-white hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
                 disabled={isStreaming || draft.trim().length === 0}
                 onClick={() => {
                   void handleSend();
                 }}
+                size="icon"
                 type="button"
               >
                 {isStreaming ? (
@@ -354,8 +357,8 @@ export function AiChatWidget({ lessonId }: AiChatWidgetProps) {
                 <span className="sr-only">Gửi câu hỏi</span>
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Note: Nội dung hội thoại sẽ được bảo lưu 90 ngày theo quy chuẩn bảo mật.
+            <p className="text-[10px] font-bold text-[#a0a0a0] dark:text-slate-500">
+              Lưu ý: Nội dung trao đổi được lưu trữ 90 ngày nhằm hỗ trợ học tập.
             </p>
           </div>
         </aside>

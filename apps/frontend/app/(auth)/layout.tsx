@@ -26,10 +26,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
 
         {/* Footer Pháp Lý (DSGVO Requirement) */}
-        <footer className="mt-8 flex gap-6 text-sm text-white/70 backdrop-blur-sm animate-in fade-in duration-1000 delay-500">
-          <a href="/impressum" className="hover:text-white hover:underline transition-colors">Impressum</a>
+        <footer className="mt-8 flex gap-6 text-xs font-bold text-white/80 animate-in fade-in duration-1000 delay-500">
+          <a href="/impressum" className="hover:text-[#58cc02] hover:underline transition-colors">Impressum</a>
           <span aria-hidden="true" className="opacity-50">•</span>
-          <a href="/datenschutz" className="hover:text-white hover:underline transition-colors">Datenschutzerklärung</a>
+          <a href="/datenschutz" className="hover:text-[#58cc02] hover:underline transition-colors">Datenschutzerklärung</a>
         </footer>
       </div>
     </div>

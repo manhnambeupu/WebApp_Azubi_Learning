@@ -40,29 +40,25 @@ export default function StudentLessonsPage() {
 
   return (
     <article className="space-y-8">
-      <header className="kokonut-glass-card kokonut-glow-border relative overflow-hidden border-primary/20 bg-white/60 px-6 py-7 shadow-glow-soft dark:bg-slate-950/50 sm:px-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent/30 blur-3xl"
-        />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-3">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-primary">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
               <GraduationCap className="h-3.5 w-3.5" />
               Student Dashboard
             </span>
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#3c3c3c] dark:text-white sm:text-3xl">
               Danh sách bài học
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+            <p className="max-w-2xl text-xs md:text-sm font-bold leading-relaxed text-[#777777] dark:text-slate-300">
               🏆 📈Làm chủ lộ trình ôn thi của bạn: Tăng cường và củng cố kiến
               thức dựa trên các bài học liên quan mật thiết với
               Abschlussprüfung, tự tin chinh phục từng mục tiêu🎯🏆
             </p>
-            <blockquote className="max-w-3xl border-l-4 border-primary/35 pl-4 text-sm leading-7 text-muted-foreground">
+            <blockquote className="max-w-3xl rounded-2xl border-2 border-[#58cc02]/30 border-l-4 border-l-[#58cc02] bg-[#e8f5e1]/40 p-4 text-xs md:text-sm font-bold italic leading-relaxed text-[#3c3c3c] dark:bg-[#58cc02]/10 dark:text-slate-200">
               &ldquo;Chìa khóa lớn nhất để bứt phá trong hành trình Ausbildung không chỉ nằm ở những gì bạn được dạy, mà ở sự chủ động tự học và biết cách chắt lọc thông tin.&rdquo;
             </blockquote>
-            <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground">
+            <ul className="list-disc space-y-1 pl-5 text-xs md:text-sm font-bold leading-6 text-[#777777] dark:text-slate-300">
               <li>Hệ thống lại kiến thức trọng tâm, bám sát cấu trúc đề thi giữa và cuối kỳ.</li>
               <li>Dễ dàng tìm lại các kiến thức quan trọng được phân loại rõ ràng.</li>
               <li>Chuẩn bị bài tập và các bài kiểm tra nhanh chóng theo đúng lộ trình.</li>

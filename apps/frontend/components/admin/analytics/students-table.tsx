@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientPagination } from "@/components/ui/client-pagination";
 import { Input } from "@/components/ui/input";
 import {
@@ -83,34 +82,34 @@ function formatRelativeTime(value: string | null): string {
 
 function scoreColorClass(score: number): string {
   if (score < 50) {
-    return "text-rose-600 dark:text-rose-300";
+    return "text-[#ff4b4b]";
   }
   if (score < 80) {
-    return "text-amber-600 dark:text-amber-300";
+    return "text-[#d97706] dark:text-[#fbbf24]";
   }
-  return "text-emerald-600 dark:text-emerald-300";
+  return "text-[#46a302] dark:text-[#58cc02]";
 }
 
 function StudentsTableSkeletonRows() {
   return (
     <>
       {Array.from({ length: 5 }).map((_, index) => (
-        <TableRow className="border-primary/10" key={index}>
+        <TableRow className="border-b border-[#e5e5e5] dark:border-[#2b3940]" key={index}>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-5 w-40" />
-            <Skeleton className="mt-2 h-4 w-52" />
+            <Skeleton className="h-5 w-40 rounded-lg" />
+            <Skeleton className="mt-2 h-4 w-52 rounded-lg" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-5 w-12" />
+            <Skeleton className="h-5 w-12 rounded-lg" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-20 rounded-lg" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-5 w-16 rounded-lg" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-24 rounded-lg" />
           </TableCell>
         </TableRow>
       ))}
@@ -189,26 +188,31 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
   }, [filteredAndSorted, currentPage]);
 
   return (
-    <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
-      <CardHeader className="border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10">
-        <CardTitle className="text-xl">Hiệu suất học viên</CardTitle>
-      </CardHeader>
+    <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]">
+      <div className="border-b-2 border-[#e5e5e5] p-5 dark:border-[#2b3940]">
+        <h2 className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+          Hiệu suất học viên
+        </h2>
+      </div>
 
-      <CardContent className="p-0">
+      <div className="p-0">
         {studentsQuery.isError ? (
-          <div className="px-6 py-4">
-            <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div className="p-5">
+            <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
               {getApiErrorMessage(studentsQuery.error)}
             </p>
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-4 border-b border-primary/10 p-4 sm:flex-row sm:items-end">
-          <div className="flex-1">
+        <div className="flex flex-col gap-4 border-b-2 border-[#e5e5e5] p-5 dark:border-[#2b3940] sm:flex-row sm:items-end">
+          <div className="flex-1 space-y-1.5">
+            <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+              Tìm kiếm
+            </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777777] dark:text-slate-400" />
               <Input
-                className="h-9 pl-9"
+                className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] pl-10 text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
@@ -219,7 +223,10 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             </div>
           </div>
 
-          <div className="sm:w-[160px]">
+          <div className="space-y-1.5 sm:w-[160px]">
+            <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+              Phân loại điểm
+            </label>
             <Select
               onValueChange={(value) => {
                 setScoreFilter(value);
@@ -227,10 +234,10 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
               }}
               value={scoreFilter}
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white">
                 <SelectValue placeholder="Điểm" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
                 <SelectItem value="all">Tất cả điểm</SelectItem>
                 <SelectItem value="good">Tốt (≥ 80)</SelectItem>
                 <SelectItem value="avg">Vừa (50-79)</SelectItem>
@@ -239,7 +246,10 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             </Select>
           </div>
 
-          <div className="sm:w-[180px]">
+          <div className="space-y-1.5 sm:w-[180px]">
+            <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+              Sắp xếp
+            </label>
             <Select
               onValueChange={(value) => {
                 const [key, direction] = value.split("-");
@@ -261,10 +271,10 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
               }}
               value={`${sortKey}-${sortDirection}`}
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white">
                 <SelectValue placeholder="Sắp xếp" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
                 <SelectItem value="default-desc">Mặc định</SelectItem>
                 <SelectItem value="score-desc">Điểm (Cao-Thấp)</SelectItem>
                 <SelectItem value="score-asc">Điểm (Thấp-Cao)</SelectItem>
@@ -275,81 +285,80 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
           </div>
         </div>
 
-        <Table className="min-w-[760px]">
-          <TableHeader>
-            <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-              <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                Học viên
-              </TableHead>
-              <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                Bài học
-              </TableHead>
-              <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                Thời gian TB
-              </TableHead>
-              <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                Điểm TB
-              </TableHead>
-              <TableHead className="px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
-                Hoạt động cuối
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {studentsQuery.isLoading ? <StudentsTableSkeletonRows /> : null}
-
-            {!studentsQuery.isLoading && filteredAndSorted.length === 0 ? (
-              <TableRow className="border-primary/10 hover:bg-transparent">
-                <TableCell className="py-10 text-center text-muted-foreground" colSpan={5}>
-                  Chưa có dữ liệu phân tích.
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table className="min-w-[760px]">
+            <TableHeader>
+              <TableRow className="border-b-2 border-[#e5e5e5] bg-[#f7f7f7] hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] dark:hover:bg-[#111b21]">
+                <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                  Học viên
+                </TableHead>
+                <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                  Bài học đã làm
+                </TableHead>
+                <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                  Thời gian TB
+                </TableHead>
+                <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                  Điểm TB
+                </TableHead>
+                <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                  Hoạt động cuối
+                </TableHead>
               </TableRow>
-            ) : null}
+            </TableHeader>
 
-            {!studentsQuery.isLoading
-              ? paginated.map((student, index) => (
-                  <TableRow
-                    className={cn(
-                      "group/row cursor-pointer border-primary/10 transition-colors duration-200 hover:bg-primary/[0.05]",
-                      index % 2 === 0
-                        ? "bg-white/90 dark:bg-slate-900/90"
-                        : "bg-slate-50/45 dark:bg-slate-800/45",
-                    )}
-                    key={student.id}
-                    onClick={() => onSelectStudent(student.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        onSelectStudent(student.id);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <TableCell className="px-4 py-4">
-                      <p className="font-medium">{student.fullName}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{student.email}</p>
-                    </TableCell>
-                    <TableCell className="px-4 py-4">{student.lessonsCompleted}</TableCell>
-                    <TableCell className="px-4 py-4">
-                      {formatDuration(Math.round(student.avgActiveTimeSeconds))}
-                    </TableCell>
-                    <TableCell className="px-4 py-4">
-                      <span className={cn("font-semibold", scoreColorClass(student.avgScore))}>
-                        {student.avgScore.toFixed(1)}%
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-4 py-4 text-muted-foreground">
-                      {formatRelativeTime(student.lastActiveAt)}
-                    </TableCell>
-                  </TableRow>
-                ))
-              : null}
-          </TableBody>
-        </Table>
+            <TableBody>
+              {studentsQuery.isLoading ? <StudentsTableSkeletonRows /> : null}
 
-        <div className="py-4">
+              {!studentsQuery.isLoading && filteredAndSorted.length === 0 ? (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell className="py-12 text-center text-sm font-bold text-[#777777] dark:text-slate-400" colSpan={5}>
+                    Chưa có dữ liệu phân tích.
+                  </TableCell>
+                </TableRow>
+              ) : null}
+
+              {!studentsQuery.isLoading
+                ? paginated.map((student) => (
+                    <TableRow
+                      className="cursor-pointer border-b border-[#e5e5e5] transition-colors hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:hover:bg-[#18252d]"
+                      key={student.id}
+                      onClick={() => onSelectStudent(student.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onSelectStudent(student.id);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <TableCell className="px-4 py-4">
+                        <p className="font-extrabold text-[#3c3c3c] dark:text-white">{student.fullName}</p>
+                        <p className="mt-0.5 text-xs font-bold text-[#777777] dark:text-slate-400">{student.email}</p>
+                      </TableCell>
+                      <TableCell className="px-4 py-4 font-bold text-[#3c3c3c] dark:text-white">
+                        {student.lessonsCompleted}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 font-bold text-[#777777] dark:text-slate-300">
+                        {formatDuration(Math.round(student.avgActiveTimeSeconds))}
+                      </TableCell>
+                      <TableCell className="px-4 py-4">
+                        <span className={cn("font-extrabold text-sm", scoreColorClass(student.avgScore))}>
+                          {student.avgScore.toFixed(1)}%
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-4 py-4 text-xs font-bold text-[#777777] dark:text-slate-400">
+                        {formatRelativeTime(student.lastActiveAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : null}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="p-4">
           <ClientPagination
             currentPage={currentPage}
             totalItems={filteredAndSorted.length}
@@ -357,7 +366,7 @@ export function StudentsAnalyticsTable({ onSelectStudent }: Props) {
             onPageChange={setCurrentPage}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

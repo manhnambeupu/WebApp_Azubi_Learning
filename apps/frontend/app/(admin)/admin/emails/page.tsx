@@ -6,7 +6,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -83,25 +82,30 @@ export default function AdminEmailsPage() {
   };
 
   return (
-    <section className="space-y-6 kokonut-fade">
-      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
-        <CardHeader className="space-y-2 border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium">
-            <Mail className="h-3.5 w-3.5 text-primary" />
+    <section className="space-y-6">
+      <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]">
+        <div className="flex flex-col gap-2 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940]">
+          <div className="inline-flex w-fit items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
+            <Mail className="h-3.5 w-3.5" />
             Bulk Email
           </div>
-          <CardTitle className="text-2xl">Gửi email hàng loạt</CardTitle>
-          <CardDescription>
-            Soạn nội dung bằng Markdown, preview trực tiếp và gửi tới toàn bộ học viên hoặc danh
-            sách email cụ thể.
-          </CardDescription>
-        </CardHeader>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#3c3c3c] dark:text-white sm:text-3xl">
+            Gửi email hàng loạt
+          </h1>
+          <p className="text-xs md:text-sm font-bold text-[#777777] dark:text-slate-400">
+            Soạn nội dung bằng Markdown, xem trước và gửi thông báo trực tiếp tới học viên.
+          </p>
+        </div>
 
-        <CardContent className="grid gap-6 p-6 lg:grid-cols-2">
+        <div className="grid gap-6 pt-6 lg:grid-cols-2">
+          {/* Form Area */}
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email-subject">Tiêu đề email</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="email-subject">
+                Tiêu đề email
+              </Label>
               <Input
+                className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                 id="email-subject"
                 maxLength={200}
                 onChange={(event) => setSubject(event.target.value)}
@@ -110,10 +114,12 @@ export default function AdminEmailsPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email-content">Nội dung (Markdown)</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="email-content">
+                Nội dung (Markdown)
+              </Label>
               <Textarea
-                className="min-h-[280px] bg-white/60 font-mono text-sm dark:bg-slate-900/60"
+                className="min-h-[260px] rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-3 font-mono text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                 id="email-content"
                 onChange={(event) => setMarkdownContent(event.target.value)}
                 placeholder="## Xin chào các bạn&#10;&#10;Nội dung thông báo..."
@@ -121,47 +127,50 @@ export default function AdminEmailsPage() {
               />
             </div>
 
-            <div className="space-y-3 rounded-xl border border-primary/15 bg-primary/[0.03] p-4">
-              <Label>Người nhận</Label>
+            <div className="space-y-3 rounded-2xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-4 dark:border-[#2b3940] dark:bg-[#111b21]">
+              <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+                Người nhận
+              </Label>
               <RadioGroup
-                className="gap-3"
+                className="gap-2.5"
                 onValueChange={(value) => setTargetMode(value as "ALL" | "CUSTOM")}
                 value={targetMode}
               >
-                <label className="flex cursor-pointer items-center gap-2 rounded-md border border-transparent px-2 py-1 hover:border-primary/20">
+                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border-2 border-[#e5e5e5] bg-white p-3 font-bold text-[#3c3c3c] transition-all hover:border-[#58cc02] dark:border-[#2b3940] dark:bg-[#131f24] dark:text-white">
                   <RadioGroupItem id="target-all" value="ALL" />
-                  <span className="text-sm">Tất cả học viên ({studentCount})</span>
+                  <span className="text-xs md:text-sm">Tất cả học viên ({studentCount} người)</span>
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 rounded-md border border-transparent px-2 py-1 hover:border-primary/20">
+                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border-2 border-[#e5e5e5] bg-white p-3 font-bold text-[#3c3c3c] transition-all hover:border-[#58cc02] dark:border-[#2b3940] dark:bg-[#131f24] dark:text-white">
                   <RadioGroupItem id="target-custom" value="CUSTOM" />
-                  <span className="text-sm">Email cụ thể (test/chọn lọc)</span>
+                  <span className="text-xs md:text-sm">Email cụ thể (chọn lọc/kiểm thử)</span>
                 </label>
               </RadioGroup>
 
               {targetMode === "CUSTOM" ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5 pt-2">
                   <Textarea
-                    className="min-h-[110px] bg-white/60 text-sm dark:bg-slate-900/60"
+                    className="min-h-[100px] rounded-xl border-2 border-[#e5e5e5] bg-white p-3 text-xs font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#131f24] dark:text-white"
                     onChange={(event) => setCustomEmailsInput(event.target.value)}
                     placeholder="student1@example.com, student2@example.com"
                     value={customEmailsInput}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Tách email bằng dấu phẩy, chấm phẩy hoặc xuống dòng.
+                  <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
+                    Phân tách email bằng dấu phẩy, chấm phẩy hoặc xuống dòng.
                   </p>
                 </div>
               ) : null}
             </div>
 
-            <div className="flex items-center justify-between">
-              <Badge className="inline-flex items-center gap-1" variant="outline">
-                <Users className="h-3.5 w-3.5" />
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]" variant="outline">
+                <Users className="mr-1.5 h-3.5 w-3.5" />
                 {targetMode === "ALL"
                   ? `Gửi cho ${studentCount} học viên`
                   : `${customEmails.length} email đã nhập`}
               </Badge>
+
               <Button
-                className="min-w-[150px]"
+                className="h-12 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
                 disabled={!canSend}
                 onClick={() => {
                   void handleSend();
@@ -170,7 +179,7 @@ export default function AdminEmailsPage() {
                 {sendBulkEmailMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang tạo lệnh...
+                    Đang gửi...
                   </>
                 ) : (
                   <>
@@ -182,22 +191,25 @@ export default function AdminEmailsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-primary/15 bg-white/75 p-4 shadow-glass dark:bg-slate-900/75">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Preview email
+          {/* Preview Area */}
+          <div className="flex flex-col rounded-2xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-5 dark:border-[#2b3940] dark:bg-[#111b21]">
+            <h3 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+              Xem trước nội dung
             </h3>
-            <div className="prose prose-sm max-w-none dark:prose-invert">
+            <div className="flex-1 rounded-xl border-2 border-[#e5e5e5] bg-white p-5 dark:border-[#2b3940] dark:bg-[#131f24]">
               {markdownContent.trim().length > 0 ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
+                <div className="prose prose-sm max-w-none text-[#3c3c3c] dark:prose-invert dark:text-white">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
+                </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Nội dung preview sẽ hiển thị ở đây khi bạn bắt đầu soạn email.
-                </p>
+                <div className="flex h-full min-h-[240px] items-center justify-center text-center text-xs font-bold text-[#a0a0a0] dark:text-slate-500">
+                  Nội dung email xem trước sẽ xuất hiện tại đây khi bạn nhập markdown.
+                </div>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </section>
   );
 }

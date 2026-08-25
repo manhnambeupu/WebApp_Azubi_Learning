@@ -222,11 +222,11 @@ export function QuestionFormDialog({
   const isChoiceQuestion =
     questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
   const fieldClassName =
-    "border-slate-300/80 bg-white/90 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+    "h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white";
   const textareaClassName =
-    "resize-y border-slate-300/80 bg-white/90 leading-7 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+    "resize-y rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] leading-6 placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white";
   const panelClassName =
-    "space-y-3 rounded-xl border border-slate-200/80 bg-white/80 p-4 shadow-[0_16px_32px_-28px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/55";
+    "space-y-3 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] p-5 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#111b21]";
 
   useEffect(() => {
     if (!open) {
@@ -584,10 +584,12 @@ export function QuestionFormDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/90 sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>{isEditMode ? "Sửa câu hỏi" : "Thêm câu hỏi mới"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 shadow-2xl dark:border-[#2b3940] dark:bg-[#131f24] sm:max-w-3xl">
+        <DialogHeader className="border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
+          <DialogTitle className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+            {isEditMode ? "Sửa câu hỏi" : "Thêm câu hỏi mới"}
+          </DialogTitle>
+          <DialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
             {isEditMode
               ? "Chỉnh sửa nội dung câu hỏi và toàn bộ đáp án liên quan."
               : "Tạo câu hỏi mới cho bài học và thiết lập các đáp án."}
@@ -597,10 +599,10 @@ export function QuestionFormDialog({
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className={panelClassName}>
             <div className="space-y-1">
-              <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="question-text">
+              <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="question-text">
                 Nội dung câu hỏi
               </Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                 Đặt câu hỏi rõ ràng để học viên hiểu yêu cầu trước khi chọn hoặc nhập đáp án.
               </p>
             </div>
@@ -615,7 +617,7 @@ export function QuestionFormDialog({
           </div>
 
           <div className={panelClassName}>
-            <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="question-type">
+            <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="question-type">
               Loại câu hỏi
             </Label>
             <Select
@@ -625,7 +627,7 @@ export function QuestionFormDialog({
               <SelectTrigger className={fieldClassName} id="question-type">
                 <SelectValue placeholder="Chọn loại câu hỏi" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
                 {QUESTION_TYPE_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -633,7 +635,7 @@ export function QuestionFormDialog({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
               {
                 QUESTION_TYPE_OPTIONS.find((option) => option.value === questionType)
                   ?.description
@@ -644,18 +646,19 @@ export function QuestionFormDialog({
           <div className={panelClassName}>
             <div className="flex items-start gap-3">
               <Checkbox
+                className="mt-0.5 h-5 w-5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:bg-[#58cc02] data-[state=checked]:text-white dark:border-[#2b3940]"
                 checked={isPrivate}
                 id="question-is-private"
                 onCheckedChange={(checked) => setIsPrivate(checked === true)}
               />
               <div className="space-y-1">
                 <Label
-                  className="cursor-pointer text-sm font-semibold text-slate-800 dark:text-slate-100"
+                  className="cursor-pointer text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                   htmlFor="question-is-private"
                 >
                   Câu hỏi VIP ẩn
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                   Chỉ học viên được cấp quyền vào bài học mới nhìn thấy câu hỏi này.
                 </p>
               </div>
@@ -664,7 +667,7 @@ export function QuestionFormDialog({
 
           <div className={panelClassName}>
             <Label
-              className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+              className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
               htmlFor="question-explanation"
             >
               Giải thích câu hỏi (tuỳ chọn)
@@ -679,15 +682,15 @@ export function QuestionFormDialog({
             />
           </div>
 
-          <div className="space-y-3 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/60 p-4 dark:border-slate-700/70 dark:bg-slate-900/40">
+          <div className="space-y-3 rounded-2xl border-2 border-dashed border-[#e5e5e5] bg-[#f7f7f7] p-5 dark:border-[#2b3940] dark:bg-[#111b21]">
             <div className="space-y-1">
               <Label
-                className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                 htmlFor="question-image-upload"
               >
                 Ảnh câu hỏi
               </Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                 Tải ảnh minh hoạ cho câu hỏi (image/*, tối đa 5MB). Với câu hỏi ảnh tự
                 luận, ảnh là bắt buộc trước khi lưu.
               </p>
@@ -703,44 +706,45 @@ export function QuestionFormDialog({
 
             <div className="flex flex-wrap items-center gap-2">
               <Button
+                className="h-10 rounded-xl border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-xs font-extrabold text-[#46a302] hover:bg-[#d5f0ca] active:translate-y-0.5 active:border-b-2 dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
                 disabled={!selectedImageFile || isUploadingImage || isSubmitting}
                 onClick={() => {
                   void handleUploadImage();
                 }}
                 type="button"
-                variant="outline"
+                variant="ghost"
               >
                 {isUploadingImage ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin text-[#58cc02]" />
                     Đang tải ảnh...
                   </>
                 ) : (
                   <>
-                    <Upload className="mr-2 h-4 w-4" />
+                    <Upload className="mr-1.5 h-4 w-4" />
                     Upload ảnh
                   </>
                 )}
               </Button>
               {selectedImageFile ? (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                   Đã chọn: {selectedImageFile.name}
                 </span>
               ) : null}
             </div>
 
             {questionImageUrl ? (
-              <p className="break-all text-xs text-muted-foreground">
+              <span className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                 URL ảnh hiện tại:{" "}
                 <a
-                  className="text-primary underline underline-offset-2"
+                  className="text-[#58cc02] hover:text-[#46a302] underline underline-offset-2"
                   href={questionImageUrl}
                   rel="noreferrer"
                   target="_blank"
                 >
                   {questionImageUrl}
                 </a>
-              </p>
+              </span>
             ) : null}
           </div>
 
@@ -749,7 +753,7 @@ export function QuestionFormDialog({
           {isEssayQuestion ? (
             <div className={panelClassName}>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-800 dark:text-slate-100" htmlFor="essay-sample-answer">
+                <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="essay-sample-answer">
                   Đáp án tự luận mẫu
                 </Label>
                 <Textarea
@@ -761,7 +765,7 @@ export function QuestionFormDialog({
                   value={essaySampleAnswer}
                 />
               </div>
-              <p className="rounded-lg border border-muted bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              <p className="rounded-2xl border-2 border-[#e5e5e5] bg-[#f7f7f7] px-3 py-2 text-xs font-bold text-[#777777] dark:border-[#2b3940] dark:bg-[#111b21] dark:text-slate-400">
                 Khi lưu câu hỏi tự luận, hệ thống sẽ gửi một đáp án mẫu duy nhất với
                 trạng thái đúng.
               </p>
@@ -770,25 +774,25 @@ export function QuestionFormDialog({
             <div className={panelClassName}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <h3 className="text-xs font-extrabold text-[#3c3c3c] dark:text-white">
                     Danh sách đáp án
                   </h3>
                   {questionType === "SINGLE_CHOICE" ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                       Khi chọn đáp án đúng mới, đáp án đúng cũ sẽ tự động bỏ chọn.
                     </p>
                   ) : isOrderingQuestion ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                       Thứ tự hiển thị trong danh sách sẽ được lưu thành thứ tự đúng.
                     </p>
                   ) : isMatchingQuestion ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                       Mỗi đáp án gồm vế trái và vế phải tương ứng để tạo thành cặp đúng.
                     </p>
                   ) : null}
                 </div>
                 <Button
-                  className="border-primary/25 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
+                  className="h-9 rounded-xl border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-xs font-extrabold text-[#46a302] hover:bg-[#d5f0ca] active:translate-y-0.5 active:border-b-2 dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
                   onClick={addAnswer}
                   size="sm"
                   type="button"
@@ -800,7 +804,7 @@ export function QuestionFormDialog({
               </div>
 
               {br03Warning ? (
-                <p className="rounded-lg border border-amber-300/50 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <p className="rounded-2xl border-2 border-[#ffc800]/40 bg-[#fef9e7] px-3 py-2 text-xs font-extrabold text-[#3c3c3c] dark:border-[#ffc800]/30 dark:bg-[#ffc800]/10 dark:text-white">
                   {br03Warning}
                 </p>
               ) : null}
@@ -817,7 +821,7 @@ export function QuestionFormDialog({
                       : "Nội dung đáp án";
                   return (
                     <div
-                      className="space-y-3 rounded-xl border border-slate-200/85 bg-white/90 p-4 shadow-[0_16px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 hover:border-amber-300/65 hover:shadow-[0_18px_34px_-24px_rgba(245,158,11,0.55)] dark:border-slate-700/80 dark:bg-slate-950/70"
+                      className="space-y-3 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-4 transition-all hover:border-[#58cc02]/50 active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]"
                       key={answer.key}
                     >
                       <div className="flex items-center justify-between">
@@ -830,7 +834,7 @@ export function QuestionFormDialog({
                           ) : null}
                         </div>
                         <Button
-                          className="text-muted-foreground transition-all hover:bg-slate-200/70 hover:text-foreground dark:hover:bg-slate-800/70"
+                          className="rounded-xl border-2 border-transparent text-[#777777] hover:border-[#ff4b4b]/30 hover:bg-[#ffebee] hover:text-[#ff4b4b] dark:text-slate-400 dark:hover:bg-[#ff4b4b]/20"
                           disabled={answers.length <= 2}
                           onClick={() => removeAnswer(answer.key)}
                           size="icon"
@@ -844,7 +848,7 @@ export function QuestionFormDialog({
 
                       <div className="space-y-2">
                         <Label
-                          className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                          className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                           htmlFor={`answer-text-${answer.key}`}
                         >
                           {answerTextLabel}
@@ -869,7 +873,7 @@ export function QuestionFormDialog({
                       {isMatchingQuestion ? (
                         <div className="space-y-2">
                           <Label
-                            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                            className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                             htmlFor={`answer-match-text-${answer.key}`}
                           >
                             Vế phải
@@ -890,6 +894,7 @@ export function QuestionFormDialog({
                         <>
                           <div className="flex items-center gap-2">
                             <Checkbox
+                              className="h-5 w-5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:bg-[#58cc02] data-[state=checked]:text-white dark:border-[#2b3940]"
                               checked={answer.isCorrect}
                               id={`answer-correct-${answer.key}`}
                               onCheckedChange={(checked) =>
@@ -906,7 +911,7 @@ export function QuestionFormDialog({
 
                           <div className="space-y-2">
                             <Label
-                              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                              className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                               htmlFor={`answer-explanation-${answer.key}`}
                             >
                               Giải thích đáp án (tuỳ chọn)
@@ -933,14 +938,14 @@ export function QuestionFormDialog({
           )}
 
           {formError ? (
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] px-3 py-2 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
               {formError}
             </p>
           ) : null}
 
           <DialogFooter>
             <Button
-              className="h-10 rounded-xl bg-gradient-to-r from-primary to-amber-500 px-5 text-slate-950 shadow-[0_14px_32px_-20px_hsl(var(--primary) / 0.78)] transition-all duration-300 hover:-translate-y-0.5 hover:from-primary/90 hover:to-amber-500 hover:shadow-[0_18px_34px_-18px_rgba(245,158,11,0.72)]"
+              className="h-12 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2"
               disabled={isSubmitting}
               type="submit"
             >

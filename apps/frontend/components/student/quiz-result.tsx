@@ -214,7 +214,7 @@ function ObjectiveAnswerRow({ answer, control, isSelected }: ObjectiveAnswerRowP
             ) : null}
           </div>
           {answer.explanation ? (
-            <p className="text-xs text-muted-foreground">{answer.explanation}</p>
+            <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">{answer.explanation}</p>
           ) : null}
         </div>
       </div>
@@ -330,25 +330,25 @@ function MatchingResultRows({ question }: { question: QuizResultQuestion }) {
 
 export function QuizResult({ result, onRetry, showActions = true }: QuizResultProps) {
   return (
-    <section className="space-y-6 rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition-all dark:bg-slate-900/50">
-      <div className="space-y-3">
+    <section className="space-y-6 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
+      <div className="space-y-3 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940]">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={scoreBadgeClass(result.score)}>
-            {formatScore(result.score)}/100
+          <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302]">
+            {formatScore(result.score)}/100 điểm
           </Badge>
-          <Badge variant="secondary">Lần nộp #{result.attemptNumber}</Badge>
+          <Badge className="rounded-full border-2 border-[#e5e5e5] bg-[#f7f7f7] px-3 py-1 text-xs font-extrabold text-[#777777] dark:border-[#2b3940] dark:bg-[#111b21] dark:text-slate-400" variant="secondary">
+            Lần nộp #{result.attemptNumber}
+          </Badge>
         </div>
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
           Kết quả lần {result.attemptNumber}: {formatScore(result.score)}/100 (
           {formatCorrectCount(result.correctCount)}/{result.totalQuestions} câu đúng)
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs font-bold text-[#777777] dark:text-slate-400">
           Điểm số này chỉ tính trên phần câu hỏi trắc nghiệm khách quan.
         </p>
-        <Progress className="h-3" value={result.score} />
+        <Progress className="h-3 overflow-hidden rounded-full border border-[#e5e5e5] bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] [&>div]:bg-[#58cc02]" value={result.score} />
       </div>
-
-      <Separator />
 
       <div className="space-y-4">
         {result.questions.map((question, questionIndex) => {
@@ -359,15 +359,15 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
 
           return (
             <div
-              className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/50"
+              className="space-y-3 rounded-[20px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] p-5 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#111b21]"
               key={question.id}
             >
               <div className="space-y-1">
-                <p className="text-sm font-semibold whitespace-pre-wrap">
+                <p className="text-sm font-extrabold text-[#3c3c3c] dark:text-white whitespace-pre-wrap">
                   Câu {questionIndex + 1}: {question.text}
                 </p>
                 {question.imageUrl ? (
-                  <div className="mt-4 overflow-hidden rounded-xl border border-primary/15 shadow-sm">
+                  <div className="mt-3 overflow-hidden rounded-2xl border-2 border-[#e5e5e5] dark:border-[#2b3940]">
                     <Image
                       alt={`Hình ảnh đi kèm câu hỏi ${questionIndex + 1}`}
                       className="max-h-[400px] h-auto w-full object-contain bg-slate-50/50"
@@ -379,15 +379,15 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
                     />
                   </div>
                 ) : null}
-                <p className={cn("text-xs font-medium", status.className)}>{status.label}</p>
+                <p className={cn("text-xs font-extrabold", status.className)}>{status.label}</p>
               </div>
 
               {question.type === "ESSAY" || question.type === "IMAGE_ESSAY" ? (
-                <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-900/60 dark:bg-amber-950/40">
-                  <p className="text-xs font-semibold uppercase text-amber-700">
+                <div className="rounded-2xl border-2 border-[#ffc800]/40 bg-[#fef9e7] p-4 dark:border-[#ffc800]/30 dark:bg-[#ffc800]/10">
+                  <p className="text-xs font-extrabold uppercase tracking-wider text-[#d97706] dark:text-[#ffc800]">
                     Đáp án tự luận mẫu
                   </p>
-                  <div className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-xs font-bold leading-6 text-foreground">
                     {question.answers.find((answer) => answer.isCorrect)?.text ??
                       question.answers[0]?.text ??
                       "Chưa có đáp án mẫu."}
@@ -442,11 +442,11 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
               )}
 
               {explanationText ? (
-                <div className="rounded-lg bg-white p-4 dark:border-slate-800/80 dark:bg-slate-900/50">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground">
+                <div className="rounded-xl border-2 border-[#e5e5e5] bg-white p-4 dark:border-[#2b3940] dark:bg-[#131f24]">
+                  <p className="text-xs font-extrabold uppercase text-[#777777] dark:text-slate-400">
                     Giải thích câu hỏi
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm">{explanationText}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-xs font-bold text-[#3c3c3c] dark:text-slate-200">{explanationText}</p>
                 </div>
               ) : null}
             </div>
@@ -455,19 +455,23 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
       </div>
 
       {showActions ? (
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="flex flex-wrap gap-3 pt-2">
           {onRetry ? (
             <Button
+              className="h-11 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2"
               onClick={onRetry}
               type="button"
-              variant="outline"
             >
               <RotateCcw className="mr-2 h-4 w-4" />
               Làm lại
             </Button>
           ) : null}
 
-          <Button asChild type="button">
+          <Button
+            asChild
+            className="h-11 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-6 text-sm font-extrabold text-[#3c3c3c] hover:bg-[#f7f7f7] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
+            variant="ghost"
+          >
             <Link href="/student/lessons">Quay lại danh sách bài học</Link>
           </Button>
         </div>

@@ -27,7 +27,7 @@ export function ClientPagination({
 
   return (
     <div className={cn("flex items-center justify-between px-2", className)}>
-      <div className="flex-1 text-sm text-muted-foreground">
+      <div className="flex-1 text-xs font-bold text-[#777777] dark:text-slate-400">
         Hiển thị <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> đến{" "}
         <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalItems)}</span>{" "}
         trong tổng số <span className="font-medium">{totalItems}</span> bản ghi.

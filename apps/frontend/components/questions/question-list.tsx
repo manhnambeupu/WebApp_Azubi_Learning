@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   useDeleteQuestion,
   useGetQuestions,
@@ -42,10 +41,19 @@ const QuestionFormDialog = dynamic(
   {
     ssr: false,
     loading: () => (
-      <p className="text-xs text-muted-foreground">Đang tải hộp thoại câu hỏi...</p>
+      <p className="text-xs font-bold text-[#777777] dark:text-slate-400">Đang tải hộp thoại câu hỏi...</p>
     ),
   },
 );
+
+const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+  SINGLE_CHOICE: "Chọn 1 đáp án",
+  MULTIPLE_CHOICE: "Chọn nhiều đáp án",
+  ESSAY: "Tự luận",
+  IMAGE_ESSAY: "Ảnh (Tự luận)",
+  ORDERING: "Sắp xếp",
+  MATCHING: "Ghép đôi",
+};
 
 export function QuestionList({ lessonId }: QuestionListProps) {
   const { toast } = useToast();
@@ -112,18 +120,17 @@ export function QuestionList({ lessonId }: QuestionListProps) {
   };
 
   return (
-    <section className="kokonut-glass-card space-y-5 rounded-2xl p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/75">
+          <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
             Quiz Builder
-          </p>
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Câu hỏi & Đáp án
+          </div>
+          <h2 className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+            Ngân hàng câu hỏi & Đáp án
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Quản lý câu hỏi trắc nghiệm, tự luận, sắp xếp thứ tự và ghép đôi trong từng thẻ
-            accordion để tránh quá tải nội dung.
+          <p className="text-xs font-bold text-[#777777] dark:text-slate-400">
+            Quản lý câu hỏi trắc nghiệm, tự luận, sắp xếp thứ tự và ghép đôi.
           </p>
         </div>
 
@@ -131,247 +138,190 @@ export function QuestionList({ lessonId }: QuestionListProps) {
           lessonId={lessonId}
           trigger={
             <Button
-              className="rounded-xl bg-gradient-to-r from-primary to-amber-500 text-slate-950 shadow-[0_14px_32px_-20px_hsl(var(--primary) / 0.76)] transition-all duration-300 hover:-translate-y-0.5 hover:from-primary/90 hover:to-amber-500 hover:shadow-[0_16px_34px_-18px_rgba(245,158,11,0.75)]"
+              className="h-10 rounded-xl border-b-4 border-[#46a302] bg-[#58cc02] px-4 text-xs font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2"
               size="sm"
             >
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="mr-1.5 h-4 w-4" />
               Thêm câu hỏi
             </Button>
           }
         />
       </div>
 
-      <Separator />
+      <div className="pt-4">
+        {questionsQuery.isLoading ? (
+          <div className="flex items-center gap-2 rounded-2xl border-2 border-[#58cc02]/30 bg-[#e8f5e1] p-4 text-xs font-extrabold text-[#46a302]">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Đang tải danh sách câu hỏi...
+          </div>
+        ) : null}
 
-      {questionsQuery.isLoading ? (
-        <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm text-muted-foreground dark:border-slate-700/70 dark:bg-slate-900/45">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Đang tải danh sách câu hỏi...
-        </div>
-      ) : null}
-
-      {questionsQuery.isError ? (
-        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {getApiErrorMessage(questionsQuery.error)}
-        </p>
-      ) : null}
-
-      {questionsQuery.data ? (
-        questions.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300/80 bg-white/70 px-4 py-8 text-center text-sm text-muted-foreground dark:border-slate-700/80 dark:bg-slate-900/45">
-            Chưa có câu hỏi nào. Hãy thêm câu hỏi đầu tiên cho bài học.
+        {questionsQuery.isError ? (
+          <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
+            {getApiErrorMessage(questionsQuery.error)}
           </p>
-        ) : (
-          <Accordion className="w-full space-y-4" collapsible type="single">
-            {questions.map((question, index) => (
-              <AccordionItem
-                className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 px-4 shadow-[0_14px_30px_-26px_rgba(15,23,42,0.65)] transition-all duration-300 data-[state=open]:border-primary/35 data-[state=open]:shadow-[0_20px_40px_-28px_hsl(var(--primary) / 0.8)] hover:-translate-y-0.5 hover:border-amber-300/65 hover:shadow-[0_20px_40px_-26px_rgba(245,158,11,0.6)] dark:border-slate-700/80 dark:bg-slate-900/55"
-                key={question.id}
-                value={question.id}
-              >
-                <div className="flex flex-col gap-2 py-1 sm:flex-row sm:items-start sm:justify-between">
-                  <AccordionTrigger className="py-4 hover:no-underline">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge className="border-primary/30 bg-primary/10 text-primary" variant="outline">
-                          #{question.orderIndex}
-                        </Badge>
-                        <Badge className="bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900">
-                          {QUESTION_TYPE_LABELS[question.type]}
-                        </Badge>
-                        <Badge className="bg-amber-100/80 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100" variant="secondary">
-                          {question.answers.length} đáp án
-                        </Badge>
-                        {question.isPrivate ? (
-                          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200">
-                            [🔒 VIP]
+        ) : null}
+
+        {questionsQuery.data ? (
+          questions.length === 0 ? (
+            <p className="rounded-2xl border-2 border-dashed border-[#e5e5e5] bg-[#f7f7f7] px-4 py-8 text-center text-xs font-bold text-[#777777] dark:border-[#2b3940] dark:bg-[#111b21] dark:text-slate-400">
+              Chưa có câu hỏi nào. Hãy thêm câu hỏi đầu tiên cho bài học.
+            </p>
+          ) : (
+            <Accordion className="w-full space-y-3" collapsible type="single">
+              {questions.map((question, index) => (
+                <AccordionItem
+                  className="overflow-hidden rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] px-4 transition-all data-[state=open]:border-[#58cc02] data-[state=open]:bg-white dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#111b21] dark:data-[state=open]:bg-[#131f24]"
+                  key={question.id}
+                  value={question.id}
+                >
+                  <div className="flex flex-col gap-2 py-1 sm:flex-row sm:items-start sm:justify-between">
+                    <AccordionTrigger className="py-3 hover:no-underline">
+                      <div className="space-y-1.5 text-left">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-2 py-0.5 text-[11px] font-extrabold text-[#46a302]" variant="outline">
+                            #{question.orderIndex}
                           </Badge>
-                        ) : null}
+                          <Badge className="rounded-full border-2 border-[#0284c7]/30 bg-[#e0f2fe] px-2 py-0.5 text-[11px] font-extrabold text-[#0284c7]">
+                            {QUESTION_TYPE_LABELS[question.type]}
+                          </Badge>
+                          <Badge className="rounded-full border-2 border-[#ffc800]/30 bg-[#fef9e7] px-2 py-0.5 text-[11px] font-extrabold text-[#d97706]" variant="secondary">
+                            {question.answers.length} đáp án
+                          </Badge>
+                          {question.isPrivate ? (
+                            <Badge className="rounded-full border-2 border-[#ff4b4b]/30 bg-[#ffebee] px-2 py-0.5 text-[11px] font-extrabold text-[#ff4b4b]">
+                              🔒 VIP
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <p className="line-clamp-2 text-xs font-extrabold text-[#3c3c3c] dark:text-white">
+                          {question.text}
+                        </p>
                       </div>
-                      <p className="line-clamp-2 text-left text-sm font-medium text-slate-800 dark:text-slate-100">
-                        {question.text}
-                      </p>
-                    </div>
-                  </AccordionTrigger>
+                    </AccordionTrigger>
 
-                  <div className="flex flex-wrap items-center justify-end gap-2 pb-2 sm:pb-0">
-                    <Button
-                      className="text-slate-600 transition-all hover:bg-primary/10 hover:text-primary dark:text-slate-300 dark:hover:bg-primary/20"
-                      disabled={index === 0 || pendingReorderId === question.id}
-                      onClick={() => {
-                        void handleReorderQuestion(question.id, "up");
-                      }}
-                      size="icon"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                      <span className="sr-only">Di chuyển lên</span>
-                    </Button>
-                    <Button
-                      className="text-slate-600 transition-all hover:bg-primary/10 hover:text-primary dark:text-slate-300 dark:hover:bg-primary/20"
-                      disabled={index === questions.length - 1 || pendingReorderId === question.id}
-                      onClick={() => {
-                        void handleReorderQuestion(question.id, "down");
-                      }}
-                      size="icon"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                      <span className="sr-only">Di chuyển xuống</span>
-                    </Button>
+                    <div className="flex flex-wrap items-center justify-end gap-1.5 pb-2 sm:pb-0 sm:pt-2">
+                      <Button
+                        className="h-8 w-8 rounded-xl border-2 border-[#e5e5e5] bg-white text-[#777777] hover:border-[#58cc02] hover:text-[#46a302] dark:border-[#2b3940] dark:bg-[#18252d]"
+                        disabled={index === 0 || pendingReorderId === question.id}
+                        onClick={() => {
+                          void handleReorderQuestion(question.id, "up");
+                        }}
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                        <span className="sr-only">Di chuyển lên</span>
+                      </Button>
+                      <Button
+                        className="h-8 w-8 rounded-xl border-2 border-[#e5e5e5] bg-white text-[#777777] hover:border-[#58cc02] hover:text-[#46a302] dark:border-[#2b3940] dark:bg-[#18252d]"
+                        disabled={index === questions.length - 1 || pendingReorderId === question.id}
+                        onClick={() => {
+                          void handleReorderQuestion(question.id, "down");
+                        }}
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                        <span className="sr-only">Di chuyển xuống</span>
+                      </Button>
 
-                    <QuestionFormDialog
-                      initialData={question}
-                      lessonId={lessonId}
-                      trigger={
-                        <Button
-                          className="border-primary/25 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
-                          size="sm"
-                          type="button"
-                          variant="outline"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Sửa
-                        </Button>
-                      }
-                    />
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          className="transition-all hover:-translate-y-0.5"
-                          size="sm"
-                          type="button"
-                          variant="destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Xóa
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/90">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Xóa câu hỏi?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Xóa câu hỏi sẽ xóa tất cả đáp án và kết quả làm bài liên quan.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Hủy</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            disabled={pendingDeleteId === question.id}
-                            onClick={() => {
-                              void handleDeleteQuestion(question.id);
-                            }}
+                      <QuestionFormDialog
+                        initialData={question}
+                        lessonId={lessonId}
+                        trigger={
+                          <Button
+                            className="h-8 rounded-xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-2.5 text-xs font-extrabold text-[#3c3c3c] hover:border-[#58cc02] hover:text-[#46a302] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
+                            size="sm"
+                            type="button"
+                            variant="ghost"
                           >
-                            {pendingDeleteId === question.id ? "Đang xóa..." : "Xác nhận xóa"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-
-                <AccordionContent className="space-y-4 pb-4">
-                  {question.explanation ? (
-                    <div className="space-y-1 rounded-xl border border-slate-200/80 bg-white p-3 dark:border-slate-700/80 dark:bg-slate-950/75">
-                      <p className="text-xs font-semibold uppercase text-muted-foreground">
-                        Giải thích câu hỏi
-                      </p>
-                      <p className="text-sm">{question.explanation}</p>
-                    </div>
-                  ) : null}
-
-                  <div className="space-y-2">
-                    {(question.type === "ORDERING"
-                      ? [...question.answers].sort(
-                          (left, right) =>
-                            (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
-                            (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
-                        )
-                      : question.answers
-                    ).map((answer, answerIndex) => (
-                      <AnswerCard
-                        answer={answer}
-                        answerIndex={answerIndex}
-                        key={answer.id}
-                        questionType={question.type}
+                            <Pencil className="mr-1 h-3.5 w-3.5" />
+                            Sửa
+                          </Button>
+                        }
                       />
-                    ))}
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            className="h-8 rounded-xl border-2 border-[#ff4b4b]/30 border-b-4 border-b-[#e03838] bg-[#ffebee] px-2.5 text-xs font-extrabold text-[#ff4b4b] hover:bg-[#ffdada] active:translate-y-0.5 active:border-b-2 dark:border-[#ff4b4b]/40 dark:border-b-[#ff4b4b]/80 dark:bg-[#ff4b4b]/20"
+                            size="sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            <Trash2 className="mr-1 h-3.5 w-3.5" />
+                            Xóa
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 dark:border-[#2b3940] dark:bg-[#131f24]">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-lg font-extrabold text-[#3c3c3c] dark:text-white">
+                              Xóa câu hỏi này?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
+                              Hành động này sẽ xóa câu hỏi cùng toàn bộ đáp án liên quan. Bạn có chắc chắn?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter className="mt-4 gap-2">
+                            <AlertDialogCancel className="rounded-xl border-2 border-[#e5e5e5] font-extrabold text-[#3c3c3c] dark:border-[#2b3940] dark:text-white">
+                              Hủy
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              className="rounded-xl border-b-4 border-[#e03838] bg-[#ff4b4b] font-extrabold text-white hover:bg-[#e03838]"
+                              disabled={pendingDeleteId === question.id}
+                              onClick={() => {
+                                void handleDeleteQuestion(question.id);
+                              }}
+                            >
+                              {pendingDeleteId === question.id ? "Đang xóa..." : "Xác nhận xóa"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )
-      ) : null}
-    </section>
-  );
-}
 
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  SINGLE_CHOICE: "Chọn 1 đáp án",
-  MULTIPLE_CHOICE: "Chọn nhiều đáp án",
-  ESSAY: "Tự luận",
-  IMAGE_ESSAY: "Câu hỏi Ảnh (Tự luận)",
-  ORDERING: "Sắp xếp thứ tự",
-  MATCHING: "Ghép đôi",
-};
-
-function AnswerCard({
-  answer,
-  answerIndex,
-  questionType,
-}: {
-  answer: QuestionDetail["answers"][number];
-  answerIndex: number;
-  questionType: QuestionType;
-}) {
-  const answerLabel = String.fromCharCode(65 + answerIndex);
-  const isEssayQuestion =
-    questionType === "ESSAY" || questionType === "IMAGE_ESSAY";
-  const isChoiceQuestion =
-    questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE";
-  const isOrderingQuestion = questionType === "ORDERING";
-  const isMatchingQuestion = questionType === "MATCHING";
-  const answerText = isMatchingQuestion
-    ? `${answer.text} ↔ ${answer.matchText ?? "—"}`
-    : answer.text;
-
-  return (
-    <div
-      className={cn(
-        "rounded-xl border border-slate-200/80 bg-white p-3 shadow-[0_12px_26px_-24px_rgba(15,23,42,0.7)] dark:border-slate-700/80 dark:bg-slate-950/70",
-        isChoiceQuestion && answer.isCorrect
-          ? "border-emerald-300/80 bg-emerald-50/80 shadow-[0_16px_28px_-20px_rgba(16,185,129,0.45)] dark:border-emerald-500/60 dark:bg-emerald-500/10"
-          : "",
-      )}
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">{answerLabel}</Badge>
-        {isEssayQuestion ? (
-          <Badge className="bg-primary text-slate-950 hover:bg-primary">Mẫu</Badge>
-        ) : isOrderingQuestion ? (
-          <Badge variant="outline">Bước</Badge>
-        ) : isMatchingQuestion ? (
-          <Badge className="bg-primary text-slate-950 hover:bg-primary">Cặp đúng</Badge>
-        ) : answer.isCorrect ? (
-          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">Đúng</Badge>
-        ) : (
-          <Badge variant="outline">Sai</Badge>
-        )}
-        <p className="text-sm font-medium">{answerText}</p>
+                  <AccordionContent className="border-t-2 border-[#e5e5e5] pt-3 text-xs dark:border-[#2b3940]">
+                    <div className="space-y-2">
+                      <p className="font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
+                        Danh sách đáp án:
+                      </p>
+                      <div className="grid gap-2">
+                        {question.answers.map((answer) => (
+                          <div
+                            className={cn(
+                              "flex items-start justify-between rounded-xl border-2 p-3 font-bold",
+                              answer.isCorrect
+                                ? "border-[#58cc02]/40 bg-[#e8f5e1] text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
+                                : "border-[#e5e5e5] bg-white text-[#3c3c3c] dark:border-[#2b3940] dark:bg-[#131f24] dark:text-white",
+                            )}
+                            key={answer.id}
+                          >
+                            <div className="space-y-1">
+                              <p>{answer.text}</p>
+                              {answer.explanation ? (
+                                <p className="text-[11px] font-medium text-[#777777] dark:text-slate-400">
+                                  Giải thích: {answer.explanation}
+                                </p>
+                              ) : null}
+                            </div>
+                            {answer.isCorrect ? (
+                              <Badge className="rounded-full bg-[#58cc02] text-white">Đúng</Badge>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )
+        ) : null}
       </div>
-      {isOrderingQuestion ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Thứ tự đúng: {answer.orderIndex ?? answerIndex + 1}
-        </p>
-      ) : null}
-      {answer.explanation ? (
-        <p className="mt-2 text-xs text-muted-foreground">{answer.explanation}</p>
-      ) : null}
-    </div>
+    </section>
   );
 }

@@ -33,7 +33,7 @@ const MarkdownEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[380px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+      <div className="flex h-[380px] items-center justify-center rounded-2xl border-2 border-dashed border-[#e5e5e5] text-xs font-bold text-[#777777] dark:border-[#2b3940] dark:text-slate-400">
         Đang tải trình soạn thảo markdown...
       </div>
     ),
@@ -84,11 +84,11 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   const isEditMode = mode === "edit";
   const isSaving = createLessonMutation.isPending || updateLessonMutation.isPending;
   const panelClassName =
-    "space-y-4 rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_16px_40px_-30px_rgba(12,24,60,0.5)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/60";
+    "space-y-4 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]";
   const fieldClassName =
-    "border-slate-300/80 bg-white/90 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+    "h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white";
   const textareaClassName =
-    "resize-y border-slate-300/80 bg-white/90 leading-7 transition-all duration-300 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-0 dark:border-slate-700/80 dark:bg-slate-950/75";
+    "resize-y rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] leading-7 placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white";
 
   useEffect(() => {
     if (!lesson) {
@@ -276,34 +276,35 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   };
 
   return (
-    <section className="kokonut-glass-card space-y-6 rounded-2xl p-6">
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/75">
-          Biên soạn nội dung
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          {isEditMode ? "Chỉnh sửa bài học" : "Tạo bài học mới"}
-        </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Chia bài học thành từng khối rõ ràng để quản lý thông tin chung, nội dung markdown và
-          hình ảnh đại diện mạch lạc hơn.
-        </p>
-      </div>
+    <section className="space-y-6">
+      <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]">
+        <div className="space-y-1 border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
+          <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
+            Biên soạn nội dung
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#3c3c3c] dark:text-white sm:text-3xl">
+            {isEditMode ? "Chỉnh sửa bài học" : "Tạo bài học mới"}
+          </h1>
+          <p className="text-xs md:text-sm font-bold text-[#777777] dark:text-slate-400">
+            Chia bài học thành từng khối rõ ràng để quản lý thông tin chung, nội dung markdown và
+            hình ảnh đại diện mạch lạc hơn.
+          </p>
+        </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className={panelClassName}>
           <div className="space-y-1">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            <h2 className="text-sm font-extrabold text-[#3c3c3c] dark:text-white">
               Thông tin chung
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
               Điền tiêu đề, danh mục và tóm tắt để học viên nắm rõ trọng tâm bài học.
             </p>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-title">
+              <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="lesson-title">
                 Tiêu đề
               </Label>
               <Input
@@ -317,7 +318,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-category">
+              <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="lesson-category">
                 Danh mục
               </Label>
               <Select onValueChange={setCategoryId} value={categoryId}>
@@ -344,22 +345,22 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-300/80 bg-white/80 p-4 dark:border-slate-700/80 dark:bg-slate-950/55">
+          <div className="rounded-2xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-4 dark:border-[#2b3940] dark:bg-[#111b21]">
             <div className="flex items-start gap-3">
               <Checkbox
                 checked={isPrivate}
-                className="mt-0.5 h-5 w-5"
+                className="mt-0.5 h-5 w-5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:bg-[#58cc02] data-[state=checked]:text-white dark:border-[#2b3940]"
                 id="lesson-private-mode"
                 onCheckedChange={(checked) => setIsPrivate(checked === true)}
               />
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <Label
-                  className="cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200"
+                  className="cursor-pointer text-xs font-extrabold text-[#3c3c3c] dark:text-white"
                   htmlFor="lesson-private-mode"
                 >
                   Chế độ Riêng tư (Kèm 1-1, ẩn với học sinh thường)
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                   Bật tùy chọn này để bài học chỉ hiển thị với học viên đã được cấp quyền truy cập.
                 </p>
               </div>
@@ -368,10 +369,10 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="lesson-summary">
+              <Label className="text-xs font-extrabold text-[#3c3c3c] dark:text-white" htmlFor="lesson-summary">
                 Tóm tắt
               </Label>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                 {summary.length}/{MAX_SUMMARY_LENGTH}
               </span>
             </div>
@@ -389,14 +390,14 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
         <div className={panelClassName}>
           <div className="space-y-1">
-            <Label className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            <Label className="text-sm font-extrabold text-[#3c3c3c] dark:text-white">
               Nội dung bài học (Markdown)
             </Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
               Khu vực trình bày chính cho học viên, ưu tiên bố cục rõ ràng và dễ đọc.
             </p>
           </div>
-          <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 dark:border-slate-800/80 dark:bg-slate-950/70">
+          <div className="overflow-hidden rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
             <MarkdownEditor
               value={contentMd}
               onChange={setContentMd}
@@ -408,10 +409,10 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
 
         <div className={panelClassName}>
           <div className="space-y-1">
-            <Label className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            <Label className="text-sm font-extrabold text-[#3c3c3c] dark:text-white">
               Ảnh bài học (JPEG, PNG, WEBP, AVIF, GIF; tối đa 5MB)
             </Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
               Hình ảnh đại diện giúp bài học trực quan hơn trong danh sách hiển thị.
             </p>
           </div>
@@ -424,10 +425,10 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
           />
 
           <div
-            className={`rounded-2xl border border-dashed p-5 transition-all duration-300 ${
+            className={`rounded-2xl border-2 border-dashed p-6 transition-all ${
               isDraggingImage
-                ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_rgba(29,78,216,0.25),0_14px_30px_-20px_rgba(29,78,216,0.6)]"
-                : "border-slate-300/80 bg-slate-50/75 dark:border-slate-700/80 dark:bg-slate-900/45"
+                ? "border-[#58cc02] bg-[#e8f5e1] dark:bg-[#58cc02]/20"
+                : "border-[#e5e5e5] bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21]"
             }`}
             onDragEnter={(event) => {
               event.preventDefault();
@@ -447,36 +448,36 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
               {imagePreviewUrl ? (
                 <div
                   aria-label="Lesson preview"
-                  className="h-44 w-full max-w-md rounded-xl border border-slate-200/80 bg-white bg-cover bg-center bg-no-repeat dark:border-slate-700/70 dark:bg-slate-950/80"
+                  className="h-44 w-full max-w-md rounded-2xl border-2 border-[#e5e5e5] bg-white bg-cover bg-center bg-no-repeat dark:border-[#2b3940] dark:bg-[#131f24]"
                   role="img"
                   style={{ backgroundImage: `url(${imagePreviewUrl})` }}
                 />
               ) : (
-                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-xl border border-slate-200/80 bg-white dark:border-slate-700/70 dark:bg-slate-950/80">
-                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                <div className="flex h-24 w-full max-w-md items-center justify-center rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
+                  <ImageIcon className="h-6 w-6 text-[#777777] dark:text-slate-400" />
                 </div>
               )}
 
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Kéo thả ảnh vào đây hoặc chọn từ máy</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="space-y-0.5">
+                <p className="text-xs font-extrabold text-[#3c3c3c] dark:text-white">Kéo thả ảnh vào đây hoặc chọn từ máy</p>
+                <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                   Ảnh mới sẽ thay thế ảnh hiện tại khi lưu thay đổi.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                 <Button
-                  className="border-primary/30 bg-white/90 text-primary transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/10 hover:text-primary dark:bg-slate-950/70"
+                  className="h-10 rounded-xl border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-xs font-extrabold text-[#46a302] hover:bg-[#d5f0ca] active:translate-y-0.5 active:border-b-2 dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
                   onClick={() => imageInputRef.current?.click()}
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                 >
-                  <UploadCloud className="mr-2 h-4 w-4" />
+                  <UploadCloud className="mr-1.5 h-4 w-4" />
                   Chọn ảnh
                 </Button>
                 {imageFile ? (
                   <Button
-                    className="text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-slate-200/70 hover:text-foreground dark:hover:bg-slate-800/70"
+                    className="h-10 rounded-xl border-2 border-[#ff4b4b]/30 border-b-4 border-b-[#e03838] bg-[#ffebee] text-xs font-extrabold text-[#ff4b4b] hover:bg-[#ffdada] active:translate-y-0.5 active:border-b-2 dark:border-[#ff4b4b]/40 dark:border-b-[#ff4b4b]/80 dark:bg-[#ff4b4b]/20"
                     onClick={() => {
                       setImageFile(null);
                       if (imageInputRef.current) {
@@ -486,7 +487,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
                     type="button"
                     variant="ghost"
                   >
-                    <X className="mr-2 h-4 w-4" />
+                    <X className="mr-1.5 h-4 w-4" />
                     Bỏ ảnh mới
                   </Button>
                 ) : null}
@@ -495,25 +496,26 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <Button
-            className="h-11 rounded-xl bg-gradient-to-r from-primary to-amber-500 px-6 text-sm font-semibold text-slate-950 shadow-[0_14px_34px_-18px_hsl(var(--primary) / 0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-primary/90 hover:to-amber-500 hover:shadow-[0_18px_36px_-18px_rgba(245,158,11,0.75)]"
-            disabled={isSaving}
-            type="submit"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang lưu...
-              </>
-            ) : isEditMode ? (
-              "Lưu thay đổi"
-            ) : (
-              "Tạo bài học"
-            )}
-          </Button>
-        </div>
-      </form>
+          <div className="flex justify-end pt-2">
+            <Button
+              className="h-12 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-8 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
+              disabled={isSaving}
+              type="submit"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang lưu...
+                </>
+              ) : isEditMode ? (
+                "Lưu thay đổi"
+              ) : (
+                "Tạo bài học"
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }

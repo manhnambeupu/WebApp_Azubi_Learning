@@ -225,7 +225,7 @@ export function MarkdownEditor({
   return (
     <div className="space-y-3">
       {onUploadImage ? (
-        <div className="flex flex-wrap items-center gap-2 px-1">
+        <div className="flex flex-wrap items-center gap-3 px-1">
           <input
             ref={imageInputRef}
             accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
@@ -236,24 +236,25 @@ export function MarkdownEditor({
             type="file"
           />
           <Button
-            type="button"
-            variant="outline"
+            className="h-10 rounded-xl border-2 border-[#58cc02] border-b-4 border-b-[#46a302] bg-[#e8f5e1] text-xs font-extrabold text-[#46a302] hover:bg-[#d5f0ca] active:translate-y-0.5 active:border-b-2 dark:bg-[#58cc02]/20 dark:text-[#58cc02]"
             disabled={isEditorDisabled}
             onClick={() => imageInputRef.current?.click()}
+            type="button"
+            variant="ghost"
           >
             {isUploadingImage ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin text-[#58cc02]" />
                 Đang upload ảnh...
               </>
             ) : (
               <>
-                <ImagePlus className="mr-2 h-4 w-4" />
+                <ImagePlus className="mr-1.5 h-4 w-4 text-[#46a302] dark:text-[#58cc02]" />
                 Upload ảnh vào Markdown
               </>
             )}
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-bold text-[#777777] dark:text-slate-400">
             Hỗ trợ JPEG/PNG/WEBP/AVIF/GIF, tối đa 5MB.
           </span>
         </div>

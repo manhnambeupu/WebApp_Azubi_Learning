@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Loader2, Search, Sparkles, Trash2 } from "lucide-react";
+import { Loader2, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,7 +16,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientPagination } from "@/components/ui/client-pagination";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,7 +37,6 @@ import { ADMIN_CATEGORIES_QUERY_KEY, useGetCategories } from "@/hooks/use-catego
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { cn } from "@/lib/utils";
 
 const CategoryFormDialog = dynamic(
   () =>
@@ -48,7 +46,7 @@ const CategoryFormDialog = dynamic(
   {
     ssr: false,
     loading: () => (
-      <p className="text-xs text-muted-foreground">Đang tải hộp thoại danh mục...</p>
+      <p className="text-xs font-bold text-[#777777] dark:text-slate-400">Đang tải hộp thoại danh mục...</p>
     ),
   },
 );
@@ -122,31 +120,37 @@ export default function AdminCategoriesPage() {
   }, [filteredAndSortedCategories, currentPage]);
 
   return (
-    <section className="space-y-6 kokonut-fade">
-      <Card className="kokonut-glass-card kokonut-glow-border border-primary/15 bg-white/70 shadow-glass dark:bg-slate-900/70">
-        <CardHeader className="flex flex-col gap-4 border-b border-primary/15 bg-gradient-to-r from-primary/5 via-background to-accent/10 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/15 px-3 py-1 text-xs font-medium shadow-[0_8px_20px_-16px_hsl(var(--accent)/0.9)]">
-              <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
-              Categories
+    <section className="space-y-6">
+      <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] shadow-sm">
+        <div className="flex flex-col gap-4 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940] sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302] dark:bg-[#58cc02]/20 dark:text-[#58cc02]">
+              Danh mục
             </div>
-            <CardTitle className="text-2xl">Quản lý danh mục</CardTitle>
-            <CardDescription>Tạo, chỉnh sửa và xóa danh mục bài học.</CardDescription>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#3c3c3c] dark:text-white sm:text-3xl">
+              Quản lý danh mục
+            </h1>
+            <p className="text-xs md:text-sm font-bold text-[#777777] dark:text-slate-400">
+              Tạo, chỉnh sửa và quản lý các danh mục bài học.
+            </p>
           </div>
 
           <CategoryFormDialog
-            triggerClassName="h-11 rounded-xl border border-white/25 bg-gradient-to-r from-primary to-amber-600 px-5 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110"
+            triggerClassName="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2"
             triggerLabel="Thêm danh mục"
           />
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-6 p-6">
+        <div className="space-y-6 pt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+                Tìm kiếm
+              </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777777] dark:text-slate-400" />
                 <Input
-                  className="bg-white/50 pl-9 dark:bg-slate-900/50"
+                  className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] pl-10 text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
@@ -156,7 +160,10 @@ export default function AdminCategoriesPage() {
                 />
               </div>
             </div>
-            <div className="w-full sm:w-[200px]">
+            <div className="w-full sm:w-[200px] space-y-1.5">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300">
+                Sắp xếp
+              </label>
               <Select
                 onValueChange={(value) => {
                   const [key, direction] = value.split("-");
@@ -178,10 +185,10 @@ export default function AdminCategoriesPage() {
                 }}
                 value={`${sortKey}-${sortDirection}`}
               >
-                <SelectTrigger className="bg-white/50 dark:bg-slate-900/50">
+                <SelectTrigger className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white">
                   <SelectValue placeholder="Sắp xếp" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
                   <SelectItem value="default-asc">Mặc định</SelectItem>
                   <SelectItem value="name-asc">Tên (A-Z)</SelectItem>
                   <SelectItem value="name-desc">Tên (Z-A)</SelectItem>
@@ -193,88 +200,91 @@ export default function AdminCategoriesPage() {
           </div>
 
           {categoriesQuery.isLoading ? (
-            <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 rounded-2xl border-2 border-[#58cc02]/30 bg-[#e8f5e1] p-4 text-xs font-extrabold text-[#46a302]">
               <Loader2 className="h-4 w-4 animate-spin" />
               Đang tải danh mục...
             </div>
           ) : null}
 
           {categoriesQuery.isError ? (
-            <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
               {getApiErrorMessage(categoriesQuery.error)}
             </p>
           ) : null}
 
           {categoriesQuery.data ? (
             <>
-              <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white/85 shadow-glass dark:bg-slate-900/85">
+              <div className="overflow-hidden rounded-2xl border-2 border-[#e5e5e5] bg-white shadow-sm dark:border-[#2b3940] dark:bg-[#131f24]">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-primary/15 bg-primary/5 hover:bg-primary/5">
-                      <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                    <TableRow className="border-b-2 border-[#e5e5e5] bg-[#f7f7f7] hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] dark:hover:bg-[#111b21]">
+                      <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                         Tên danh mục
                       </TableHead>
-                      <TableHead className="h-11 px-4 text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                      <TableHead className="h-12 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                         Số bài học
                       </TableHead>
-                      <TableHead className="w-[220px] px-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-600/90 dark:text-slate-400">
+                      <TableHead className="w-[220px] px-4 text-right text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">
                         Thao tác
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredAndSortedCategories.length === 0 ? (
-                      <TableRow className="border-primary/10 hover:bg-transparent">
-                        <TableCell className="py-10 text-center text-muted-foreground" colSpan={3}>
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell className="py-12 text-center text-sm font-bold text-[#777777] dark:text-slate-400" colSpan={3}>
                           Chưa có danh mục nào khớp với thẻ lọc.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      paginatedCategories.map((category, index) => (
+                      paginatedCategories.map((category) => (
                         <TableRow
-                          className={cn(
-                            "group/row border-primary/10 transition-colors duration-300 hover:bg-primary/[0.04]",
-                            index % 2 === 0
-                              ? "bg-white/90 dark:bg-slate-900/90"
-                              : "bg-slate-50/45 dark:bg-slate-800/45",
-                          )}
+                          className="border-b border-[#e5e5e5] transition-colors hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:hover:bg-[#18252d]"
                           key={category.id}
                         >
-                          <TableCell className="px-4 py-4 font-medium">{category.name}</TableCell>
-                          <TableCell className="px-4 py-4">{category.lessonCount}</TableCell>
+                          <TableCell className="px-4 py-4 font-extrabold text-[#3c3c3c] dark:text-white">
+                            {category.name}
+                          </TableCell>
+                          <TableCell className="px-4 py-4 font-bold text-[#777777] dark:text-slate-300">
+                            {category.lessonCount}
+                          </TableCell>
                           <TableCell className="px-4 py-4 text-right">
-                            <div className="flex justify-end gap-2 opacity-100 transition-opacity duration-300 md:pointer-events-none md:opacity-0 md:group-hover/row:pointer-events-auto md:group-hover/row:opacity-100">
+                            <div className="flex justify-end items-center gap-2">
                               <CategoryFormDialog
                                 initialData={{ id: category.id, name: category.name }}
-                                triggerClassName="h-8 rounded-full border-primary/25 bg-white/90 px-3 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
+                                triggerClassName="h-9 rounded-xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-3 text-xs font-extrabold text-[#3c3c3c] hover:border-[#58cc02] hover:text-[#46a302] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
                                 triggerLabel="Sửa"
-                                triggerVariant="outline"
+                                triggerVariant="ghost"
                               />
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button
-                                    className="h-8 rounded-full"
+                                    className="h-9 rounded-xl border-2 border-[#ff4b4b]/30 border-b-4 border-b-[#e03838] bg-[#ffebee] px-3 text-xs font-extrabold text-[#ff4b4b] hover:bg-[#ffdada] active:translate-y-0.5 active:border-b-2 dark:border-[#ff4b4b]/40 dark:border-b-[#ff4b4b]/80 dark:bg-[#ff4b4b]/20"
                                     disabled={deleteMutation.isPending && pendingDeleteId === category.id}
                                     size="sm"
-                                    variant="destructive"
+                                    variant="ghost"
                                   >
                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                     Xóa
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
+                                <AlertDialogContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white p-6 dark:border-[#2b3940] dark:bg-[#131f24]">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Xóa danh mục?</AlertDialogTitle>
-                                    <AlertDialogDescription>
+                                    <AlertDialogTitle className="text-lg font-extrabold text-[#3c3c3c] dark:text-white">
+                                      Xóa danh mục?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
                                       Hành động này không thể hoàn tác. Nếu danh mục còn bài học,
                                       hệ thống sẽ từ chối xóa theo quy tắc nghiệp vụ.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                  <AlertDialogFooter className="mt-4 gap-2">
+                                    <AlertDialogCancel className="rounded-xl border-2 border-[#e5e5e5] font-extrabold text-[#3c3c3c] dark:border-[#2b3940] dark:text-white">
+                                      Hủy
+                                    </AlertDialogCancel>
                                     <AlertDialogAction
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      className="rounded-xl border-b-4 border-[#e03838] bg-[#ff4b4b] font-extrabold text-white hover:bg-[#e03838]"
                                       onClick={() => handleDelete(category.id)}
                                     >
                                       Xác nhận xóa
@@ -291,7 +301,7 @@ export default function AdminCategoriesPage() {
                 </Table>
               </div>
 
-              <div className="py-4">
+              <div className="py-2">
                 <ClientPagination
                   currentPage={currentPage}
                   totalItems={filteredAndSortedCategories.length}
@@ -301,8 +311,8 @@ export default function AdminCategoriesPage() {
               </div>
             </>
           ) : null}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { Heart, Mail, MessageCircle } from "lucide-react";
 
 export function StudentFooter() {
   return (
-    <footer className="mt-auto w-full border-t border-slate-200/60 bg-white/40 backdrop-blur-[12px] dark:border-slate-800/60 dark:bg-slate-950/40">
+    <footer className="mt-auto w-full border-t-2 border-[#e5e5e5] bg-white text-[#3c3c3c] dark:border-[#2b3940] dark:bg-[#131f24] dark:text-white">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
           {/* Cột trái: Avatar + Nhắn nhủ */}
@@ -16,25 +16,25 @@ export function StudentFooter() {
                   alt="Jason - Giảng viên kèm học 1-1"
                   width={56}
                   height={56}
-                  className="rounded-full object-cover ring-2 ring-slate-200/60 shadow-md dark:ring-slate-700/60"
+                  className="rounded-full object-cover ring-4 ring-[#e8f5e1] border-2 border-[#58cc02] dark:ring-[#58cc02]/20"
                 />
                 {/* Online Status Dot */}
-                <span className="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-900">
+                <span className="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full border-2 border-white bg-[#58cc02] dark:border-slate-900">
                 </span>
               </div>
 
               <div>
-                <h4 className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100">
+                <h4 className="flex items-center gap-2 text-base font-extrabold tracking-tight text-[#3c3c3c] dark:text-white">
                   Bạn Cần Hỗ Trợ Kèm 1-1?
-                  <Heart className="h-5 w-5 animate-pulse fill-rose-500/20 text-rose-500" />
+                  <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
                 </h4>
-                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                <p className="text-xs font-extrabold text-[#46a302] dark:text-[#58cc02]">
                   Jason • Sẵn sàng hỗ trợ
                 </p>
               </div>
             </div>
 
-            <p className="max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
+            <p className="max-w-md text-xs font-bold leading-relaxed text-[#777777] dark:text-slate-400">
               Nhận gia sư dạy học kèm 1-1 nghành Fachkraft für Gastronomie. Hãy liên hệ ngay để bắt đầu! ❤️
             </p>
           </div>
@@ -45,35 +45,33 @@ export function StudentFooter() {
               href="https://wa.me/4915758084635"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex h-12 w-full max-w-xs items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 sm:w-fit hover:border-emerald-500/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="flex h-12 w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] px-5 text-xs font-extrabold text-[#3c3c3c] transition-all hover:border-[#58cc02] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white sm:w-fit"
             >
-              <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover:translate-x-[100%]"></div>
-              <MessageCircle className="h-5 w-5 text-emerald-600 transition-transform group-hover:scale-110 dark:text-emerald-400" />
-              <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
-                +49 15758084635
-              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e8f5e1] text-[#46a302]">
+                <MessageCircle className="h-4 w-4" />
+              </div>
+              <span>+49 15758084635</span>
             </a>
 
             <a
               href="mailto:jasonluong@azubivn.de"
-              className="group relative flex h-12 w-full max-w-xs items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-blue-500/30 bg-blue-500/10 px-6 sm:w-fit hover:border-blue-500/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="flex h-12 w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-[#f7f7f7] px-5 text-xs font-extrabold text-[#3c3c3c] transition-all hover:border-[#58cc02] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white sm:w-fit"
             >
-              <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover:translate-x-[100%]"></div>
-              <Mail className="h-5 w-5 text-blue-600 transition-transform group-hover:scale-110 dark:text-blue-400" />
-              <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                jasonluong@azubivn.de
-              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e0f2fe] text-[#0284c7]">
+                <Mail className="h-4 w-4" />
+              </div>
+              <span>jasonluong@azubivn.de</span>
             </a>
           </div>
         </div>
       </div>
-      <div className="border-t border-slate-200/40 dark:border-slate-800/40">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 px-4 text-xs text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
+      <div className="border-t-2 border-[#e5e5e5] dark:border-[#2b3940]">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 px-4 text-xs font-bold text-[#777777] dark:text-slate-400 sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} Azubi Learning Portal. Alle Rechte vorbehalten.</p>
           <div className="flex items-center gap-4">
-            <a href="/impressum" className="hover:text-slate-800 dark:hover:text-slate-200 hover:underline">Impressum</a>
-            <span aria-hidden="true" className="opacity-40">•</span>
-            <a href="/datenschutz" className="hover:text-slate-800 dark:hover:text-slate-200 hover:underline">Datenschutz</a>
+            <a href="/impressum" className="hover:text-[#58cc02] hover:underline">Impressum</a>
+            <span>•</span>
+            <a href="/datenschutz" className="hover:text-[#58cc02] hover:underline">Datenschutz</a>
           </div>
         </div>
       </div>

@@ -143,12 +143,12 @@ export default function RootLayout({
         <JsonLd data={brandEntitySchemas} />
         <ServiceWorkerRegister />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <div className="relative isolate min-h-screen overflow-x-hidden">
+          <div className="relative min-h-screen">
             <div role="presentation">
               <LearningBackdrop />
             </div>
             <QueryProvider>
-              <main className="relative z-10 kokonut-fade">{children}</main>
+              <main className="relative z-10">{children}</main>
               <Toaster />
             </QueryProvider>
           </div>

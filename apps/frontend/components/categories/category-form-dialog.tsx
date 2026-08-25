@@ -100,27 +100,29 @@ export function CategoryFormDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button className={cn("rounded-full", triggerClassName)} size="sm" variant={triggerVariant}>
+        <Button className={cn(triggerClassName)} size="sm" variant={triggerVariant}>
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 shadow-2xl dark:border-[#2b3940] dark:bg-[#131f24]">
+        <DialogHeader className="border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
+          <DialogTitle className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
             {isEditMode ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
             {isEditMode
               ? "Cập nhật tên danh mục và lưu thay đổi."
               : "Nhập tên danh mục để tạo mới."}
           </DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="category-name">Tên danh mục</Label>
+        <form className="space-y-4 pt-2" onSubmit={onSubmit}>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="category-name">
+              Tên danh mục
+            </Label>
             <Input
-              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="category-name"
               onChange={(event) => setName(event.target.value)}
               placeholder="Ví dụ: Buồng phòng"
@@ -128,13 +130,13 @@ export function CategoryFormDialog({
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-2">
             <Button
-              className="rounded-full border border-white/30 bg-gradient-to-r from-primary to-amber-600 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110"
+              className="h-11 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
               disabled={mutation.isPending}
               type="submit"
             >
-              {mutation.isPending ? "Đang lưu..." : "Lưu"}
+              {mutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

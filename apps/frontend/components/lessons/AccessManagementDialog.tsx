@@ -94,37 +94,45 @@ export function AccessManagementDialog({ lessonId }: AccessManagementDialogProps
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button
-          className="rounded-full border-primary/25 bg-white/90 hover:border-primary/40 hover:bg-white dark:bg-slate-950/90 dark:hover:bg-slate-950"
+          className="h-9 rounded-xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-3 text-xs font-extrabold text-[#3c3c3c] hover:border-[#58cc02] hover:text-[#46a302] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
           size="sm"
-          variant="outline"
+          variant="ghost"
         >
-          <ShieldCheck className="mr-2 h-4 w-4" />
+          <ShieldCheck className="mr-1.5 h-3.5 w-3.5 text-[#58cc02]" />
           Quản lý quyền
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl border-primary/15 bg-white/90 shadow-glass backdrop-blur-xl dark:bg-slate-950/90">
-        <DialogHeader>
-          <DialogTitle>Quản lý quyền truy cập bài học</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-2xl rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 shadow-2xl dark:border-[#2b3940] dark:bg-[#131f24]">
+        <DialogHeader className="border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
+          <DialogTitle className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+            Quản lý quyền truy cập bài học
+          </DialogTitle>
+          <DialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
             Thêm hoặc thu hồi học viên được phép xem bài học riêng tư này.
           </DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-2" onSubmit={handleGrantAccess}>
-          <Label htmlFor={`grant-access-email-${lessonId}`}>Nhập Email học viên...</Label>
+        <form className="space-y-2 pt-2" onSubmit={handleGrantAccess}>
+          <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor={`grant-access-email-${lessonId}`}>
+            Nhập Email học viên...
+          </Label>
           <div className="flex gap-2">
             <Input
-              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id={`grant-access-email-${lessonId}`}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="student@example.com"
               value={email}
             />
-            <Button disabled={grantAccessMutation.isPending} type="submit">
+            <Button
+              className="h-11 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-5 text-xs font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
+              disabled={grantAccessMutation.isPending}
+              type="submit"
+            >
               {grantAccessMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
               ) : (
-                <UserPlus className="mr-2 h-4 w-4" />
+                <UserPlus className="mr-1.5 h-4 w-4" />
               )}
               THÊM
             </Button>
@@ -132,54 +140,55 @@ export function AccessManagementDialog({ lessonId }: AccessManagementDialogProps
         </form>
 
         {accessListQuery.isError ? (
-          <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
             {getApiErrorMessage(accessListQuery.error)}
           </p>
         ) : null}
 
-        <div className="max-h-[360px] overflow-auto rounded-xl border border-primary/15">
+        <div className="max-h-[360px] overflow-auto rounded-2xl border-2 border-[#e5e5e5] bg-white shadow-sm dark:border-[#2b3940] dark:bg-[#111b21]">
           <Table>
             <TableHeader>
-              <TableRow className="bg-primary/5">
-                <TableHead>Email</TableHead>
-                <TableHead>Họ Tên</TableHead>
-                <TableHead className="text-right">Hành động</TableHead>
+              <TableRow className="border-b-2 border-[#e5e5e5] bg-[#f7f7f7] hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:bg-[#111b21] dark:hover:bg-[#111b21]">
+                <TableHead className="h-11 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">Email</TableHead>
+                <TableHead className="h-11 px-4 text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">Họ Tên</TableHead>
+                <TableHead className="h-11 px-4 text-right text-xs font-extrabold uppercase tracking-wider text-[#777777] dark:text-slate-400">Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {accessListQuery.isLoading ? (
                 <TableRow>
-                  <TableCell className="py-6 text-center text-muted-foreground" colSpan={3}>
+                  <TableCell className="py-6 text-center text-xs font-bold text-[#777777] dark:text-slate-400" colSpan={3}>
                     <span className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-[#58cc02]" />
                       Đang tải danh sách quyền...
                     </span>
                   </TableCell>
                 </TableRow>
               ) : (accessListQuery.data ?? []).length === 0 ? (
                 <TableRow>
-                  <TableCell className="py-6 text-center text-muted-foreground" colSpan={3}>
+                  <TableCell className="py-6 text-center text-xs font-bold text-[#777777] dark:text-slate-400" colSpan={3}>
                     Chưa có học viên nào được cấp quyền.
                   </TableCell>
                 </TableRow>
               ) : (
                 (accessListQuery.data ?? []).map((access) => (
-                  <TableRow key={access.id}>
-                    <TableCell>{access.user.email}</TableCell>
-                    <TableCell>{access.user.fullName}</TableCell>
-                    <TableCell className="text-right">
+                  <TableRow className="border-b border-[#e5e5e5] transition-colors hover:bg-[#f7f7f7] dark:border-[#2b3940] dark:hover:bg-[#18252d]" key={access.id}>
+                    <TableCell className="px-4 py-3 font-extrabold text-[#3c3c3c] dark:text-white">{access.user.email}</TableCell>
+                    <TableCell className="px-4 py-3 font-bold text-[#777777] dark:text-slate-300">{access.user.fullName}</TableCell>
+                    <TableCell className="px-4 py-3 text-right">
                       <Button
+                        className="h-8 rounded-xl border-2 border-[#ff4b4b]/30 border-b-4 border-b-[#e03838] bg-[#ffebee] px-3 text-xs font-extrabold text-[#ff4b4b] hover:bg-[#ffdada] active:translate-y-0.5 active:border-b-2 dark:border-[#ff4b4b]/40 dark:border-b-[#ff4b4b]/80 dark:bg-[#ff4b4b]/20"
                         disabled={pendingDeleteUserId === access.userId}
                         onClick={() => {
                           void handleRevokeAccess(access.userId);
                         }}
                         size="sm"
-                        variant="destructive"
+                        variant="ghost"
                       >
                         {pendingDeleteUserId === access.userId ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Trash2 className="mr-2 h-4 w-4" />
+                          <Trash2 className="mr-1 h-3.5 w-3.5" />
                         )}
                         Xóa
                       </Button>

@@ -120,24 +120,28 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
       open={open}
     >
       <DialogTrigger asChild>
-        <Button className={cn("rounded-full", triggerClassName)}>
+        <Button className={cn(triggerClassName)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Thêm học viên
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-primary/15 bg-white/85 shadow-glass backdrop-blur-xl data-[state=open]:animate-slide-up dark:bg-slate-950/85">
-        <DialogHeader>
-          <DialogTitle>Tạo học viên mới</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="rounded-[24px] border-2 border-[#e5e5e5] bg-white p-6 shadow-2xl dark:border-[#2b3940] dark:bg-[#131f24]">
+        <DialogHeader className="border-b-2 border-[#e5e5e5] pb-4 dark:border-[#2b3940]">
+          <DialogTitle className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+            Tạo học viên mới
+          </DialogTitle>
+          <DialogDescription className="text-xs font-bold text-[#777777] dark:text-slate-400">
             Nhập thông tin tài khoản để thêm học viên vào hệ thống.
           </DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="student-email">Email</Label>
+        <form className="space-y-4 pt-2" onSubmit={handleSubmit}>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="student-email">
+              Email
+            </Label>
             <Input
-              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="student-email"
               onChange={(event) => setEmail(event.target.value)}
               placeholder="student@azubi.de"
@@ -145,28 +149,32 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
               value={email}
             />
             {fieldErrors.email ? (
-              <p className="text-xs text-destructive">{fieldErrors.email}</p>
+              <p className="text-xs font-extrabold text-[#ff4b4b]">{fieldErrors.email}</p>
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="student-full-name">Họ tên</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="student-full-name">
+              Họ tên
+            </Label>
             <Input
-              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="student-full-name"
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Nguyễn Văn A"
               value={fullName}
             />
             {fieldErrors.fullName ? (
-              <p className="text-xs text-destructive">{fieldErrors.fullName}</p>
+              <p className="text-xs font-extrabold text-[#ff4b4b]">{fieldErrors.fullName}</p>
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="student-password">Mật khẩu</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-extrabold uppercase tracking-wider text-[#3c3c3c] dark:text-slate-300" htmlFor="student-password">
+              Mật khẩu
+            </Label>
             <Input
-              className="border-primary/20 bg-white/85 dark:bg-slate-900/85"
+              className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-sm font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
               id="student-password"
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Tối thiểu 6 ký tự"
@@ -174,19 +182,19 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
               value={password}
             />
             {fieldErrors.password ? (
-              <p className="text-xs text-destructive">{fieldErrors.password}</p>
+              <p className="text-xs font-extrabold text-[#ff4b4b]">{fieldErrors.password}</p>
             ) : null}
           </div>
 
           {apiError ? (
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-3 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
               {apiError}
             </p>
           ) : null}
 
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-2">
             <Button
-              className="rounded-full border border-white/30 bg-gradient-to-r from-primary to-amber-600 text-slate-950 shadow-glow-soft transition-all duration-300 hover:brightness-110"
+              className="h-11 rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#46a302] active:translate-y-0.5 active:border-b-2 disabled:opacity-50"
               disabled={!canSubmit || isSubmitting}
               type="submit"
             >
@@ -196,7 +204,7 @@ export function CreateStudentDialog({ triggerClassName }: CreateStudentDialogPro
                   Đang tạo...
                 </>
               ) : (
-                "Tạo học viên"
+                "Tạo tài khoản"
               )}
             </Button>
           </DialogFooter>

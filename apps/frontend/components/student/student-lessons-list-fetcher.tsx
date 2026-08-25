@@ -46,7 +46,7 @@ export function StudentLessonsListFetcher() {
 
   if (lessonsQuery.isError) {
     return (
-      <p className="rounded-xl border border-destructive/35 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+      <p className="rounded-2xl border-2 border-[#ff4b4b]/40 bg-[#ffebee] p-4 text-xs font-extrabold text-[#ff4b4b] dark:bg-[#ff4b4b]/15">
         {getApiErrorMessage(lessonsQuery.error)}
       </p>
     );
@@ -54,10 +54,10 @@ export function StudentLessonsListFetcher() {
 
   if (!lessonsQuery.data || lessonsQuery.data.length === 0) {
     return (
-      <div className="kokonut-glass-card flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/25 bg-white/65 px-6 py-16 text-center shadow-glass dark:bg-slate-950/45">
-        <BookOpenText className="h-10 w-10 text-muted-foreground" />
-        <h2 className="mt-4 text-lg font-semibold">Chưa có bài học nào</h2>
-        <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+      <div className="flex flex-col items-center justify-center rounded-[24px] border-2 border-dashed border-[#e5e5e5] bg-white px-6 py-16 text-center shadow-sm dark:border-[#2b3940] dark:bg-[#131f24]">
+        <BookOpenText className="h-10 w-10 text-[#777777] dark:text-slate-400" />
+        <h2 className="mt-4 text-base font-extrabold text-[#3c3c3c] dark:text-white">Chưa có bài học nào</h2>
+        <p className="mt-1 max-w-md text-xs font-bold text-[#777777] dark:text-slate-400">
           Danh sách bài học sẽ hiển thị tại đây khi nội dung được phát hành.
         </p>
       </div>
@@ -66,23 +66,24 @@ export function StudentLessonsListFetcher() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-primary/10 bg-white/60 p-4 shadow-sm dark:bg-slate-950/40 sm:flex-row sm:items-center sm:justify-between">
+      {/* Search & Filter Bar */}
+      <div className="mb-6 flex flex-col gap-4 rounded-[20px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-4 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777777] dark:text-slate-400" />
           <Input
             placeholder="Tìm kiếm tên bài học, nội dung..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="border-primary/20 bg-white/80 pl-9 focus-visible:ring-primary/30 dark:bg-slate-900/80"
+            className="h-11 rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] pl-10 text-xs font-bold text-[#3c3c3c] placeholder:text-[#a0a0a0] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white"
           />
         </div>
 
         <div className="flex items-center gap-3">
           <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-            <SelectTrigger className="w-[180px] border-primary/20 bg-white/80 dark:bg-slate-900/80">
+            <SelectTrigger className="h-11 w-[180px] rounded-xl border-2 border-[#e5e5e5] bg-[#f7f7f7] text-xs font-bold text-[#3c3c3c] focus-visible:border-[#58cc02] focus-visible:ring-0 focus-visible:outline-none dark:border-[#2b3940] dark:bg-[#111b21] dark:text-white">
               <SelectValue placeholder="Chọn danh mục" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-2xl border-2 border-[#e5e5e5] bg-white dark:border-[#2b3940] dark:bg-[#131f24]">
               <SelectItem value="ALL">Tất cả danh mục</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
@@ -101,7 +102,7 @@ export function StudentLessonsListFetcher() {
                 setSelectedCategoryId("ALL");
               }}
               title="Xóa bộ lọc"
-              className="h-10 w-10 text-muted-foreground hover:text-destructive"
+              className="h-10 w-10 rounded-xl border-2 border-[#e5e5e5] text-[#777777] hover:border-[#ff4b4b] hover:text-[#ff4b4b] dark:border-[#2b3940] dark:text-slate-400"
             >
               <FilterX className="h-4 w-4" />
             </Button>
@@ -110,10 +111,10 @@ export function StudentLessonsListFetcher() {
       </div>
 
       {filteredLessons.length === 0 ? (
-        <div className="kokonut-glass-card flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/25 bg-white/65 px-6 py-16 text-center shadow-glass dark:bg-slate-950/45">
-          <BookOpenText className="h-10 w-10 text-muted-foreground" />
-          <h2 className="mt-4 text-lg font-semibold">Không tìm thấy bài học phù hợp</h2>
-          <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+        <div className="flex flex-col items-center justify-center rounded-[24px] border-2 border-dashed border-[#e5e5e5] bg-white px-6 py-16 text-center shadow-sm dark:border-[#2b3940] dark:bg-[#131f24]">
+          <BookOpenText className="h-10 w-10 text-[#777777] dark:text-slate-400" />
+          <h2 className="mt-4 text-base font-extrabold text-[#3c3c3c] dark:text-white">Không tìm thấy bài học phù hợp</h2>
+          <p className="mt-1 max-w-md text-xs font-bold text-[#777777] dark:text-slate-400">
             Hãy thử từ khóa khác hoặc thay đổi danh mục để xem thêm bài học.
           </p>
         </div>
