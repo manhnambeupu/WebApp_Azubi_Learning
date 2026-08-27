@@ -20,7 +20,6 @@ const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
 export function InactivityProvider({ children }: InactivityProviderProps) {
   const pathname = usePathname();
 
-// eslint-disable-next-line react-doctor/effect-needs-cleanup
   useEffect(() => {
     if (pathname === "/login") {
       return;
