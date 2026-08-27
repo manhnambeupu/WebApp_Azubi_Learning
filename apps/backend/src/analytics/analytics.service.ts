@@ -319,7 +319,7 @@ export class AnalyticsService {
 
     const lessons = Array.from(attemptsByLesson.entries()).map(
       ([lessonId, lessonAttempts]) => {
-        const sortedAttempts = [...lessonAttempts].sort(
+        const sortedAttempts = lessonAttempts.toSorted(
           (left, right) => left.attemptNumber - right.attemptNumber,
         );
         const scoreAttempts = sortedAttempts.filter(

@@ -47,20 +47,28 @@ export class MinioService implements OnModuleInit {
       this.parsedEndpoint.port ??
       (this.useSSL ? 443 : 9000),
   );
-  private readonly accessKey = process.env.MINIO_ACCESS_KEY ?? 'minioadmin';
-  private readonly secretKey = process.env.MINIO_SECRET_KEY ?? 'minioadmin';
+  private readonly accessKey = process.env.MINIO_ACCESS_KEY;
+  private readonly secretKey = process.env.MINIO_SECRET_KEY;
   private readonly publicBaseUrl = (
     process.env.MINIO_PUBLIC_URL ??
     `${this.useSSL ? 'https' : 'http'}://${this.parsedEndpoint.hostname}:${this.port}`
   ).replace(/\/$/, '');
 
-  private readonly client = new Client({
-    endPoint: this.parsedEndpoint.hostname,
-    port: this.port,
-    useSSL: this.useSSL,
-    accessKey: this.accessKey,
-    secretKey: this.secretKey,
-  });
+  private readonly client: Client;
+
+  constructor() {
+    if (!this.accessKey || !this.secretKey) {
+      throw new Error('MINIO_ACCESS_KEY and MINIO_SECRET_KEY must be defined in environment variables');
+    }
+
+    this.client = new Client({
+      endPoint: this.parsedEndpoint.hostname,
+      port: this.port,
+      useSSL: this.useSSL,
+      accessKey: this.accessKey,
+      secretKey: this.secretKey,
+    });
+  }
 
   async onModuleInit(): Promise<void> {
     await this.ensureBucketExists(LESSON_IMAGES_BUCKET);

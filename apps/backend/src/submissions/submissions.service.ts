@@ -423,8 +423,9 @@ export class SubmissionsService {
           );
         }
 
+        const submittedAnswerSet = new Set(submittedAnswerIds);
         for (const answer of question.answers) {
-          if (!submittedAnswerIds.includes(answer.id)) {
+          if (!submittedAnswerSet.has(answer.id)) {
             throw new UnprocessableEntityException(
               ORDERING_REQUIRED_ALL_ANSWERS_MESSAGE,
             );
@@ -623,8 +624,8 @@ export class SubmissionsService {
     }
 
     if (question.type === QuestionType.ORDERING) {
-      const expectedAnswerIds = [...question.answers]
-        .sort(
+      const expectedAnswerIds = question.answers
+        .toSorted(
           (left, right) =>
             (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
             (right.orderIndex ?? Number.MAX_SAFE_INTEGER),
@@ -678,8 +679,9 @@ export class SubmissionsService {
       };
     }
 
+    const selectedAnswerSet = new Set(selectedAnswerIds);
     const selectedAnswers = question.answers.filter((answer) =>
-      selectedAnswerIds.includes(answer.id),
+      selectedAnswerSet.has(answer.id),
     );
     const hasWrongSelection = selectedAnswers.some((answer) => !answer.isCorrect);
     if (hasWrongSelection) {
