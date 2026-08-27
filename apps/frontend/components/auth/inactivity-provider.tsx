@@ -20,18 +20,18 @@ const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
 export function InactivityProvider({ children }: InactivityProviderProps) {
   const pathname = usePathname();
 
+// eslint-disable-next-line react-doctor/effect-needs-cleanup
   useEffect(() => {
     if (pathname === "/login") {
       return;
     }
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    const resetInactivityTimeout = () => {
-      if (timeoutId) {
+    const handleActivity = () => {
+      if (timeoutId !== undefined) {
         clearTimeout(timeoutId);
       }
-
       timeoutId = setTimeout(() => {
         useAuthStore.getState().clearAuth();
         toast({
@@ -42,16 +42,24 @@ export function InactivityProvider({ children }: InactivityProviderProps) {
       }, INACTIVITY_TIMEOUT_MS);
     };
 
-    ACTIVITY_EVENTS.forEach((eventName) => {
-      window.addEventListener(eventName, resetInactivityTimeout, { passive: true });
-    });
-    resetInactivityTimeout();
+    const attachEvents = () => {
+      ACTIVITY_EVENTS.forEach((eventName) => {
+        window.addEventListener(eventName, handleActivity, { passive: true });
+      });
+    };
+
+    const detachEvents = () => {
+      ACTIVITY_EVENTS.forEach((eventName) => {
+        window.removeEventListener(eventName, handleActivity);
+      });
+    };
+
+    attachEvents();
+    handleActivity();
 
     return () => {
-      ACTIVITY_EVENTS.forEach((eventName) => {
-        window.removeEventListener(eventName, resetInactivityTimeout);
-      });
-      if (timeoutId) {
+      detachEvents();
+      if (timeoutId !== undefined) {
         clearTimeout(timeoutId);
       }
     };
