@@ -166,7 +166,7 @@ export default function Home() {
         <LingoThemeToggle />
       </div>
       <section className="lingo-hero relative min-h-[90vh] flex flex-col items-center justify-center px-6 py-16 text-center">
-        <Image src="/images/bg-login.jpg" alt="" fill priority className="object-cover" />
+        <Image src="/images/bg-login.jpg" alt="" fill sizes="100vw" priority className="object-cover" />
         <div className="lingo-hero-overlay" />
         <div className="relative z-10 flex flex-col items-center gap-8 max-w-4xl mx-auto">
           <Image
@@ -394,18 +394,18 @@ export default function Home() {
             </div>
             <div>
               <h3 className="font-bold text-white/90 mb-4">Pháp lý</h3>
-              <a
+              <Link
                 href="/impressum"
                 className="block text-white/70 hover:text-white transition-colors mb-2 text-sm"
               >
                 Impressum
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/datenschutz"
                 className="block text-white/70 hover:text-white transition-colors mb-2 text-sm"
               >
                 Datenschutzerklärung
-              </a>
+              </Link>
             </div>
             <div>
               <h3 className="font-bold text-white/90 mb-4">Liên hệ</h3>
