@@ -84,6 +84,3 @@ export const fetchStudentsSummary = () =>
 
 export const fetchStudentDetail = (studentId: string) =>
   api.get<StudentDetail>(`/admin/analytics/students/${studentId}`).then((r) => r.data);
-
-export const deleteStudentAnalytics = (studentId: string) =>
-  api.delete(`/admin/analytics/students/${studentId}`).then((r) => r.data);
