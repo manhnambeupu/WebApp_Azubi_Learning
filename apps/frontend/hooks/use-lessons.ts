@@ -155,6 +155,7 @@ export function useUploadLessonFile(lessonId: string) {
 }
 
 export function useUploadLessonMarkdownImage() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -164,6 +165,9 @@ export function useUploadLessonMarkdownImage() {
         formData,
       );
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_LESSONS_QUERY_KEY });
     },
   });
 }
