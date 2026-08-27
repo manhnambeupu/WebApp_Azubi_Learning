@@ -10,12 +10,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const studentSkeletonVariants = [
-  "sm:col-span-2 xl:col-span-3",
-  "xl:col-span-2",
-  "xl:col-span-1",
-  "xl:col-span-2",
-  "sm:col-span-2 xl:col-span-3",
-  "xl:col-span-1",
+  { id: "skel-1", class: "sm:col-span-2 xl:col-span-3" },
+  { id: "skel-2", class: "xl:col-span-2" },
+  { id: "skel-3", class: "xl:col-span-1" },
+  { id: "skel-4", class: "xl:col-span-2" },
+  { id: "skel-5", class: "sm:col-span-2 xl:col-span-3" },
+  { id: "skel-6", class: "xl:col-span-1" },
 ];
 
 type LessonsTableSkeletonProps = {
@@ -25,13 +25,13 @@ type LessonsTableSkeletonProps = {
 export function LessonsGridSkeleton() {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-6">
-      {studentSkeletonVariants.map((variant, index) => (
+      {studentSkeletonVariants.map((item) => (
         <div
           className={cn(
             "space-y-4 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-5 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24]",
-            variant,
+            item.class,
           )}
-          key={index}
+          key={item.id}
         >
           <Skeleton className="h-44 w-full rounded-2xl bg-[#f0f0f0] dark:bg-[#18252d]" />
           <div className="space-y-2">
