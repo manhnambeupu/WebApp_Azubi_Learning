@@ -172,6 +172,40 @@ model ActivitySession {
   @@map("activity_sessions")
 }
 
+enum EmailDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model EmailCampaign {
+  id              String             @id @default(uuid()) @db.Uuid
+  subject         String
+  totalRecipients Int                @map("total_recipients")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  
+  logs            EmailDeliveryLog[]
+
+  @@map("email_campaigns")
+}
+
+model EmailDeliveryLog {
+  id              String              @id @default(uuid()) @db.Uuid
+  campaignId      String              @map("campaign_id") @db.Uuid
+  email           String
+  status          EmailDeliveryStatus @default(PENDING)
+  errorReason     String?             @db.Text @map("error_reason")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  campaign        EmailCampaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([email])
+  @@map("email_delivery_logs")
+}
+
 model StudentLessonAccess {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @map("user_id") @db.Uuid

@@ -15,9 +15,9 @@ describe('EmailsService', () => {
   let service: EmailsService;
   let setImmediateSpy: jest.SpyInstance;
   let prismaService: {
-    user: {
-      findMany: jest.Mock;
-    };
+    user: { findMany: jest.Mock };
+    emailCampaign: { create: jest.Mock; findMany: jest.Mock };
+    emailDeliveryLog: { updateMany: jest.Mock };
   };
   let sendMailMock: jest.Mock;
   const flushBackgroundJob = async () => {
@@ -37,6 +37,13 @@ describe('EmailsService', () => {
     prismaService = {
       user: {
         findMany: jest.fn(),
+      },
+      emailCampaign: {
+        create: jest.fn().mockResolvedValue({ id: 'campaign-1' }),
+        findMany: jest.fn(),
+      },
+      emailDeliveryLog: {
+        updateMany: jest.fn(),
       },
     };
 

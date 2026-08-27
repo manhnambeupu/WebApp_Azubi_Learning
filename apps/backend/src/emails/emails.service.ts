@@ -27,6 +27,7 @@ type BulkSendPayload = {
   htmlContent: string;
   recipients: EmailRecipient[];
   transporter: Transporter;
+  campaignId: string;
 };
 
 export type SendBulkEmailAcceptedResponse = {
@@ -56,11 +57,23 @@ export class EmailsService {
 
     const htmlContent = this.toEmailHtml(subject, markdownContent);
     const transporter = this.getTransporter();
+
+    const campaign = await this.prisma.emailCampaign.create({
+      data: {
+        subject,
+        totalRecipients: recipients.length,
+        logs: {
+          create: recipients.map((r) => ({ email: r.email, status: 'PENDING' })),
+        },
+      },
+    });
+
     this.startBackgroundSend({
       subject,
       htmlContent,
       recipients,
       transporter,
+      campaignId: campaign.id,
     });
 
     return {
@@ -88,12 +101,22 @@ export class EmailsService {
           subject: payload.subject,
           html: payload.htmlContent,
         });
+
+        await this.prisma.emailDeliveryLog.updateMany({
+          where: { campaignId: payload.campaignId, email: recipient.email },
+          data: { status: 'SUCCESS' },
+        });
         sentCount += 1;
       } catch (error: unknown) {
         const reason = this.extractErrorMessage(error);
         failedRecipients.push({
           email: recipient.email,
           reason,
+        });
+
+        await this.prisma.emailDeliveryLog.updateMany({
+          where: { campaignId: payload.campaignId, email: recipient.email },
+          data: { status: 'FAILED', errorReason: reason },
         });
         this.logger.warn(`Gui email that bai cho ${recipient.email}: ${reason}`);
       }
@@ -149,6 +172,22 @@ export class EmailsService {
     }
 
     return Array.from(unique);
+  }
+
+  async getCampaignHistory() {
+    return this.prisma.emailCampaign.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      include: {
+        _count: {
+          select: { logs: { where: { status: 'SUCCESS' } } },
+        },
+        logs: {
+          where: { status: 'FAILED' },
+          select: { email: true, errorReason: true },
+        },
+      },
+    });
   }
 
   private toEmailHtml(subject: string, markdownContent: string): string {

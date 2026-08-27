@@ -15,6 +15,8 @@ import { useGetStudents } from "@/hooks/use-students";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 
+import { EmailsHistory } from "@/components/admin/emails-history";
+
 const parseCustomEmails = (value: string): string[] => {
   const unique = new Set<string>();
   for (const token of value.split(/[\n,;]+/)) {
@@ -202,13 +204,16 @@ export default function AdminEmailsPage() {
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
                 </div>
               ) : (
-                <div className="flex h-full min-h-[240px] items-center justify-center text-center text-xs font-bold text-[#a0a0a0] dark:text-slate-500">
-                  Nội dung email xem trước sẽ xuất hiện tại đây khi bạn nhập markdown.
+                <div className="flex h-full items-center justify-center text-sm font-bold text-[#a0a0a0] dark:text-slate-500">
+                  Nội dung email sẽ hiển thị ở đây
                 </div>
               )}
             </div>
           </div>
         </div>
+      </div>
+      <div className="mx-auto max-w-6xl mt-8">
+        <EmailsHistory />
       </div>
     </section>
   );

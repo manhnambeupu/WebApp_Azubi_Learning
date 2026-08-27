@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Header,
   HttpCode,
   HttpStatus,
@@ -46,5 +47,11 @@ export class EmailsController {
     @Body() dto: SendBulkEmailDto,
   ): Promise<SendBulkEmailAcceptedResponse> {
     return this.emailsService.sendBulk(dto);
+  }
+
+  @Get('history')
+  @ApiOperation({ summary: 'Lay lich su cac chien dich gui email hang loat' })
+  async getCampaignHistory() {
+    return this.emailsService.getCampaignHistory();
   }
 }
