@@ -178,7 +178,7 @@ export default function Home() {
             priority
           />
           <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
-            Ôn thi Abschlussprüfung ngành Gastronomie — Miễn phí, bằng tiếng Việt
+            Ôn thi Abschlussprüfung ngành Fachkraft für Gastronomie 
           </h1>
           <p className="text-xl text-white/90 max-w-3xl leading-relaxed">
             Bài tập tự luyện + gia sư kèm riêng dành cho Azubi Việt Nam tại Đức. Soạn bởi
@@ -189,7 +189,7 @@ export default function Home() {
           </Link>
           <div className="flex flex-wrap justify-center gap-3 mt-4">
             <span className="lingo-badge bg-white/20 text-white border-white/30">
-              🎓 100% miễn phí
+              🎓 Bài tập tự luyện bám sát đề thi 
             </span>
             <span className="lingo-badge bg-white/20 text-white border-white/30">
               📱 Online 24/7

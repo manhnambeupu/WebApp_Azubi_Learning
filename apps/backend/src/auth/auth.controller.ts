@@ -49,7 +49,7 @@ export class AuthController {
   @Post('login')
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
   @Header('Pragma', 'no-cache')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Đăng nhập' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Đăng nhập thành công.' })

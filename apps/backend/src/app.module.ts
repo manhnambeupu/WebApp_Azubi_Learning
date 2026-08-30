@@ -21,8 +21,19 @@ import { StudentLessonsModule } from './student-lessons/student-lessons.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
+          name: 'default',
           ttl: 60000,
-          limit: 100,
+          limit: 150, // 150 req/phut/IP — doc bai hoc, cau hoi, danh muc
+        },
+        {
+          name: 'write',
+          ttl: 60000,
+          limit: 30, // 30 req/phut/IP — nop bai, tao/sua du lieu
+        },
+        {
+          name: 'auth',
+          ttl: 60000,
+          limit: 10, // 10 req/phut/IP — dang nhap, brute-force protection
         },
       ],
     }),

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEmailsHistory } from "@/hooks/use-emails-history";
+import { useEmailsHistory, useClearEmailsHistory } from "@/hooks/use-emails-history";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Trash2 } from "lucide-react";
 
 export function EmailsHistory() {
   const { data, isLoading } = useEmailsHistory();
+  const { mutate: clearHistory, isPending: isClearing } = useClearEmailsHistory();
 
   if (isLoading) {
     return (
@@ -21,9 +23,24 @@ export function EmailsHistory() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-extrabold text-[#3c3c3c] dark:text-white mt-8">
-        Lịch sử gửi (50 chiến dịch gần nhất)
-      </h3>
+      <div className="mt-8 flex items-center justify-between">
+        <h3 className="text-xl font-extrabold text-[#3c3c3c] dark:text-white">
+          Lịch sử gửi (50 lần gửi gần nhất)
+        </h3>
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử gửi email không?")) {
+              clearHistory();
+            }
+          }}
+          disabled={isClearing}
+          className="rounded-xl border-2 border-[#ff4b4b]/30 bg-[#ffebee] text-sm font-bold text-[#ff4b4b] hover:bg-[#ff4b4b]/20 dark:bg-[#ff4b4b]/10"
+        >
+          {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+          Xóa lịch sử
+        </Button>
+      </div>
       {data.map((campaign: any) => {
         const successCount = campaign._count?.logs || 0;
         const total = campaign.totalRecipients;
@@ -41,8 +58,8 @@ export function EmailsHistory() {
               <h4 className="font-bold text-[#3c3c3c] dark:text-white">
                 {campaign.subject}
               </h4>
-              <span className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
-                {new Date(campaign.createdAt).toLocaleString("vi-VN")}
+              <span suppressHydrationWarning className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
+                {new Date(campaign.createdAt).toLocaleString("de-DE")}
               </span>
             </div>
             

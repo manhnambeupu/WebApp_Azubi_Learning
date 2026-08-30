@@ -190,6 +190,12 @@ export class EmailsService {
     });
   }
 
+  async clearCampaignHistory() {
+    await this.prisma.emailDeliveryLog.deleteMany({});
+    await this.prisma.emailCampaign.deleteMany({});
+    return { success: true };
+  }
+
   private toEmailHtml(subject: string, markdownContent: string): string {
     const contentHtml = this.renderMarkdownToHtml(markdownContent);
 

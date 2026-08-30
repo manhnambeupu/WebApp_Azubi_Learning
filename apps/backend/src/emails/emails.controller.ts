@@ -14,6 +14,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -32,6 +33,7 @@ export class EmailsController {
   constructor(private readonly emailsService: EmailsService) {}
 
   @Post('send-bulk')
+  @Throttle({ write: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.ACCEPTED)
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
   @Header('Pragma', 'no-cache')
@@ -50,8 +52,15 @@ export class EmailsController {
   }
 
   @Get('history')
-  @ApiOperation({ summary: 'Lay lich su cac chien dich gui email hang loat' })
+  @ApiOperation({ summary: 'Lay lich su cac lan gui email all' })
   async getCampaignHistory() {
     return this.emailsService.getCampaignHistory();
+  }
+
+  @Post('history/clear')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xoa toan bo lich su gui email' })
+  async clearCampaignHistory() {
+    return this.emailsService.clearCampaignHistory();
   }
 }

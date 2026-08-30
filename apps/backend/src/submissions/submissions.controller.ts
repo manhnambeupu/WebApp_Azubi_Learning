@@ -18,6 +18,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { Throttle } from '@nestjs/throttler';
 import { SubmitQuizDto } from './dto/submit-quiz.dto';
 import { SubmissionsService } from './submissions.service';
 
@@ -30,6 +31,7 @@ export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
   @Post()
+  @Throttle({ write: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Nộp bài quiz' })
   @ApiParam({ name: 'lessonId', description: 'Lesson ID (UUID)' })
   @ApiResponse({ status: 201, description: 'Nộp bài thành công.' })
