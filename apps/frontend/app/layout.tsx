@@ -108,12 +108,21 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     siteName: "AzubiVN",
     url: "/",
+    images: [
+      {
+        url: "/images/bg-login.jpg",
+        width: 1200,
+        height: 630,
+        alt: "AzubiVN - Nền tảng học tập Azubi",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "AzubiVN - Nền tảng học tập Azubi",
     description:
       "Nền tảng phi lợi nhuận hỗ trợ người Việt học và chuẩn bị Ausbildung tại Đức.",
+    images: ["/images/bg-login.jpg"],
   },
 };
 
