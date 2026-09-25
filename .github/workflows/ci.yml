@@ -30,7 +30,7 @@ jobs:
       MINIO_ENDPOINT: 127.0.0.1
     steps:
       - name: Start MinIO
-        run: docker run -d -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin minio/minio:latest server /data --console-address ":9001"
+        run: docker run -d -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin quay.io/minio/minio:latest server /data --console-address ":9001"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
