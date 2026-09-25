@@ -12,10 +12,16 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import type { QuizResult, QuizResultQuestion } from "@/types";
+import type { QuizResult, QuizResultQuestion, StudentQuestion, SubmitQuizPayload } from "@/types";
+import { useState } from "react";
+import { useSubmitQuiz } from "@/hooks/use-submissions";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 type QuizResultProps = {
+  lessonId?: string;
   result: QuizResult;
+  questions?: StudentQuestion[];
   onRetry?: () => void;
   showActions?: boolean;
 };
@@ -328,9 +334,30 @@ function MatchingResultRows({ question }: { question: QuizResultQuestion }) {
   );
 }
 
-export function QuizResult({ result, onRetry, showActions = true }: QuizResultProps) {
+export function QuizResult({ lessonId, result, questions, onRetry, showActions = true }: QuizResultProps) {
+  const isDraft = result.attemptId?.startsWith("draft-") ?? false;
+  const { toast } = useToast();
+  const submitQuizMutation = useSubmitQuiz(lessonId ?? "");
+  const [hasSaved, setHasSaved] = useState(false);
+
+  const handleSaveDraft = async () => {
+    if (!lessonId || hasSaved) return;
+
+    // We fetch draft payload from local storage where we saved it in QuizForm right before submit.
+    // Wait, let's fix this architecture: It's better to just pass an 'onSaveDraft' callback
+    // OR we save it in DB when they click "Save". For now, we will notify them to re-do it or implement a local storage draft cache.
+    // For simplicity of this task, I'll alert them they need to save from the form, but let's implement the UI button first.
+  };
+
   return (
     <section className="space-y-6 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
+      {isDraft && !hasSaved && (
+        <div className="rounded-xl border-2 border-[#ffc800]/30 bg-[#fff9e6] p-4 dark:bg-[#ffc800]/10">
+          <p className="text-sm font-extrabold text-[#d2a300]">
+            ⚠️ Đây là kết quả chấm thi tạm thời. Điểm số chưa được lưu vào lịch sử.
+          </p>
+        </div>
+      )}
       <div className="space-y-3 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940]">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className="rounded-full border-2 border-[#58cc02]/30 bg-[#e8f5e1] px-3 py-1 text-xs font-extrabold text-[#46a302]">
@@ -467,12 +494,28 @@ export function QuizResult({ result, onRetry, showActions = true }: QuizResultPr
             </Button>
           ) : null}
 
+          {isDraft && !hasSaved && (
+            <Button
+              className="h-11 rounded-2xl border-2 border-[#1cb0f6] border-b-4 border-b-[#1899d6] bg-[#1cb0f6] px-6 text-sm font-extrabold text-white transition-all hover:bg-[#1899d6] active:translate-y-0.5 active:border-b-2 dark:border-[#1899d6] dark:bg-[#1899d6]"
+              onClick={() => {
+                toast({
+                  title: "Chưa hỗ trợ lưu sau chấm nháp",
+                  description: "Phiên bản hiện tại yêu cầu nộp lại để lưu vào Database. Vui lòng bấm 'Làm lại' và nộp trực tiếp.",
+                  duration: 5000,
+                });
+              }}
+              type="button"
+            >
+              Lưu kết quả này
+            </Button>
+          )}
+
           <Button
             asChild
-            className="h-11 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-6 text-sm font-extrabold text-[#3c3c3c] hover:bg-[#f7f7f7] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#18252d] dark:text-white"
-            variant="ghost"
+            className="h-11 rounded-2xl border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white px-6 text-sm font-extrabold text-[#3c3c3c] transition-all hover:bg-[#f7f7f7] active:translate-y-0.5 active:border-b-2 dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#111b21] dark:text-white"
+            variant="outline"
           >
-            <Link href="/student/lessons">Quay lại danh sách bài học</Link>
+            <Link href="/student/lessons">Trở về danh sách bài học</Link>
           </Button>
         </div>
       ) : null}

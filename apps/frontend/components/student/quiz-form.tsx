@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { CountdownTimer } from "@/components/student/countdown-timer";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -38,6 +39,7 @@ import type { QuizResult, StudentQuestion, SubmitQuizPayload } from "@/types";
 type QuizFormProps = {
   lessonId: string;
   questions: StudentQuestion[];
+  timeLimitMinutes?: number | null;
   onSubmitted: (result: QuizResult) => void;
 };
 
@@ -108,7 +110,7 @@ const isQuestionAnswered = (
   return (selectedAnswerIds?.length ?? 0) > 0;
 };
 
-export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
+export function QuizForm({ lessonId, questions, timeLimitMinutes, onSubmitted }: QuizFormProps) {
   const { toast } = useToast();
   const submitQuizMutation = useSubmitQuiz(lessonId);
 
@@ -357,8 +359,8 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     setConfirmOpen(true);
   };
 
-  const handleSubmit = async () => {
-    if (!isFullyAnswered) {
+  const handleSubmit = async (saveResult: boolean = true) => {
+    if (!isFullyAnswered && saveResult) {
       return;
     }
 
@@ -375,6 +377,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       }
 
       const payload: SubmitQuizPayload = {
+        saveResult,
         answers: gradableQuestions.map((question) => {
           if (question.type === "ORDERING") {
             return {
@@ -413,10 +416,12 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
       setConfirmOpen(false);
       localStorage.removeItem(draftKey);
       onSubmitted(result);
-      toast({
-        title: "Nộp bài thành công",
-        description: `Bạn đã hoàn thành lần nộp #${result.attemptNumber}.`,
-      });
+      if (saveResult) {
+        toast({
+          title: "Nộp bài thành công",
+          description: `Bạn đã hoàn thành lần nộp #${result.attemptNumber}.`,
+        });
+      }
     } catch (error) {
       const isAxiosNetworkError =
         axios.isAxiosError(error) &&
@@ -440,8 +445,24 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
     }
   };
 
+  const handleTimeUp = () => {
+    toast({
+      title: "⏳ Đã hết thời gian làm bài!",
+      description: "Hệ thống đang tự động chấm điểm bài làm của bạn...",
+    });
+    // Jitter: 0-3 seconds random delay to prevent DDoS from simultaneous submissions
+    const jitter = Math.floor(Math.random() * 3000);
+    setTimeout(() => {
+      handleSubmit(false);
+    }, jitter);
+  };
+
   return (
-    <section className="space-y-6 rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
+    <section className="space-y-6">
+      {timeLimitMinutes && timeLimitMinutes > 0 && (
+        <CountdownTimer timeLimitMinutes={timeLimitMinutes} onTimeUp={handleTimeUp} />
+      )}
+      <div className="rounded-[24px] border-2 border-[#e5e5e5] border-b-4 border-b-[#d4d4d4] bg-white p-6 shadow-sm dark:border-[#2b3940] dark:border-b-[#1c272d] dark:bg-[#131f24] sm:p-8">
       <div className="space-y-4 border-b-2 border-[#e5e5e5] pb-6 dark:border-[#2b3940]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
@@ -810,6 +831,7 @@ export function QuizForm({ lessonId, questions, onSubmitted }: QuizFormProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </section>
   );
 }

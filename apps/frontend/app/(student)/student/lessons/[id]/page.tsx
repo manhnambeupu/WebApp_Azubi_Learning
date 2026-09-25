@@ -364,14 +364,17 @@ export default function StudentLessonDetailPage() {
           <div className="transition-all duration-300">
             {submittedResult ? (
               <QuizResult
+                lessonId={lessonId}
                 onRetry={() => setSubmittedResult(null)}
                 result={submittedResult}
+                questions={lesson.questions}
               />
             ) : (
               <QuizForm
                 lessonId={lessonId}
                 onSubmitted={setSubmittedResult}
                 questions={lesson.questions}
+                timeLimitMinutes={lesson.timeLimit}
               />
             )}
           </div>

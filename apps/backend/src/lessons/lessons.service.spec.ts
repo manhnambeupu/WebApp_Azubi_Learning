@@ -147,7 +147,8 @@ describe('LessonsService', () => {
         summary: baseDto.summary,
         contentMd: baseDto.contentMd,
         categoryId: baseDto.categoryId,
-        isPrivate: false,
+        isPrivate: baseDto.isPrivate ?? false,
+        ...(baseDto.timeLimit !== undefined ? { timeLimit: baseDto.timeLimit } : {}),
       },
       include: {
         category: {

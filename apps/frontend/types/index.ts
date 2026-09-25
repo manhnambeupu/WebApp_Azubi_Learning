@@ -116,6 +116,7 @@ export type LessonDetail = {
   contentMd: string;
   imageUrl: string | null;
   isPrivate: boolean;
+  timeLimit: number | null;
   categoryId: string;
   createdAt: string;
   updatedAt: string;
@@ -186,6 +187,7 @@ export type StudentLessonDetail = {
   summary: string;
   contentMd: string;
   imageUrl: string | null;
+  timeLimit: number | null;
   category: Pick<Category, "id" | "name">;
   files: LessonFile[];
   questions: StudentQuestion[];
@@ -193,6 +195,7 @@ export type StudentLessonDetail = {
 };
 
 export type SubmitQuizPayload = {
+  saveResult?: boolean;
   answers: {
     questionId: string;
     answerIds: string[];

@@ -123,6 +123,7 @@ export class LessonsService {
         contentMd: dto.contentMd,
         categoryId: dto.categoryId,
         isPrivate: dto.isPrivate ?? false,
+        ...(dto.timeLimit !== undefined ? { timeLimit: dto.timeLimit } : {}),
         ...(imageUrl ? { imageUrl } : {}),
       },
       include: {
@@ -187,6 +188,7 @@ export class LessonsService {
         ...(dto.contentMd !== undefined ? { contentMd: dto.contentMd } : {}),
         ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
         ...(dto.isPrivate !== undefined ? { isPrivate: dto.isPrivate } : {}),
+        ...(dto.timeLimit !== undefined ? { timeLimit: dto.timeLimit } : {}),
         ...(imageUrl ? { imageUrl } : {}),
       },
       include: {

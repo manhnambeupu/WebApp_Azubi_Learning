@@ -69,6 +69,7 @@ export class StudentLessonsService {
           summary: true,
           contentMd: true,
           imageUrl: true,
+          timeLimit: true,
           category: {
             select: {
               id: true,

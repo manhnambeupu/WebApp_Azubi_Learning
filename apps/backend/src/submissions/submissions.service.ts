@@ -111,6 +111,17 @@ export class SubmissionsService {
     const correctCount = this.calculateCorrectCount(evaluationsByQuestion);
     const score = this.calculateScore(correctCount, totalQuestions);
 
+    if (dto.saveResult === false) {
+      return {
+        attemptId: 'draft-' + Date.now(),
+        attemptNumber: 0,
+        score,
+        totalQuestions,
+        correctCount,
+        questions: questionsResult,
+      };
+    }
+
     const lastAttempt = await this.prisma.lessonAttempt.findFirst({
       where: {
         userId,

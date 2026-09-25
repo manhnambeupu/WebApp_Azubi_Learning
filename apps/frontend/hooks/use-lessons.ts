@@ -24,6 +24,7 @@ export type LessonMutationPayload = {
   contentMd: string;
   categoryId: string;
   isPrivate: boolean;
+  timeLimit?: number | null;
   imageFile?: File | null;
 };
 
@@ -39,6 +40,13 @@ const buildLessonFormData = (payload: LessonMutationPayload): FormData => {
   formData.append("contentMd", payload.contentMd);
   formData.append("categoryId", payload.categoryId);
   formData.append("isPrivate", String(payload.isPrivate));
+  
+  if (payload.timeLimit === null || payload.timeLimit === undefined) {
+    formData.append("timeLimit", "null");
+  } else {
+    formData.append("timeLimit", String(payload.timeLimit));
+  }
+
   if (payload.imageFile) {
     formData.append("image", payload.imageFile);
   }

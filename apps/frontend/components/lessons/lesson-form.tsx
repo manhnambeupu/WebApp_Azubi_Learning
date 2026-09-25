@@ -77,6 +77,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
   const [contentMd, setContentMd] = useState(lesson?.contentMd ?? "");
   const [categoryId, setCategoryId] = useState(lesson?.categoryId ?? "");
   const [isPrivate, setIsPrivate] = useState(lesson?.isPrivate ?? false);
+  const [timeLimit, setTimeLimit] = useState<number | "">(lesson?.timeLimit ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [localImagePreview, setLocalImagePreview] = useState<string | null>(null);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
@@ -100,6 +101,7 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
     setContentMd(lesson.contentMd);
     setCategoryId(lesson.categoryId);
     setIsPrivate(lesson.isPrivate);
+    setTimeLimit(lesson.timeLimit ?? "");
     setImageFile(null);
     setLocalImagePreview(null);
   }, [lesson]);
@@ -229,13 +231,14 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
       return;
     }
 
-    const payload: LessonMutationPayload = {
+    const payload: LessonMutationPayload & { timeLimit?: number | null } = {
       title: normalizedTitle,
       summary: normalizedSummary,
       contentMd: normalizedContent,
       categoryId,
       isPrivate,
       imageFile: imageFile ?? undefined,
+      timeLimit: timeLimit === "" ? null : Number(timeLimit),
     };
 
     try {
@@ -363,6 +366,51 @@ export function LessonForm({ mode, lesson }: LessonFormProps) {
                 <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
                   Bật tùy chọn này để bài học chỉ hiển thị với học viên đã được cấp quyền truy cập.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border-2 border-[#e5e5e5] bg-[#f7f7f7] p-4 dark:border-[#2b3940] dark:bg-[#111b21]">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={timeLimit !== ""}
+                className="mt-0.5 h-5 w-5 border-2 border-[#e5e5e5] data-[state=checked]:border-[#58cc02] data-[state=checked]:bg-[#58cc02] data-[state=checked]:text-white dark:border-[#2b3940]"
+                id="lesson-has-time-limit"
+                onCheckedChange={(checked) => setTimeLimit(checked === true ? 45 : "")}
+              />
+              <div className="w-full space-y-3">
+                <div className="space-y-0.5">
+                  <Label
+                    className="cursor-pointer text-xs font-extrabold text-[#3c3c3c] dark:text-white"
+                    htmlFor="lesson-has-time-limit"
+                  >
+                    Bật giới hạn thời gian làm bài thi (Đề thi)
+                  </Label>
+                  <p className="text-[11px] font-bold text-[#777777] dark:text-slate-400">
+                    Khi hết thời gian, hệ thống sẽ tự động chấm điểm bài làm của học sinh.
+                  </p>
+                </div>
+
+                {timeLimit !== "" && (
+                  <div className="animate-in fade-in slide-in-from-top-2 space-y-2">
+                    <Label
+                      className="text-xs font-extrabold text-[#3c3c3c] dark:text-white"
+                      htmlFor="lesson-time-limit-input"
+                    >
+                      Số phút
+                    </Label>
+                    <Input
+                      id="lesson-time-limit-input"
+                      type="number"
+                      min="1"
+                      className={fieldClassName}
+                      value={timeLimit}
+                      onChange={(e) =>
+                        setTimeLimit(e.target.value === "" ? 1 : Number(e.target.value))
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

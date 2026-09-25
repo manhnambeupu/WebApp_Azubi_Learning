@@ -1,9 +1,19 @@
 import { Type } from 'class-transformer';
-import { IsArray, ValidateNested } from 'class-validator';
+import { IsArray, ValidateNested, IsBoolean, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { SubmitAnswerDto } from './submit-answer.dto';
 
 export class SubmitQuizDto {
+  @ApiProperty({
+    type: Boolean,
+    required: false,
+    default: true,
+    description: 'Chỉ định xem có lưu kết quả nộp bài vào Database không (Dùng cho Chấm nháp).',
+  })
+  @IsOptional()
+  @IsBoolean()
+  saveResult?: boolean;
+
   @ApiProperty({
     type: [SubmitAnswerDto],
     example: [

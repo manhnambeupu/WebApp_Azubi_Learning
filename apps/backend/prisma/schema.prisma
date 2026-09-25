@@ -67,6 +67,7 @@ model Lesson {
   contentMd        String                @map("content_md")
   imageUrl         String?               @map("image_url")
   isPrivate        Boolean               @default(false) @map("is_private")
+  timeLimit        Int?                  @map("time_limit") // Thời gian làm bài tính bằng phút
   categoryId       String                @map("category_id") @db.Uuid
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt @map("updated_at")
